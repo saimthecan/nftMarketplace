@@ -1,0 +1,46 @@
+type Initialized @entity(immutable: true) {
+  id: Bytes!
+  version: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTBid @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  bidder: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTListedForAuction @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  seller: Bytes! # address
+  startingPrice: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTListedForSale @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  seller: Bytes! # address
+  price: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTSold @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  buyer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
