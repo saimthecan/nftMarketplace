@@ -169,7 +169,7 @@ export const Navbar = () => {
           </Link>
           <Link
             as={RouterLink}
-            to="/vote"
+            to="/nftmarketplace"
             mr={isMobile ? 2.5 : 5}
             color="rgba(0, 0, 0, 0.8)"
             fontWeight="medium"
