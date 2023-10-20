@@ -6,7 +6,7 @@ dataSources:
     name: Contract
     network: goerli
     source:
-      address: "0x4E1fB76839f04365A1b5DB2627774f4143efBc22"
+      address: "0xE96196D5F60701d7C578712e7f758162380CF1E8"
       abi: Contract
       startBlock: 0
     mapping:
@@ -25,12 +25,12 @@ dataSources:
       eventHandlers:
         - event: Initialized(uint8)
           handler: handleInitialized
-        - event: NFTBid(indexed uint256,indexed address,uint256)
+        - event: NFTBid(indexed uint256,indexed address,uint256,address,uint256)
           handler: handleNFTBid
-        - event: NFTListedForAuction(indexed uint256,indexed address,uint256)
+        - event: NFTListedForAuction(indexed uint256,indexed address,uint256,address,uint256)
           handler: handleNFTListedForAuction
-        - event: NFTListedForSale(indexed uint256,indexed address,uint256)
+        - event: NFTListedForSale(indexed uint256,indexed address,uint256,address,uint256)
           handler: handleNFTListedForSale
-        - event: NFTSold(indexed uint256,indexed address)
+        - event: NFTSold(indexed uint256,indexed address,address,uint256)
           handler: handleNFTSold
       file: ./src/contract.ts

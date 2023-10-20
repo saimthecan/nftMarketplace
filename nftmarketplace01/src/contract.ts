@@ -33,6 +33,8 @@ export function handleNFTBid(event: NFTBidEvent): void {
   entity.Contract_id = event.params.id
   entity.bidder = event.params.bidder
   entity.amount = event.params.amount
+  entity.contractAddress = event.params.contractAddress
+  entity.tokenId = event.params.tokenId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -50,6 +52,8 @@ export function handleNFTListedForAuction(
   entity.Contract_id = event.params.id
   entity.seller = event.params.seller
   entity.startingPrice = event.params.startingPrice
+  entity.contractAddress = event.params.contractAddress
+  entity.tokenId = event.params.tokenId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -65,6 +69,8 @@ export function handleNFTListedForSale(event: NFTListedForSaleEvent): void {
   entity.Contract_id = event.params.id
   entity.seller = event.params.seller
   entity.price = event.params.price
+  entity.contractAddress = event.params.contractAddress
+  entity.tokenId = event.params.tokenId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -79,6 +85,8 @@ export function handleNFTSold(event: NFTSoldEvent): void {
   )
   entity.Contract_id = event.params.id
   entity.buyer = event.params.buyer
+  entity.contractAddress = event.params.contractAddress
+  entity.tokenId = event.params.tokenId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

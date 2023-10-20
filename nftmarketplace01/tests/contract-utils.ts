@@ -26,7 +26,9 @@ export function createInitializedEvent(version: i32): Initialized {
 export function createNFTBidEvent(
   id: BigInt,
   bidder: Address,
-  amount: BigInt
+  amount: BigInt,
+  contractAddress: Address,
+  tokenId: BigInt
 ): NFTBid {
   let nftBidEvent = changetype<NFTBid>(newMockEvent())
 
@@ -41,6 +43,18 @@ export function createNFTBidEvent(
   nftBidEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
   )
+  nftBidEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftBidEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
 
   return nftBidEvent
 }
@@ -48,7 +62,9 @@ export function createNFTBidEvent(
 export function createNFTListedForAuctionEvent(
   id: BigInt,
   seller: Address,
-  startingPrice: BigInt
+  startingPrice: BigInt,
+  contractAddress: Address,
+  tokenId: BigInt
 ): NFTListedForAuction {
   let nftListedForAuctionEvent = changetype<NFTListedForAuction>(newMockEvent())
 
@@ -66,6 +82,18 @@ export function createNFTListedForAuctionEvent(
       ethereum.Value.fromUnsignedBigInt(startingPrice)
     )
   )
+  nftListedForAuctionEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftListedForAuctionEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
 
   return nftListedForAuctionEvent
 }
@@ -73,7 +101,9 @@ export function createNFTListedForAuctionEvent(
 export function createNFTListedForSaleEvent(
   id: BigInt,
   seller: Address,
-  price: BigInt
+  price: BigInt,
+  contractAddress: Address,
+  tokenId: BigInt
 ): NFTListedForSale {
   let nftListedForSaleEvent = changetype<NFTListedForSale>(newMockEvent())
 
@@ -88,11 +118,28 @@ export function createNFTListedForSaleEvent(
   nftListedForSaleEvent.parameters.push(
     new ethereum.EventParam("price", ethereum.Value.fromUnsignedBigInt(price))
   )
+  nftListedForSaleEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftListedForSaleEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
 
   return nftListedForSaleEvent
 }
 
-export function createNFTSoldEvent(id: BigInt, buyer: Address): NFTSold {
+export function createNFTSoldEvent(
+  id: BigInt,
+  buyer: Address,
+  contractAddress: Address,
+  tokenId: BigInt
+): NFTSold {
   let nftSoldEvent = changetype<NFTSold>(newMockEvent())
 
   nftSoldEvent.parameters = new Array()
@@ -102,6 +149,18 @@ export function createNFTSoldEvent(id: BigInt, buyer: Address): NFTSold {
   )
   nftSoldEvent.parameters.push(
     new ethereum.EventParam("buyer", ethereum.Value.fromAddress(buyer))
+  )
+  nftSoldEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftSoldEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
   )
 
   return nftSoldEvent

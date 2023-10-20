@@ -11,6 +11,8 @@ type NFTBid @entity(immutable: true) {
   Contract_id: BigInt! # uint256
   bidder: Bytes! # address
   amount: BigInt! # uint256
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -21,6 +23,8 @@ type NFTListedForAuction @entity(immutable: true) {
   Contract_id: BigInt! # uint256
   seller: Bytes! # address
   startingPrice: BigInt! # uint256
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -31,6 +35,8 @@ type NFTListedForSale @entity(immutable: true) {
   Contract_id: BigInt! # uint256
   seller: Bytes! # address
   price: BigInt! # uint256
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -40,6 +46,8 @@ type NFTSold @entity(immutable: true) {
   id: Bytes!
   Contract_id: BigInt! # uint256
   buyer: Bytes! # address
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
