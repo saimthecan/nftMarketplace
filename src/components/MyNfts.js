@@ -81,7 +81,7 @@ const checkApproval = async (contractAddress, tokenId) => {
   const sellNFT = async (nft, index) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
-
+console.log(nft);
     // Onay durumunu kontrol edin
     const isApproved = await checkApproval(contractAddress, tokenId);
     if (!isApproved) {

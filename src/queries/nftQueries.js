@@ -14,3 +14,14 @@ export const GET_LISTED_NFTS = gql`
     }
   }
 `;
+
+export const GET_SOLD_NFTS = gql`
+  query {
+    nftsolds {
+      buyer
+      contractAddress
+      tokenId
+      Contract_id
+    }
+  }
+`;
