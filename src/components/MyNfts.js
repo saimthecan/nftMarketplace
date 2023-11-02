@@ -14,7 +14,7 @@ const MyNfts = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
   const [enteredQuantities, setEnteredQuantities] = useState({});
   const wallet = useSelector((state) => state.wallet.account);
-  const CONTRACT_ADDRESS = "0xE96196D5F60701d7C578712e7f758162380CF1E8";
+  const CONTRACT_ADDRESS = "0x8A5759fE86420a33b23FD386b03829aBE938567a";
   const settings = {
     apiKey: "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV",
     network: Network.ETH_GOERLI,
