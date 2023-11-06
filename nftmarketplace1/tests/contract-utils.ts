@@ -2,6 +2,8 @@ import { newMockEvent } from "matchstick-as"
 import { ethereum, BigInt, Address } from "@graphprotocol/graph-ts"
 import {
   Initialized,
+  NFTAuctionCancelled,
+  NFTAuctionFinished,
   NFTBid,
   NFTListedForAuction,
   NFTListedForSale,
@@ -21,6 +23,70 @@ export function createInitializedEvent(version: i32): Initialized {
   )
 
   return initializedEvent
+}
+
+export function createNFTAuctionCancelledEvent(
+  id: BigInt,
+  seller: Address,
+  contractAddress: Address,
+  tokenId: BigInt
+): NFTAuctionCancelled {
+  let nftAuctionCancelledEvent = changetype<NFTAuctionCancelled>(newMockEvent())
+
+  nftAuctionCancelledEvent.parameters = new Array()
+
+  nftAuctionCancelledEvent.parameters.push(
+    new ethereum.EventParam("id", ethereum.Value.fromUnsignedBigInt(id))
+  )
+  nftAuctionCancelledEvent.parameters.push(
+    new ethereum.EventParam("seller", ethereum.Value.fromAddress(seller))
+  )
+  nftAuctionCancelledEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftAuctionCancelledEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return nftAuctionCancelledEvent
+}
+
+export function createNFTAuctionFinishedEvent(
+  id: BigInt,
+  buyer: Address,
+  contractAddress: Address,
+  tokenId: BigInt
+): NFTAuctionFinished {
+  let nftAuctionFinishedEvent = changetype<NFTAuctionFinished>(newMockEvent())
+
+  nftAuctionFinishedEvent.parameters = new Array()
+
+  nftAuctionFinishedEvent.parameters.push(
+    new ethereum.EventParam("id", ethereum.Value.fromUnsignedBigInt(id))
+  )
+  nftAuctionFinishedEvent.parameters.push(
+    new ethereum.EventParam("buyer", ethereum.Value.fromAddress(buyer))
+  )
+  nftAuctionFinishedEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftAuctionFinishedEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return nftAuctionFinishedEvent
 }
 
 export function createNFTBidEvent(

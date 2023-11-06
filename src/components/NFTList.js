@@ -5,7 +5,7 @@ import client from "../config/apolloClient";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { marketplace } from "./marketplace";  // İlgili import
+import { marketplace } from "./marketplace";
 import { Web3Provider } from "@ethersproject/providers";
 
 
@@ -24,7 +24,7 @@ const NFTList = () => {
   const provider = new Web3Provider(window.ethereum);
   const signer = provider.getSigner();
 
-  const CONTRACT_ADDRESS = "0x8A5759fE86420a33b23FD386b03829aBE938567a";
+  const CONTRACT_ADDRESS = "0xDaC2C5D1BD3265740Ed7bdFc5b8948Cc41aC4972";
 
    const getNFTMetadata = useCallback(
     async (contractAddress, tokenId) => {

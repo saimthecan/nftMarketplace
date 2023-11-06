@@ -6,6 +6,28 @@ type Initialized @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+type NFTAuctionCancelled @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  seller: Bytes! # address
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTAuctionFinished @entity(immutable: true) {
+  id: Bytes!
+  Contract_id: BigInt! # uint256
+  buyer: Bytes! # address
+  contractAddress: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type NFTBid @entity(immutable: true) {
   id: Bytes!
   Contract_id: BigInt! # uint256
