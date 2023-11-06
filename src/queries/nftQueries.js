@@ -25,3 +25,26 @@ export const GET_SOLD_NFTS = gql`
     }
   }
 `;
+
+export const GET_LISTED_NFTS_FOR_AUCTION = gql`
+  query GetListedNftsForAuction {
+    nftlistedForAuctions {
+      tokenId
+      startingPrice
+      seller
+      contractAddress
+      Contract_id
+    }
+  }
+`;
+
+export const GET_FINISHED_NFT_AUCTIONS = gql`
+  query GetFinishedNftAuctions {
+    nftauctionFinisheds {
+      buyer
+      contractAddress
+      tokenId
+      Contract_id
+    }
+  }
+`;

@@ -178,7 +178,7 @@ export const Navbar = () => {
           </Link>
           <Link
             as={RouterLink}
-            to="/resetvote"
+            to="/nftmarketplace"
             color="rgba(0, 0, 0, 0.8)"
             fontWeight="medium"
           >
