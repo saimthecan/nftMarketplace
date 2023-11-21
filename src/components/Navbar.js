@@ -178,11 +178,11 @@ export const Navbar = () => {
           </Link>
           <Link
             as={RouterLink}
-            to="/nftmarketplace"
+            to="/nftauction"
             color="rgba(0, 0, 0, 0.8)"
             fontWeight="medium"
           >
-            My Nfts
+            Auctions
           </Link>
         </Box>
         <Spacer />

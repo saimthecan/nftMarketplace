@@ -47,6 +47,8 @@ type NFTListedForAuction @entity(immutable: true) {
   startingPrice: BigInt! # uint256
   contractAddress: Bytes! # address
   tokenId: BigInt! # uint256
+  auctionStartTime: BigInt! # uint256
+  auctionEndTime: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

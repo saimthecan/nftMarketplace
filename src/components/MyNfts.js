@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Box, Flex, Text, Image, Badge, Button, Input } from "@chakra-ui/react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { Box, Flex, Text, Image, Badge, Button, Input, Tooltip} from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { Network, Alchemy } from "alchemy-sdk";
 import noImage from "../assests/noImage.png";
 import { ERC721 } from "./erc721abi";
 import { Web3Provider } from "@ethersproject/providers";
+import { useQuery } from "@apollo/client";
+import {
+  GET_LISTED_NFTS_FOR_AUCTION,
+} from "../queries/nftQueries";
+import client from "../config/apolloClient";
 import { ethers } from "ethers";
 import { parseEther } from "ethers/utils";
 import { marketplace } from "./marketplace";
@@ -14,24 +19,36 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const MyNfts = () => {
   const [nfts, setNfts] = useState([]);
+  const [nftImages, setNftImages] = useState({});
   const [enteredPrices, setEnteredPrices] = useState({});
   const [enteredQuantities, setEnteredQuantities] = useState({});
   const [auctionStartTime, setAuctionStartTime] = useState(new Date());
   const [auctionEndTime, setAuctionEndTime] = useState(new Date());
+  const [displayedList, setDisplayedList] = useState("listed");
+  const {
+    loading: loadingListed,
+    error: errorListed,
+    data: dataListed,
+  } = useQuery(GET_LISTED_NFTS_FOR_AUCTION, { client, pollInterval: 5000 });
   const wallet = useSelector((state) => state.wallet.account);
-  const CONTRACT_ADDRESS = "0xDaC2C5D1BD3265740Ed7bdFc5b8948Cc41aC4972";
+  const CONTRACT_ADDRESS = "0xCF5d6E965fEd2C2F41fEe4006F8aC6687FA97A9D";
   const settings = {
     apiKey: "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV",
     network: Network.ETH_GOERLI,
   };
 
   const alchemy = new Alchemy(settings);
-  const provider = new Web3Provider(window.ethereum);
+  const provider = useMemo(() => new Web3Provider(window.ethereum), []);
   const signer = provider.getSigner();
 
   const NFTType = {
     ERC721: 0,
     ERC1155: 1,
+  };
+
+   // Function to toggle the displayed list
+   const toggleList = (list) => {
+    setDisplayedList(list);
   };
 
   const approveNFT = async (contractAddress, tokenId) => {
@@ -171,6 +188,65 @@ const MyNfts = () => {
     // NFT satışını başlatın
     await startNFtAuction(nft, index);
   };
+// NFT metadata'yı çeken fonksiyon
+const getNFTMetadata = useCallback(async (contractAddress, tokenId) => {
+  const contract = new ethers.Contract(
+    contractAddress,
+    ERC721,
+    provider
+  );
+  const tokenUri = await contract.tokenURI(tokenId);
+  const response = await fetch(tokenUri);
+  const metadata = await response.json();
+  return metadata;
+}, [provider]);
+
+const cancelAuction = async (nft, index) => {
+  const Contract_id = nft.Contract_id;
+  const marketplaceContract = new ethers.Contract(
+    CONTRACT_ADDRESS,
+    marketplace,
+    signer
+  );
+
+  try {
+    await marketplaceContract.cancelNFTAuction(Contract_id);
+    console.log("Auction cancelled successfully!");
+  } catch (error) {
+    console.error("An error occurred while cancelling the auction:", error);
+  }
+};
+
+
+useEffect(() => {
+  let isMounted = true; // Bellek sızıntısını önlemek için flag
+
+  const fetchNFTMetadata = async () => {
+    if (dataListed && dataListed.nftlistedForAuctions) {
+      const promises = dataListed.nftlistedForAuctions.map((nft) => 
+        getNFTMetadata(nft.contractAddress, nft.tokenId)
+      ); 
+
+      try {
+        const metadataList = await Promise.all(promises);
+        if (isMounted) {
+          setNftImages(metadataList.reduce((acc, metadata, index) => ({
+            ...acc,
+            [dataListed.nftlistedForAuctions[index].tokenId]: metadata.image,
+          }), {}));
+        }
+      } catch (error) {
+        console.error('Error fetching NFT metadata:', error);
+      }
+    }
+  };
+
+  fetchNFTMetadata();
+
+  return () => { isMounted = false; }; // Cleanup function
+}, [dataListed, getNFTMetadata]);
+
+  
 
   useEffect(() => {
     if (wallet) {
@@ -179,6 +255,19 @@ const MyNfts = () => {
       });
     }
   }, [wallet, alchemy.nft]);
+
+  useEffect(() => {
+    // Açık artırma listesi güncellendiğinde bu kod çalışacak
+    if (displayedList === "onAuction") {
+      // dataListed içindeki nftlistedForAuctions'dan sadece cüzdan adresi ile eşleşen NFT'leri filtreleyin
+      const filteredAuctionNfts = dataListed?.nftlistedForAuctions.filter(
+        (nft) => nft.seller === wallet
+      );
+  
+      // Filtrelenmiş NFT'lerle state'i güncelleyin
+      setNfts(filteredAuctionNfts);
+    }
+  }, [displayedList, dataListed, wallet]);
 
   return (
     <Box
@@ -191,11 +280,53 @@ const MyNfts = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Flex wrap="wrap">
-        {nfts.length === 0 ? (
-          <Text>You have no NFTs</Text>
-        ) : (
-          nfts.map((nft, index) => (
+      <Flex justifyContent="flex-end" mb="4">
+      <Tooltip hasArrow label="Benim NFT'lerim" placement="top">
+        <Button
+          colorScheme={displayedList === "myNfts" ? "blue" : "gray"}
+          onClick={() => setDisplayedList("myNfts")}
+        >
+          Benim NFT'lerim
+        </Button>
+      </Tooltip>
+        <Tooltip hasArrow label="Listelenenler" placement="top">
+          <Button
+            colorScheme={displayedList === "listed" ? "blue" : "gray"}
+            onClick={() => toggleList("listed")}
+          >
+            Listelenenler
+          </Button>
+        </Tooltip>
+  
+        <Tooltip hasArrow label="Açık Artırmada" placement="top">
+          <Button
+            ml="2"
+            colorScheme={displayedList === "onAuction" ? "blue" : "gray"}
+            onClick={() => toggleList("onAuction")}
+          >
+            Açık Artırmada
+          </Button>
+        </Tooltip>
+      </Flex>
+      {displayedList === 'myNfts' && nfts.length === 0 && (
+        <Text>You have no NFTs</Text>
+      )}
+      {displayedList === 'myNfts' &&
+        nfts.map((nft, index) => (
+          <Box key={index} p={4} borderWidth={1} borderRadius="md" boxShadow="md" m={2}>
+            <Badge colorScheme="green" ml="1">{`Balance: ${nft.balance}`}</Badge>
+            <Image boxSize="300px" src={nft.rawMetadata?.image || noImage} alt="NFT Image" mt={4} />
+            <Text mt={2}>{`Name: ${nft.contract.name}`}</Text>
+            <Text mt={2}>{`Description: ${nft.rawMetadata?.description}`}</Text>
+            <Text mt={2}>{`Token ID: ${nft.tokenId}`}</Text>
+            {/* Diğer NFT aksiyon butonları ve inputları burada yer alacak */}
+          </Box>
+        ))
+      }
+  
+      {displayedList === "listed" && (
+        <Flex wrap="wrap">
+          {nfts.map((nft, index) => (
             <Box
               key={index}
               p={4}
@@ -215,18 +346,16 @@ const MyNfts = () => {
                 mt={4}
               />
               <Text mt={2}>{`Name: ${nft.contract.name}`}</Text>
-              <Text
-                mt={2}
-              >{`Description: ${nft.rawMetadata?.description}`}</Text>
+              <Text mt={2}>{`Description: ${nft.rawMetadata?.description}`}</Text>
               <Text mt={2}>{`Token ID: ${nft.tokenId}`}</Text>
               <Input
                 type="number"
                 placeholder="Enter listing price in ETH"
-                value={enteredPrices[`${index}-${nft.tokenId}`] || ""} // Benzersiz anahtar ile fiyatı al
+                value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
                 onChange={(e) =>
                   setEnteredPrices((prevPrices) => ({
                     ...prevPrices,
-                    [`${index}-${nft.tokenId}`]: e.target.value, // Benzersiz anahtar ile fiyatı güncelle
+                    [`${index}-${nft.tokenId}`]: e.target.value,
                   }))
                 }
               />
@@ -234,25 +363,64 @@ const MyNfts = () => {
                 mt={4}
                 ml={2}
                 colorScheme="blue"
-                onClick={() => sellNFT(nft, index)} // sellNFT fonksiyonunu çağırın
+                onClick={() => sellNFT(nft, index)}
               >
                 Sell NFT
               </Button>
               <DatePicker
                 onChange={setAuctionStartTime}
-                value={auctionStartTime}
-            />
-            <DatePicker
+                selected={auctionStartTime}
+              />
+              <DatePicker
                 onChange={setAuctionEndTime}
-                value={auctionEndTime}
-            />
-            <Button onClick={() => startAuction(nft, index)}>Auction Start</Button>
+                selected={auctionEndTime}
+              />
+              <Button onClick={() => startAuction(nft, index)}>Auction Start</Button>
             </Box>
-          ))
-        )}
-      </Flex>
+          ))}
+        </Flex>
+      )}
+  
+      {displayedList === "onAuction" && (
+        <Flex wrap="wrap">
+          {loadingListed ? (
+            <Text>Loading...</Text>
+          ) : errorListed ? (
+            <Text>Error: {errorListed.message}</Text>
+          ) : (
+            nfts && nfts.map((nft, index) => {
+              // Burada her bir NFT'yi konsola yazdır
+              console.log("Auction NFT:", nft);
+      
+              // NFT'yi görselleştirmek için devam eden JSX
+              return (
+                <Box
+                  key={index}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                  boxShadow="md"
+                  m={2}
+                >
+                  {nftImages[nft.tokenId] && <Image boxSize="300px" src={nftImages[nft.tokenId]} alt="NFT Image" mt={4} />}
+                  <Text>{`Token ID: ${nft.tokenId}`}</Text>
+                
+                  <Text>{`Satıcı: ${nft.seller}`}</Text>
+                  <Button 
+            colorScheme="red"
+            onClick={() => cancelAuction(nft, index)}
+          >
+            Cancel Auction
+          </Button>
+                </Box>
+              );
+            })
+          )}
+        </Flex>
+      )}
     </Box>
   );
+  
 };
 
 export default MyNfts;

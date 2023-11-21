@@ -92,6 +92,8 @@ export function handleNFTListedForAuction(
   entity.startingPrice = event.params.startingPrice
   entity.contractAddress = event.params.contractAddress
   entity.tokenId = event.params.tokenId
+  entity.auctionStartTime = event.params.auctionStartTime
+  entity.auctionEndTime = event.params.auctionEndTime
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

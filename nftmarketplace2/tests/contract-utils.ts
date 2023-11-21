@@ -130,7 +130,9 @@ export function createNFTListedForAuctionEvent(
   seller: Address,
   startingPrice: BigInt,
   contractAddress: Address,
-  tokenId: BigInt
+  tokenId: BigInt,
+  auctionStartTime: BigInt,
+  auctionEndTime: BigInt
 ): NFTListedForAuction {
   let nftListedForAuctionEvent = changetype<NFTListedForAuction>(newMockEvent())
 
@@ -158,6 +160,18 @@ export function createNFTListedForAuctionEvent(
     new ethereum.EventParam(
       "tokenId",
       ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+  nftListedForAuctionEvent.parameters.push(
+    new ethereum.EventParam(
+      "auctionStartTime",
+      ethereum.Value.fromUnsignedBigInt(auctionStartTime)
+    )
+  )
+  nftListedForAuctionEvent.parameters.push(
+    new ethereum.EventParam(
+      "auctionEndTime",
+      ethereum.Value.fromUnsignedBigInt(auctionEndTime)
     )
   )
 

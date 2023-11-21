@@ -119,6 +119,18 @@ export const marketplace = [
         name: "tokenId",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "auctionStartTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "auctionEndTime",
+        type: "uint256",
+      },
     ],
     name: "NFTListedForAuction",
     type: "event",
@@ -212,6 +224,13 @@ export const marketplace = [
   {
     inputs: [{ internalType: "address", name: "_newOwner", type: "address" }],
     name: "changeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
+    name: "finishAuction",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -48,3 +48,21 @@ export const GET_FINISHED_NFT_AUCTIONS = gql`
     }
   }
 `;
+
+export const GET_CANCELLED_NFT_AUCTIONS = gql`
+  query {
+    nftauctionCancelleds {
+       Contract_id
+    }
+  }
+`;
+
+export const GET_NFT_BIDS = gql`
+  query {
+    nftbids {
+       Contract_id
+       amount
+       bidder
+    }
+  }
+`;
