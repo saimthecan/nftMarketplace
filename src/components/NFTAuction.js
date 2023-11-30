@@ -51,7 +51,7 @@ const NFTAuction = () => {
   const signer = provider.getSigner();
 
   //contractAddress
-  const CONTRACT_ADDRESS = "0xCF5d6E965fEd2C2F41fEe4006F8aC6687FA97A9D";
+  const CONTRACT_ADDRESS = "0x06c01c10bc0dcd008aab3a4bc35f7c62bd2cb63c";
 
   //FUNCTIONS
 
@@ -111,6 +111,14 @@ const NFTAuction = () => {
     }
 
     const priceInWei = parseEther(priceInEth.toString());
+    const startingPriceInWei = nft.startingPrice;
+
+     // Check if the entered bid is lower than the starting price
+     if (priceInWei <= startingPriceInWei) {
+      toast.error("Your bid cannot be lower than the starting price.");
+      return;
+    }
+
     const Contract_id = nft.Contract_id;
     const currentHighestBid = latestBids[nft.Contract_id]
       ? latestBids[nft.Contract_id].amount
@@ -138,6 +146,11 @@ const NFTAuction = () => {
     try {
       await marketplaceContract.bid(Contract_id, { value: priceInWei });
       console.log("Bid placed successfully!");
+      toast.success("Bid placed successfully!")
+      setLatestBids((prevBids) => ({
+        ...prevBids,
+        [Contract_id]: { amount: priceInWei, bidder: userAddress },
+      }));
     } catch (error) {
       if (error.message.includes("user rejected transaction")) {
         // Handle user-rejected transaction
@@ -179,6 +192,37 @@ const NFTAuction = () => {
       console.error("Error fetching latest bids:", error);
     }
   };
+
+  // En yüksek teklifi kontrol etme ve açık artırma süresinin bitip bitmediğini kontrol etme
+const isAuctionEndedAndUserIsHighestBidder = (nft) => {
+  const currentHighestBid = latestBids[nft.Contract_id]
+    ? latestBids[nft.Contract_id].amount
+    : 0;
+  const isUserHighestBidder =
+    userAddress &&
+    latestBids[nft.Contract_id]?.bidder.toLowerCase() ===
+      userAddress.toLowerCase();
+  const isAuctionEnded = new Date().getTime() >= nft.auctionEndTime * 1000;
+
+  return isAuctionEnded && isUserHighestBidder;
+};
+
+// finishNFTAuction fonksiyonunu çağırma
+const claimNFT = async (nft) => {
+  const marketplaceContract = new ethers.Contract(
+    CONTRACT_ADDRESS,
+    marketplace,
+    signer
+  );
+
+  try {
+    await marketplaceContract.finishAuction(nft.Contract_id);
+    console.log("Auction finished successfully!");
+    toast.success("Successfully claimed")
+  } catch (error) {
+    console.error("An error occurred while finishing the auction:", error);
+  }
+};
 
   //USE EFFECTS
 
@@ -303,6 +347,23 @@ const NFTAuction = () => {
                 <strong>Seller:</strong> {nft.seller}
               </Text>
               <Text>
+                <strong>Contract ID:</strong> {nft.Contract_id}
+              </Text>
+              <Text>
+                <strong>Starting Price:</strong> {formatEther(nft.startingPrice)} ETH
+              </Text>
+              <Text>
+                <strong>Auction Start Time:</strong>{" "}
+                {new Date(nft.auctionStartTime * 1000).toLocaleString()}
+              </Text>
+              <Text>
+                <strong>Auction End Time:</strong>{" "}
+                {new Date(nft.auctionEndTime * 1000).toLocaleString()}
+              </Text>
+              <Text>
+                <strong>Contract Address:</strong> {nft.contractAddress}
+              </Text>
+              <Text>
                 <strong>Last Bid: </strong>{" "}
                 {latestBids[nft.Contract_id]
                   ? `${formatEther(latestBids[nft.Contract_id].amount)} ETH`
@@ -342,6 +403,11 @@ const NFTAuction = () => {
                   </Button>
                 </Box>
               )}
+               {isAuctionEndedAndUserIsHighestBidder(nft) && (
+        <Button colorScheme="blue" onClick={() => claimNFT(nft)}>
+          Claim NFT
+        </Button>
+      )}
             </Box>
           ))
         )}

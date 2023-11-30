@@ -31,7 +31,7 @@ const MyNfts = () => {
     data: dataListed,
   } = useQuery(GET_LISTED_NFTS_FOR_AUCTION, { client, pollInterval: 5000 });
   const wallet = useSelector((state) => state.wallet.account);
-  const CONTRACT_ADDRESS = "0xCF5d6E965fEd2C2F41fEe4006F8aC6687FA97A9D";
+  const CONTRACT_ADDRESS = "0x06c01c10bc0dcd008aab3a4bc35f7c62bd2cb63c";
   const settings = {
     apiKey: "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV",
     network: Network.ETH_GOERLI,
@@ -269,6 +269,8 @@ useEffect(() => {
     }
   }, [displayedList, dataListed, wallet]);
 
+  
+
   return (
     <Box
       w="100%"
@@ -324,62 +326,72 @@ useEffect(() => {
         ))
       }
   
-      {displayedList === "listed" && (
-        <Flex wrap="wrap">
-          {nfts.map((nft, index) => (
-            <Box
-              key={index}
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              boxShadow="md"
-              m={2}
-            >
-              <Badge
-                colorScheme="green"
-                ml="1"
-              >{`Balance: ${nft.balance}`}</Badge>
-              <Image
-                boxSize="300px"
-                src={nft.rawMetadata?.image || noImage}
-                alt="NFT Image"
-                mt={4}
-              />
-              <Text mt={2}>{`Name: ${nft.contract.name}`}</Text>
-              <Text mt={2}>{`Description: ${nft.rawMetadata?.description}`}</Text>
-              <Text mt={2}>{`Token ID: ${nft.tokenId}`}</Text>
-              <Input
-                type="number"
-                placeholder="Enter listing price in ETH"
-                value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
-                onChange={(e) =>
-                  setEnteredPrices((prevPrices) => ({
-                    ...prevPrices,
-                    [`${index}-${nft.tokenId}`]: e.target.value,
-                  }))
-                }
-              />
-              <Button
-                mt={4}
-                ml={2}
-                colorScheme="blue"
-                onClick={() => sellNFT(nft, index)}
-              >
-                Sell NFT
-              </Button>
-              <DatePicker
-                onChange={setAuctionStartTime}
-                selected={auctionStartTime}
-              />
-              <DatePicker
-                onChange={setAuctionEndTime}
-                selected={auctionEndTime}
-              />
-              <Button onClick={() => startAuction(nft, index)}>Auction Start</Button>
-            </Box>
-          ))}
+  {displayedList === "listed" && (
+  <Flex wrap="wrap">
+    {nfts.map((nft, index) => (
+      <Box
+        key={index}
+        p={4}
+        borderWidth={1}
+        borderRadius="md"
+        boxShadow="md"
+        m={2}
+      >
+        <Badge colorScheme="green" ml="1">{`Balance: ${nft.balance}`}</Badge>
+        <Image
+          boxSize="300px"
+          src={nft.rawMetadata?.image || noImage}
+          alt="NFT Image"
+          mt={4}
+        />
+        <Flex flexDirection="column" gap={2} mt={2}>
+          <Text>{`Name: ${nft.contract.name}`}</Text>
+          <Text>{`Description: ${nft.rawMetadata?.description}`}</Text>
+          <Text>{`Token ID: ${nft.tokenId}`}</Text>
+          <Input
+            type="number"
+            placeholder="Enter listing price in ETH"
+            value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
+            onChange={(e) =>
+              setEnteredPrices((prevPrices) => ({
+                ...prevPrices,
+                [`${index}-${nft.tokenId}`]: e.target.value,
+              }))
+            }
+          />
+          <Button
+            colorScheme="blue"
+            onClick={() => sellNFT(nft, index)}
+          >
+            Sell NFT
+          </Button>
+          <Text><strong>AuctionStartTime</strong></Text>
+          <DatePicker
+            onChange={setAuctionStartTime}
+            selected={auctionStartTime}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={1}
+            timeCaption="time"
+            dateFormat="MMMM d, yyyy h:mm aa"
+          />
+          <Text><strong>AuctionEndTime</strong></Text>
+          <DatePicker
+            onChange={setAuctionEndTime}
+            selected={auctionEndTime}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={1}
+            timeCaption="time"
+            dateFormat="MMMM d, yyyy h:mm aa"
+          />
+          <Button onClick={() => startAuction(nft, index)}>Auction Start</Button>
         </Flex>
-      )}
+      </Box>
+    ))}
+  </Flex>
+)}
+
   
       {displayedList === "onAuction" && (
         <Flex wrap="wrap">

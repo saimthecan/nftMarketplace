@@ -24,7 +24,7 @@ const NFTList = () => {
   const provider = new Web3Provider(window.ethereum);
   const signer = provider.getSigner();
 
-  const CONTRACT_ADDRESS = "0xCF5d6E965fEd2C2F41fEe4006F8aC6687FA97A9D";
+  const CONTRACT_ADDRESS = "0x06c01c10bc0dcd008aab3a4bc35f7c62bd2cb63c";
 
    const getNFTMetadata = useCallback(
     async (contractAddress, tokenId) => {
