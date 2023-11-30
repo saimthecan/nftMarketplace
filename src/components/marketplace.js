@@ -239,7 +239,7 @@ export const marketplace = [
     inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
     name: "finishNFTAuction",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

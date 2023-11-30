@@ -169,8 +169,8 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
             _price,
             item.contractAddress,
             item.tokenId,
-            _auctionEndTime,
-            _auctionStartTime
+            _auctionStartTime,
+            _auctionEndTime 
         );
         idForAuction++;
     }
@@ -250,33 +250,38 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
         item.state = true; // Mark as cancelled
     }
 
-    function cancelNFTAuction(uint256 Id) public {
-        Item storage item = idToItemForAuction[Id];
-        require(item.seller == msg.sender, "You are not owner of this NFT!");
-        require(!item.state, "This NFT sold!");
+ function cancelNFTAuction(uint256 Id) public {
+    Item storage item = idToItemForAuction[Id];
+    require(item.seller == msg.sender, "You are not owner of this NFT!");
+    require(!item.state, "This NFT sold!");
 
-        if (item.nftType == NFTType.ERC721) {
-            IERC721 NFT = IERC721(item.contractAddress);
-            NFT.transferFrom(address(this), msg.sender, item.tokenId);
-        } else {
-            IERC1155 NFT = IERC1155(item.contractAddress);
-            NFT.safeTransferFrom(
-                address(this),
-                msg.sender,
-                item.tokenId,
-                item.quantity,
-                ""
-            );
-        }
+    if (item.buyer != address(0)) {
+        // Eğer bir önceki teklif varsa, önceki alıcıya önceki teklif miktarını geri öde
+        payable(item.buyer).transfer(item.price);
+    }
 
-        item.state = true; // Mark as cancelled
-        emit NFTAuctionCancelled(
-            Id,
+    if (item.nftType == NFTType.ERC721) {
+        IERC721 NFT = IERC721(item.contractAddress);
+        NFT.transferFrom(address(this), msg.sender, item.tokenId);
+    } else {
+        IERC1155 NFT = IERC1155(item.contractAddress);
+        NFT.safeTransferFrom(
+            address(this),
             msg.sender,
-            item.contractAddress,
-            item.tokenId
+            item.tokenId,
+            item.quantity,
+            ""
         );
     }
+
+    item.state = true; // Mark as cancelled
+    emit NFTAuctionCancelled(
+        Id,
+        msg.sender,
+        item.contractAddress,
+        item.tokenId
+    );
+}
 
     function bid(uint256 Id) public payable {
         Item storage item = idToItemForAuction[Id];
@@ -303,41 +308,28 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
         );
     }
 
-    function finishNFTAuction(uint256 Id) public payable {
-        Item storage item = idToItemForAuction[Id];
-        require(msg.sender == item.buyer, "You have highest bid!");
-        require(!item.state, "Already finished!");
-          require(
-            block.timestamp >= item.auctionEndTime,
-            "Auction not yet ended"
-        );
+    function finishNFTAuction(uint256 Id) public {
+    Item storage item = idToItemForAuction[Id];
+    require(msg.sender == item.buyer, "You are not the highest bidder");
+    require(!item.state, "Auction already finished");
+    require(block.timestamp >= item.auctionEndTime, "Auction not yet ended");
 
-        if (item.nftType == NFTType.ERC721) {
-            IERC721 NFT = IERC721(item.contractAddress);
-            NFT.transferFrom(address(this), msg.sender, item.tokenId);
-        } else {
-            IERC1155 NFT = IERC1155(item.contractAddress);
-            NFT.safeTransferFrom(
-                address(this),
-                msg.sender,
-                item.tokenId,
-                item.quantity,
-                ""
-            );
-        }
+    uint256 ownerCommission = item.price.mul(5).div(100); // %5 komisyon
+    uint256 sellerAmount = item.price.sub(ownerCommission);
 
-        uint256 price = item.price.mul(95).div(100);
-        payable(item.seller).transfer(price);
-        payable(owner).transfer(msg.value.sub(price));
+    payable(item.seller).transfer(sellerAmount);
+    payable(owner).transfer(ownerCommission);
 
-        item.state = true;
-        emit NFTAuctionFinished(
-            Id,
-            msg.sender,
-            item.contractAddress,
-            item.tokenId
-        );
+    if (item.nftType == NFTType.ERC721) {
+        IERC721(item.contractAddress).transferFrom(address(this), msg.sender, item.tokenId);
+    } else {
+        IERC1155(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId, item.quantity, "");
     }
+
+    item.state = true;
+    emit NFTAuctionFinished(Id, msg.sender, item.contractAddress, item.tokenId);
+}
+
 
     function finishAuction(uint256 Id) public {
         Item storage item = idToItemForAuction[Id];

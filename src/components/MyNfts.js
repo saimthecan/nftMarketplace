@@ -31,7 +31,7 @@ const MyNfts = () => {
     data: dataListed,
   } = useQuery(GET_LISTED_NFTS_FOR_AUCTION, { client, pollInterval: 5000 });
   const wallet = useSelector((state) => state.wallet.account);
-  const CONTRACT_ADDRESS = "0x06c01c10bc0dcd008aab3a4bc35f7c62bd2cb63c";
+  const CONTRACT_ADDRESS = "0x8270af6287bcaa29018c4a2ab98455ddd840059d";
   const settings = {
     apiKey: "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV",
     network: Network.ETH_GOERLI,

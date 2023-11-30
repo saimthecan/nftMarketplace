@@ -66,6 +66,7 @@ export const GET_NFT_BIDS = gql`
        Contract_id
        amount
        bidder
+       blockTimestamp
     }
   }
 `;

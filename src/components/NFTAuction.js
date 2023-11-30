@@ -51,7 +51,7 @@ const NFTAuction = () => {
   const signer = provider.getSigner();
 
   //contractAddress
-  const CONTRACT_ADDRESS = "0x06c01c10bc0dcd008aab3a4bc35f7c62bd2cb63c";
+  const CONTRACT_ADDRESS = "0x8270af6287bcaa29018c4a2ab98455ddd840059d";
 
   //FUNCTIONS
 
@@ -147,10 +147,6 @@ const NFTAuction = () => {
       await marketplaceContract.bid(Contract_id, { value: priceInWei });
       console.log("Bid placed successfully!");
       toast.success("Bid placed successfully!")
-      setLatestBids((prevBids) => ({
-        ...prevBids,
-        [Contract_id]: { amount: priceInWei, bidder: userAddress },
-      }));
     } catch (error) {
       if (error.message.includes("user rejected transaction")) {
         // Handle user-rejected transaction
@@ -182,16 +178,26 @@ const NFTAuction = () => {
       const { data } = await client.query({
         query: GET_NFT_BIDS,
       });
-      console.log(data);
-      const bids = data.nftbids.reduce((acc, bid) => {
-        acc[bid.Contract_id] = { amount: bid.amount, bidder: bid.bidder };
+  
+      // Her Contract_id için en son teklifi bul
+      const latestBids = data.nftbids.reduce((acc, bid) => {
+        const existingBid = acc[bid.Contract_id];
+        if (!existingBid || bid.blockTimestamp > existingBid.blockTimestamp) {
+          acc[bid.Contract_id] = {
+            amount: bid.amount,
+            bidder: bid.bidder,
+            blockTimestamp: bid.blockTimestamp
+          };
+        }
         return acc;
       }, {});
-      setLatestBids(bids);
+  
+      setLatestBids(latestBids);
     } catch (error) {
       console.error("Error fetching latest bids:", error);
     }
   };
+  
 
   // En yüksek teklifi kontrol etme ve açık artırma süresinin bitip bitmediğini kontrol etme
 const isAuctionEndedAndUserIsHighestBidder = (nft) => {
@@ -216,7 +222,7 @@ const claimNFT = async (nft) => {
   );
 
   try {
-    await marketplaceContract.finishAuction(nft.Contract_id);
+    await marketplaceContract.finishNFTAuction(nft.Contract_id);
     console.log("Auction finished successfully!");
     toast.success("Successfully claimed")
   } catch (error) {
