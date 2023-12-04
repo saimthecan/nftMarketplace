@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_LISTED_NFTS, GET_SOLD_NFTS } from "../queries/nftQueries";
+import { GET_LISTED_NFTS, GET_SOLD_NFTS, GET_CANCELLED_NFT_SALES } from "../queries/nftQueries";
 import client from "../config/apolloClient";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { marketplace } from "./marketplace";
 import { Web3Provider } from "@ethersproject/providers";
+import { toast } from "react-toastify";
+import {  formatEther } from "ethers/utils";
 
 const NFTList = () => {
   const {
@@ -19,6 +21,12 @@ const NFTList = () => {
     error: errorSold,
     data: dataSold,
   } = useQuery(GET_SOLD_NFTS, { client, pollInterval: 5000 });
+  const {
+    data: dataCancelledSales,
+    loading: loadingCancelledSales,
+    error: errorCancelledSales
+  } = useQuery(GET_CANCELLED_NFT_SALES, { client, pollInterval: 5000 });
+
   const [nftImages, setNftImages] = useState({});
   const [enteredQuantities, setEnteredQuantities] = useState({});
   const [userAddress, setUserAddress] = useState(null);
@@ -29,10 +37,26 @@ const NFTList = () => {
   const alchemyProvider = new JsonRpcProvider(
     `https://eth-goerli.alchemyapi.io/v2/${alchemyApiKey}`
   );
-  const provider = new Web3Provider(window.ethereum);
+  const provider = useMemo(() => new Web3Provider(window.ethereum), []);
   const signer = provider.getSigner();
 
   const CONTRACT_ADDRESS = "0x548d43c9a6f0d13a22b3196a727b36982602ca22";
+
+   //function to get the user's wallet balance as wei
+   const getWalletBalance = useCallback(async () => {
+    try {
+      const userAddress = await signer.getAddress();
+      const balanceInWei = await provider.getBalance(userAddress);
+
+      // eslint-disable-next-line no-undef
+      const bigNumberValue = BigInt(balanceInWei._hex);
+
+      const decimalValue = bigNumberValue.toString();
+      return decimalValue;
+    } catch (error) {
+      console.error("Bakiye alınırken bir hata oluştu:", error);
+    }
+  }, [provider, signer]);
 
   const getNFTMetadata = useCallback(async (contractAddress, tokenId) => {
     const contract = new ethers.Contract(
@@ -46,18 +70,28 @@ const NFTList = () => {
     const response = await fetch(tokenUri);
     const metadata = await response.json();
     return metadata;
-  }, []);
+  }, [alchemyProvider]);
 
   const buyNFT = async (id, price) => {
-    console.log(id);
+    const currentBalance = await getWalletBalance();
+  
+
+    if (
+      !currentBalance ||
+      parseFloat(currentBalance) <= parseFloat(price)
+    ) {
+      toast.error("Insufficient Balance");
+      return;
+    }
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
       signer
     );
-    console.log(id, price);
     try {
-      await marketplaceContract.buyNFT(id, { value: price });
+      const tx = await marketplaceContract.buyNFT(id, { value: price });
+      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
+      toast.success("NFT bought successfully!")
       console.log("NFT bought successfully!");
     } catch (error) {
       console.error("An error occurred while buying the NFT:", error);
@@ -72,12 +106,19 @@ const NFTList = () => {
       signer
     );
     try {
-      await marketplaceContract.cancelNFTSale(id);
+      const tx = await marketplaceContract.cancelNFTSale(id);
+      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
+      toast.success("NFT sale cancelled successfully!")
       console.log("NFT sale cancelled successfully!");
     } catch (error) {
       console.error("An error occurred while cancelling the NFT sale:", error);
     }
   };
+
+  //enables the getwalletbalance function to work
+  useEffect(() => {
+    getWalletBalance();
+  }, [getWalletBalance, userAddress]);
 
   useEffect(() => {
     if (dataListed && dataListed.nftlistedForSales) {
@@ -107,20 +148,27 @@ const NFTList = () => {
     fetchUserAddress();
   }, [signer]);
 
-  useEffect(() => {
-    if (
-      dataListed &&
-      dataListed.nftlistedForSales &&
-      dataSold &&
-      dataSold.nftsolds
-    ) {
-      const soldIds = dataSold.nftsolds.map((nft) => nft.Contract_id);
-      const unsold = dataListed.nftlistedForSales.filter(
-        (nft) => !soldIds.includes(nft.Contract_id)
-      );
-      setUnsoldNFTs(unsold);
-    }
-  }, [dataListed, dataSold]);
+useEffect(() => {
+  if (
+    dataListed &&
+    dataListed.nftlistedForSales &&
+    dataSold &&
+    dataSold.nftsolds &&
+    dataCancelledSales &&
+    dataCancelledSales.nftsaleCancelleds
+  ) {
+    const soldIds = dataSold.nftsolds.map(nft => nft.Contract_id);
+    const cancelledSaleIds = dataCancelledSales.nftsaleCancelleds.map(nft => nft.Contract_id);
+    const unsold = dataListed.nftlistedForSales.filter(
+      nft => !soldIds.includes(nft.Contract_id) && !cancelledSaleIds.includes(nft.Contract_id)
+    );
+    setUnsoldNFTs(unsold);
+  }
+}, [dataListed, dataSold, dataCancelledSales]);
+
+
+
+
 
   if (loadingListed || loadingSold) return "Loading...";
   if (errorListed || errorSold)
@@ -170,7 +218,7 @@ const NFTList = () => {
                 <strong>Seller:</strong> {nft.seller}
               </Text>
               <Text>
-                <strong>Price:</strong> {nft.price}
+                <strong>Price:</strong> {formatEther(nft.price)} ETH
               </Text>
               {nft.seller.toLowerCase() === userAddress?.toLowerCase() ? (
                 <Button

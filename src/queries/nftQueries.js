@@ -26,6 +26,14 @@ export const GET_SOLD_NFTS = gql`
   }
 `;
 
+export const GET_CANCELLED_NFT_SALES = gql`
+  query {
+    nftsaleCancelleds {
+      Contract_id
+    }
+  }
+`;
+
 export const GET_LISTED_NFTS_FOR_AUCTION = gql`
   query GetListedNftsForAuction {
     nftlistedForAuctions {

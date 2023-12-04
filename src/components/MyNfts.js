@@ -124,6 +124,8 @@ const MyNfts = () => {
     }
   };
 
+  
+
   const sellNFT = async (nft, index) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
@@ -232,7 +234,8 @@ const MyNfts = () => {
     );
 
     try {
-      await marketplaceContract.cancelNFTAuction(Contract_id);
+      const tx = await marketplaceContract.cancelNFTAuction(Contract_id);
+      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
       toast.success("Auction cancelled successfully!")
       console.log("Auction cancelled successfully!");
     } catch (error) {
