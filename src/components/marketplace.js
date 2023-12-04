@@ -1,11 +1,8 @@
 export const marketplace = [
   {
-    anonymous: false,
-    inputs: [
-      { indexed: false, internalType: "uint8", name: "version", type: "uint8" },
-    ],
-    name: "Initialized",
-    type: "event",
+    inputs: [{ internalType: "address", name: "_owner", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
     anonymous: false,
@@ -174,6 +171,32 @@ export const marketplace = [
       {
         indexed: true,
         internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "NFTSaleCancelled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
+      {
+        indexed: true,
+        internalType: "address",
         name: "buyer",
         type: "address",
       },
@@ -224,13 +247,6 @@ export const marketplace = [
   {
     inputs: [{ internalType: "address", name: "_newOwner", type: "address" }],
     name: "changeOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
-    name: "finishAuction",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -298,13 +314,6 @@ export const marketplace = [
       { internalType: "uint256", name: "auctionEndTime", type: "uint256" },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_owner", type: "address" }],
-    name: "initialize",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

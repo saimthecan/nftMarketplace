@@ -1,29 +1,14 @@
 import { newMockEvent } from "matchstick-as"
 import { ethereum, BigInt, Address } from "@graphprotocol/graph-ts"
 import {
-  Initialized,
   NFTAuctionCancelled,
   NFTAuctionFinished,
   NFTBid,
   NFTListedForAuction,
   NFTListedForSale,
+  NFTSaleCancelled,
   NFTSold
 } from "../generated/Contract/Contract"
-
-export function createInitializedEvent(version: i32): Initialized {
-  let initializedEvent = changetype<Initialized>(newMockEvent())
-
-  initializedEvent.parameters = new Array()
-
-  initializedEvent.parameters.push(
-    new ethereum.EventParam(
-      "version",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(version))
-    )
-  )
-
-  return initializedEvent
-}
 
 export function createNFTAuctionCancelledEvent(
   id: BigInt,
@@ -212,6 +197,38 @@ export function createNFTListedForSaleEvent(
   )
 
   return nftListedForSaleEvent
+}
+
+export function createNFTSaleCancelledEvent(
+  id: BigInt,
+  seller: Address,
+  contractAddress: Address,
+  tokenId: BigInt
+): NFTSaleCancelled {
+  let nftSaleCancelledEvent = changetype<NFTSaleCancelled>(newMockEvent())
+
+  nftSaleCancelledEvent.parameters = new Array()
+
+  nftSaleCancelledEvent.parameters.push(
+    new ethereum.EventParam("id", ethereum.Value.fromUnsignedBigInt(id))
+  )
+  nftSaleCancelledEvent.parameters.push(
+    new ethereum.EventParam("seller", ethereum.Value.fromAddress(seller))
+  )
+  nftSaleCancelledEvent.parameters.push(
+    new ethereum.EventParam(
+      "contractAddress",
+      ethereum.Value.fromAddress(contractAddress)
+    )
+  )
+  nftSaleCancelledEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return nftSaleCancelledEvent
 }
 
 export function createNFTSoldEvent(

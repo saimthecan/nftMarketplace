@@ -1,34 +1,21 @@
 import {
-  Initialized as InitializedEvent,
   NFTAuctionCancelled as NFTAuctionCancelledEvent,
   NFTAuctionFinished as NFTAuctionFinishedEvent,
   NFTBid as NFTBidEvent,
   NFTListedForAuction as NFTListedForAuctionEvent,
   NFTListedForSale as NFTListedForSaleEvent,
+  NFTSaleCancelled as NFTSaleCancelledEvent,
   NFTSold as NFTSoldEvent
 } from "../generated/Contract/Contract"
 import {
-  Initialized,
   NFTAuctionCancelled,
   NFTAuctionFinished,
   NFTBid,
   NFTListedForAuction,
   NFTListedForSale,
+  NFTSaleCancelled,
   NFTSold
 } from "../generated/schema"
-
-export function handleInitialized(event: InitializedEvent): void {
-  let entity = new Initialized(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.version = event.params.version
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
 
 export function handleNFTAuctionCancelled(
   event: NFTAuctionCancelledEvent
@@ -109,6 +96,22 @@ export function handleNFTListedForSale(event: NFTListedForSaleEvent): void {
   entity.Contract_id = event.params.id
   entity.seller = event.params.seller
   entity.price = event.params.price
+  entity.contractAddress = event.params.contractAddress
+  entity.tokenId = event.params.tokenId
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.save()
+}
+
+export function handleNFTSaleCancelled(event: NFTSaleCancelledEvent): void {
+  let entity = new NFTSaleCancelled(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  entity.Contract_id = event.params.id
+  entity.seller = event.params.seller
   entity.contractAddress = event.params.contractAddress
   entity.tokenId = event.params.tokenId
 

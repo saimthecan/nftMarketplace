@@ -51,7 +51,7 @@ const NFTAuction = () => {
   const signer = provider.getSigner();
 
   //contractAddress
-  const CONTRACT_ADDRESS = "0x8270af6287bcaa29018c4a2ab98455ddd840059d";
+  const CONTRACT_ADDRESS = "0x548d43c9a6f0d13a22b3196a727b36982602ca22";
 
   //FUNCTIONS
 
@@ -144,15 +144,16 @@ const NFTAuction = () => {
       signer
     );
     try {
-      await marketplaceContract.bid(Contract_id, { value: priceInWei });
+      const tx = await marketplaceContract.bid(Contract_id, { value: priceInWei });
+      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
       console.log("Bid placed successfully!");
       toast.success("Bid placed successfully!")
     } catch (error) {
       if (error.message.includes("user rejected transaction")) {
-        // Handle user-rejected transaction
         toast.error("Transaction rejected.");
       }
     }
+    
   };
 
   //function that allows the user who owns the nfty in the auction to cancel the auction
@@ -161,15 +162,18 @@ const NFTAuction = () => {
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
-      signer
+      signer 
     );
 
     try {
-      await marketplaceContract.cancelNFTAuction(Contract_id);
+      const tx = await marketplaceContract.cancelNFTAuction(Contract_id);
+      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
+      toast.success("Auction cancelled successfully!")
       console.log("Auction cancelled successfully!");
     } catch (error) {
       console.error("An error occurred while cancelling the auction:", error);
     }
+    
   };
 
   //function that allows to see the last offer
@@ -222,12 +226,14 @@ const claimNFT = async (nft) => {
   );
 
   try {
-    await marketplaceContract.finishNFTAuction(nft.Contract_id);
+    const tx = await marketplaceContract.finishNFTAuction(nft.Contract_id);
+    await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
     console.log("Auction finished successfully!");
     toast.success("Successfully claimed")
   } catch (error) {
     console.error("An error occurred while finishing the auction:", error);
   }
+  
 };
 
   //USE EFFECTS
@@ -403,7 +409,14 @@ const claimNFT = async (nft) => {
                   <Button
                     mt={2}
                     colorScheme="blue"
-                    onClick={() => placeBid(nft, index)}
+                    onClick={() => {
+                      const price = enteredPrices[`${index}-${nft.tokenId}`];
+                      if (!price || isNaN(parseFloat(price))) {
+                        toast.error("Please enter a valid ETH value");
+                      } else {
+                        placeBid(nft, index);
+                      }
+                    }}
                   >
                     Bid on NFT
                   </Button>

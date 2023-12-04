@@ -3,11 +3,14 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract NFTMarketplace is Initializable, ReentrancyGuard {
+contract NFTMarketplace is ReentrancyGuard {
+   constructor(address _owner) {
+        owner = _owner;
+    }
+
     using SafeMath for uint256;
 
     address public owner;
@@ -56,14 +59,20 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
         uint256 tokenId
     );
 
+    event NFTSaleCancelled(
+    uint256 indexed id,
+    address indexed seller,
+    address contractAddress,
+    uint256 tokenId
+);
+
+
     modifier onlyOwner() {
         require(msg.sender == owner, "Not the contract owner");
         _;
     }
 
-    function initialize(address _owner) public initializer {
-        owner = _owner;
-    }
+  
 
     enum NFTType {
         ERC721,
@@ -176,14 +185,12 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
     }
 
     function buyNFT(uint256 _id) public payable nonReentrant {
-        require(
-            idToItemForSale[_id].seller != address(0),
-            "Item does not exist"
-        );
-        Item storage item = idToItemForSale[_id];
-        require(msg.sender != item.seller);
-        require(!item.state);
-        require(msg.value >= item.price, "Insufficient payment");
+      Item storage item = idToItemForSale[_id];
+    require(item.seller != address(0), "Item does not exist");
+    require(msg.sender != item.seller, "Seller cannot buy their own item");
+    require(!item.state, "Item is already sold");
+    require(item.buyer == address(0), "Item is already reserved");
+    require(msg.value >= item.price, "Insufficient payment");
 
         uint256 price = msg.value.mul(95).div(100);
         payable(item.seller).transfer(price);
@@ -228,27 +235,35 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
         return false;
     }
 
-    function cancelNFTSale(uint256 Id) public {
-        Item storage item = idToItemForSale[Id];
-        require(item.seller == msg.sender, "You are not owner of this NFT!");
-        require(!item.state, "This NFT sold!");
+   function cancelNFTSale(uint256 Id) public {
+    Item storage item = idToItemForSale[Id];
+    require(item.seller == msg.sender, "You are not owner of this NFT!");
+    require(!item.state, "This NFT sold!");
 
-        if (item.nftType == NFTType.ERC721) {
-            IERC721 NFT = IERC721(item.contractAddress);
-            NFT.transferFrom(address(this), msg.sender, item.tokenId);
-        } else {
-            IERC1155 NFT = IERC1155(item.contractAddress);
-            NFT.safeTransferFrom(
-                address(this),
-                msg.sender,
-                item.tokenId,
-                item.quantity,
-                ""
-            );
-        }
-
-        item.state = true; // Mark as cancelled
+    if (item.nftType == NFTType.ERC721) {
+        IERC721 NFT = IERC721(item.contractAddress);
+        NFT.transferFrom(address(this), msg.sender, item.tokenId);
+    } else {
+        IERC1155 NFT = IERC1155(item.contractAddress);
+        NFT.safeTransferFrom(
+            address(this),
+            msg.sender,
+            item.tokenId,
+            item.quantity,
+            ""
+        );
     }
+
+    item.state = true; // Mark as cancelled
+
+    emit NFTSaleCancelled(
+        Id,
+        msg.sender,
+        item.contractAddress,
+        item.tokenId
+    );
+}
+
 
  function cancelNFTAuction(uint256 Id) public {
     Item storage item = idToItemForAuction[Id];
@@ -331,34 +346,4 @@ contract NFTMarketplace is Initializable, ReentrancyGuard {
 }
 
 
-    function finishAuction(uint256 Id) public {
-        Item storage item = idToItemForAuction[Id];
-        require(
-            block.timestamp >= item.auctionEndTime,
-            "Auction not yet ended"
-        );
-        require(!item.state, "Auction already finished or cancelled");
-
-        if (item.nftType == NFTType.ERC721) {
-            IERC721 NFT = IERC721(item.contractAddress);
-            NFT.transferFrom(address(this), item.buyer, item.tokenId);
-        } else {
-            IERC1155 NFT = IERC1155(item.contractAddress);
-            NFT.safeTransferFrom(
-                address(this),
-                item.buyer,
-                item.tokenId,
-                item.quantity,
-                ""
-            );
-        }
-
-        item.state = true;
-        emit NFTAuctionFinished(
-            Id,
-            item.buyer,
-            item.contractAddress,
-            item.tokenId
-        );
-    }
 }
