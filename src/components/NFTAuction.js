@@ -1,19 +1,17 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useQuery } from "@apollo/client";
-import {
-  GET_LISTED_NFTS_FOR_AUCTION,
-  GET_FINISHED_NFT_AUCTIONS,
-  GET_CANCELLED_NFT_AUCTIONS,
-  GET_NFT_BIDS,
-} from "../queries/nftQueries";
+import React, { useEffect, useState } from "react";
+import {GET_NFT_BIDS} from "../queries/nftQueries";
 import client from "../config/apolloClient";
 import { Box, Text, Image, Grid, Button, Input } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { JsonRpcProvider } from "@ethersproject/providers";
 import { marketplace } from "./marketplace";
-import { Web3Provider } from "@ethersproject/providers";
 import { parseEther, formatEther } from "ethers/utils";
 import { toast } from "react-toastify";
+import useQueries from "../Hooks/useQueries"
+import useAlchemyProvider from "../Hooks/useAlchemyProvider";
+import useWeb3Provider from "../Hooks/useWeb3Provider";
+import useNFTMetadata from '../Hooks/useNFTMetadata';
+import { useSelector } from 'react-redux';
+
 
 const NFTAuction = () => {
   //states
@@ -24,52 +22,27 @@ const NFTAuction = () => {
   const [userAddress, setUserAddress] = useState(null);
   const [latestBids, setLatestBids] = useState({});
 
+  const balance = useSelector((state) => state.wallet.balance);
+
+
   //queries
-  const {
-    loading: loadingListed,
-    error: errorListed,
-    data: dataListed,
-  } = useQuery(GET_LISTED_NFTS_FOR_AUCTION, { client, pollInterval: 5000 });
-  const {
-    loading: loadingSold,
-    error: errorSold,
-    data: dataSold,
-  } = useQuery(GET_FINISHED_NFT_AUCTIONS, { client, pollInterval: 5000 });
-  const {
-    loading: loadingCancelled,
-    error: errorCancelled,
-    data: dataCancelled,
-  } = useQuery(GET_CANCELLED_NFT_AUCTIONS, { client, pollInterval: 5000 });
+  const { 
+    loadingListedAuction, errorListedAuction, dataListedAuction,
+    loadingSoldAuction, errorSoldAuction,dataSoldAuction,
+    loadingCancelledAuction, errorCancelledAuction, dataCancelledAuction,
+  } = useQueries();
 
-  //Alchemy
-  const alchemyApiKey = "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV";
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const alchemyProvider = new JsonRpcProvider(
-    `https://eth-goerli.alchemyapi.io/v2/${alchemyApiKey}`
-  );
-  const provider = useMemo(() => new Web3Provider(window.ethereum), []);
-  const signer = provider.getSigner();
+  //Alchemy Provider
+  const alchemyProvider = useAlchemyProvider();
 
-  //contractAddress
-  const CONTRACT_ADDRESS = "0x548d43c9a6f0d13a22b3196a727b36982602ca22";
+  //Web3 Provider
+   const { provider, signer } = useWeb3Provider();
+
+  //Contract Address
+  const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
+ 
 
   //FUNCTIONS
-
-  //function to get the user's wallet balance as wei
-  const getWalletBalance = useCallback(async () => {
-    try {
-      const userAddress = await signer.getAddress();
-      const balanceInWei = await provider.getBalance(userAddress);
-
-      // eslint-disable-next-line no-undef
-      const bigNumberValue = BigInt(balanceInWei._hex);
-
-      const decimalValue = bigNumberValue.toString();
-      return decimalValue;
-    } catch (error) {
-      console.error("Bakiye alınırken bir hata oluştu:", error);
-    }
-  }, [provider, signer]);
 
   //function to control the highest bid
   const isUserHighestBidder = (nft) => {
@@ -82,22 +55,7 @@ const NFTAuction = () => {
   };
 
   //Helper function to view images of NFTs in auction
-  const getNFTMetadata = useCallback(
-    async (contractAddress, tokenId) => {
-      const contract = new ethers.Contract(
-        contractAddress,
-        [
-          "function tokenURI(uint256 tokenId) external view returns (string memory)",
-        ],
-        alchemyProvider
-      );
-      const tokenUri = await contract.tokenURI(tokenId);
-      const response = await fetch(tokenUri);
-      const metadata = await response.json();
-      return metadata;
-    },
-    [alchemyProvider]
-  );
+  const getNFTMetadata = useNFTMetadata(alchemyProvider);
 
   //Function that allows the user to bid on an NFT
   const placeBid = async (nft, index) => {
@@ -124,10 +82,9 @@ const NFTAuction = () => {
       ? latestBids[nft.Contract_id].amount
       : 0;
 
-    const currentBalance = await getWalletBalance();
     if (
-      !currentBalance ||
-      parseFloat(currentBalance) <= parseFloat(priceInWei)
+      !balance ||
+      parseFloat(balance) <= parseFloat(priceInWei)
     ) {
       toast.error("Insufficient Balance");
       return;
@@ -236,68 +193,75 @@ const claimNFT = async (nft) => {
   
 };
 
+ // Açık artırma süresinin bitip bitmediğini kontrol eden fonksiyon
+ const isAuctionEnded = (nft) => {
+  return new Date().getTime() >= nft.auctionEndTime * 1000;
+};
+
+const isAuctionStarted = (nft) => {
+  return new Date().getTime() >= nft.auctionStartTime * 1000;
+};
+
+
   //USE EFFECTS
 
   //enables the getwalletbalance function to work
-  useEffect(() => {
-    getWalletBalance();
-  }, [getWalletBalance, userAddress]);
+
 
   //receive the latest NFT offers
   useEffect(() => {
     fetchLatestBids();
-  }, []);
+  }, [ ]);
 
-  //Allows images of NFTs to appear
-  useEffect(() => {
-    const fetchNFTMetadata = async () => {
-      if (dataListed && dataListed.nftlistedForAuctions) {
-        const metadataPromises = dataListed.nftlistedForAuctions.map((nft) =>
-          getNFTMetadata(nft.contractAddress, nft.tokenId)
-        );
+ //Allows images of NFTs to appear
+ useEffect(() => {
+  const fetchNFTMetadata = async () => {
+    if (dataListedAuction && dataListedAuction.nftlistedForAuctions) {
+      const metadataPromises = dataListedAuction.nftlistedForAuctions.map((nft) =>
+        getNFTMetadata(nft.contractAddress, nft.tokenId)
+      );
 
-        try {
-          const metadataList = await Promise.all(metadataPromises);
-          const newNftImages = metadataList.reduce((acc, metadata, index) => {
-            const tokenId = dataListed.nftlistedForAuctions[index].tokenId;
-            return metadata.image ? { ...acc, [tokenId]: metadata.image } : acc;
-          }, {});
+      try {
+        const metadataList = await Promise.all(metadataPromises);
+        const newNftImages = metadataList.reduce((acc, metadata, index) => {
+          const tokenId = dataListedAuction.nftlistedForAuctions[index].tokenId;
+          return metadata.image ? { ...acc, [tokenId]: metadata.image } : acc;
+        }, {});
 
-          setNftImages(newNftImages);
-        } catch (error) {
-          console.error("Error fetching NFT metadata:", error);
-        }
+        setNftImages(newNftImages);
+      } catch (error) {
+        console.error("Error fetching NFT metadata:", error);
       }
-    };
+    }
+  };
 
-    fetchNFTMetadata();
-  }, [dataListed, getNFTMetadata]);
+  fetchNFTMetadata();
+}, [dataListedAuction, getNFTMetadata]);
 
   //Filters unsold and uncanceled NFTs and creates the current list.
   useEffect(() => {
     if (
-      dataListed &&
-      dataListed.nftlistedForAuctions &&
-      dataSold &&
-      dataSold.nftauctionFinisheds &&
-      dataCancelled &&
-      dataCancelled.nftauctionCancelleds
+      dataListedAuction &&
+      dataListedAuction.nftlistedForAuctions &&
+      dataSoldAuction &&
+      dataSoldAuction.nftauctionFinisheds &&
+      dataCancelledAuction &&
+      dataCancelledAuction.nftauctionCancelleds
     ) {
-      const soldIds = dataSold.nftauctionFinisheds.map(
+      const soldIds = dataSoldAuction.nftauctionFinisheds.map(
         (nft) => nft.Contract_id
       );
-      const cancelledIds = dataCancelled.nftauctionCancelleds.map(
+      const cancelledIds = dataCancelledAuction.nftauctionCancelleds.map(
         (nft) => nft.Contract_id
       );
-      const unsold = dataListed.nftlistedForAuctions.filter(
+      const unsold = dataListedAuction.nftlistedForAuctions.filter(
         (nft) =>
           !soldIds.includes(nft.Contract_id) &&
           !cancelledIds.includes(nft.Contract_id)
       );
       setUnsoldNFTs(unsold);
     }
-  }, [dataListed, dataSold, dataCancelled]);
-
+  }, [dataListedAuction, dataSoldAuction, dataCancelledAuction]);
   //function to get the user's Ethereum address
   useEffect(() => {
     const fetchUserAddress = async () => {
@@ -312,10 +276,13 @@ const claimNFT = async (nft) => {
     fetchUserAddress();
   }, [signer]);
 
-  if (loadingListed || loadingSold || loadingCancelled) return "Loading...";
-  if (errorListed || errorSold || errorCancelled)
+
+
+
+  if (loadingListedAuction || loadingSoldAuction || loadingCancelledAuction) return "Loading...";
+  if (errorListedAuction || errorSoldAuction || errorCancelledAuction)
     return `Error! ${
-      errorListed?.message || errorSold?.message || errorCancelled?.message
+      errorListedAuction?.message || errorSoldAuction?.message || errorCancelledAuction?.message
     }`;
   if (!unsoldNFTs.length) return "No data available";
 
@@ -389,11 +356,17 @@ const claimNFT = async (nft) => {
                 >
                   Cancel Auction
                 </Button>
+                 ) : !isAuctionStarted(nft) ? (
+                  // Eğer açık artırma henüz başlamadıysa
+                  <Text>Açık artırma başlamadı</Text>
+               ) : isAuctionEnded(nft) ? (
+                // Eğer açık artırma süresi dolduysa
+                <Text>Açık artırmanın süresi doldu</Text>
               ) : isUserHighestBidder(nft) ? (
-                <Text>
-                  <strong>You have the highest bid</strong>
-                </Text>
+                // Eğer kullanıcı en yüksek teklifi vermişse
+                <Text><strong>You have the highest bid</strong></Text>
               ) : (
+              
                 <Box mt={2}>
                   <Input
                     type="number"

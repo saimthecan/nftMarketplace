@@ -23,6 +23,7 @@ import { marketplace } from "./marketplace";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
+import useAlchemyProvider from "../Hooks/useAlchemyProvider";
 
 const MyNfts = () => {
   const [nfts, setNfts] = useState([]);
@@ -300,6 +301,8 @@ const MyNfts = () => {
     }
   }, [displayedList, dataListed, wallet]);
 
+  
+
   return (
     <Box
       w="100%"
@@ -312,22 +315,23 @@ const MyNfts = () => {
       bgColor="gray.100"
     >
       <Flex justifyContent="flex-end" mb="4">
-        <Tooltip hasArrow label="Benim NFT'lerim" placement="top">
+      <Tooltip placement="top">
           <Button
-            colorScheme={displayedList === "myNfts" ? "blue" : "gray"}
-            onClick={() => setDisplayedList("myNfts")}
+            colorScheme={displayedList === "unlisted" ? "blue" : "gray"}
+            onClick={() => toggleList("unlisted")}
           >
-            Benim NFT'lerim
+           Unlisted NFTs
           </Button>
         </Tooltip>
-        <Tooltip hasArrow label="Listelenenler" placement="top">
+        <Tooltip  placement="top">
           <Button
-            colorScheme={displayedList === "listed" ? "blue" : "gray"}
-            onClick={() => toggleList("listed")}
+            colorScheme={displayedList === "nftsforsale" ? "blue" : "gray"}
+            onClick={() => setDisplayedList("nftsforsale")}
           >
-            Listelenenler
+           NFTs for sale
           </Button>
         </Tooltip>
+     
 
         <Tooltip hasArrow label="Açık Artırmada" placement="top">
           <Button
@@ -342,7 +346,7 @@ const MyNfts = () => {
       {displayedList === "myNfts" && nfts.length === 0 && (
         <Text>You have no NFTs</Text>
       )}
-      {displayedList === "myNfts" &&
+      {displayedList === "nftsforsale" &&
         nfts.map((nft, index) => (
           <Box
             key={index}
@@ -369,7 +373,7 @@ const MyNfts = () => {
           </Box>
         ))}
 
-      {displayedList === "listed" && (
+      {displayedList === "unlisted" && (
         <Flex wrap="wrap">
           {nfts.map((nft, index) => (
             <Box

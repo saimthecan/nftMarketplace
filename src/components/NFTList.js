@@ -1,128 +1,54 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_LISTED_NFTS, GET_SOLD_NFTS, GET_CANCELLED_NFT_SALES } from "../queries/nftQueries";
-import client from "../config/apolloClient";
+import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
-import { ethers } from "ethers";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { marketplace } from "./marketplace";
-import { Web3Provider } from "@ethersproject/providers";
-import { toast } from "react-toastify";
-import {  formatEther } from "ethers/utils";
+import { formatEther } from "ethers/utils";
+import useQueries from "../Hooks/useQueries";
+import useAlchemyProvider from "../Hooks/useAlchemyProvider";
+import useWeb3Provider from "../Hooks/useWeb3Provider";
+import useNFTMetadata from "../Hooks/useNFTMetadata";
+import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
+import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 
 const NFTList = () => {
-  const {
-    loading: loadingListed,
-    error: errorListed,
-    data: dataListed,
-  } = useQuery(GET_LISTED_NFTS, { client, pollInterval: 5000 });
-  const {
-    loading: loadingSold,
-    error: errorSold,
-    data: dataSold,
-  } = useQuery(GET_SOLD_NFTS, { client, pollInterval: 5000 });
-  const {
-    data: dataCancelledSales,
-    loading: loadingCancelledSales,
-    error: errorCancelledSales
-  } = useQuery(GET_CANCELLED_NFT_SALES, { client, pollInterval: 5000 });
-
   const [nftImages, setNftImages] = useState({});
-  const [enteredQuantities, setEnteredQuantities] = useState({});
-  const [userAddress, setUserAddress] = useState(null);
   const [unsoldNFTs, setUnsoldNFTs] = useState([]);
 
-  const alchemyApiKey = "4fzUXD3ZGkDM_iosciExOfbF_4V0blFV";
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const alchemyProvider = new JsonRpcProvider(
-    `https://eth-goerli.alchemyapi.io/v2/${alchemyApiKey}`
-  );
-  const provider = useMemo(() => new Web3Provider(window.ethereum), []);
-  const signer = provider.getSigner();
+  // Redux state'inden account bilgisini al
+  const account = useSelector((state) => state.wallet.account);
+  const balance = useSelector((state) => state.wallet.balance);
 
-  const CONTRACT_ADDRESS = "0x548d43c9a6f0d13a22b3196a727b36982602ca22";
+  //queries
+  const {
+    loadingListedSale,
+    errorListedSale,
+    dataListedSale,
+    loadingSold,
+    errorSold,
+    dataSold,
+    dataCancelledSales,
+  } = useQueries();
 
-   //function to get the user's wallet balance as wei
-   const getWalletBalance = useCallback(async () => {
-    try {
-      const userAddress = await signer.getAddress();
-      const balanceInWei = await provider.getBalance(userAddress);
+  //Alchemy Provider
+  const alchemyProvider = useAlchemyProvider();
 
-      // eslint-disable-next-line no-undef
-      const bigNumberValue = BigInt(balanceInWei._hex);
+  //Web3 Provider
+  const { provider, signer } = useWeb3Provider();
 
-      const decimalValue = bigNumberValue.toString();
-      return decimalValue;
-    } catch (error) {
-      console.error("Bakiye alınırken bir hata oluştu:", error);
-    }
-  }, [provider, signer]);
+  //Contract Address
+  const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
 
-  const getNFTMetadata = useCallback(async (contractAddress, tokenId) => {
-    const contract = new ethers.Contract(
-      contractAddress,
-      [
-        "function tokenURI(uint256 tokenId) external view returns (string memory)",
-      ],
-      alchemyProvider
-    );
-    const tokenUri = await contract.tokenURI(tokenId);
-    const response = await fetch(tokenUri);
-    const metadata = await response.json();
-    return metadata;
-  }, [alchemyProvider]);
+  //Helper function to view images of NFTs in auction
+  const getNFTMetadata = useNFTMetadata(alchemyProvider);
 
-  const buyNFT = async (id, price) => {
-    const currentBalance = await getWalletBalance();
-  
+  //Helper function to buy Nft
+  const buyNFT = useBuyNFT(signer, provider, CONTRACT_ADDRESS, balance);
 
-    if (
-      !currentBalance ||
-      parseFloat(currentBalance) <= parseFloat(price)
-    ) {
-      toast.error("Insufficient Balance");
-      return;
-    }
-    const marketplaceContract = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      marketplace,
-      signer
-    );
-    try {
-      const tx = await marketplaceContract.buyNFT(id, { value: price });
-      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
-      toast.success("NFT bought successfully!")
-      console.log("NFT bought successfully!");
-    } catch (error) {
-      console.error("An error occurred while buying the NFT:", error);
-    }
-  };
-
-  const cancelNFTSale = async (id) => {
-    // Assuming you have a function in your smart contract to cancel the sale
-    const marketplaceContract = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      marketplace,
-      signer
-    );
-    try {
-      const tx = await marketplaceContract.cancelNFTSale(id);
-      await provider.waitForTransaction(tx.hash, 1); // İşlemin tamamlanmasını bekleyin
-      toast.success("NFT sale cancelled successfully!")
-      console.log("NFT sale cancelled successfully!");
-    } catch (error) {
-      console.error("An error occurred while cancelling the NFT sale:", error);
-    }
-  };
-
-  //enables the getwalletbalance function to work
-  useEffect(() => {
-    getWalletBalance();
-  }, [getWalletBalance, userAddress]);
+  // useCancelNFTSale hook'unu kullan
+  const cancelNFTSale = useCancelNFTSale(signer, provider, CONTRACT_ADDRESS);
 
   useEffect(() => {
-    if (dataListed && dataListed.nftlistedForSales) {
-      dataListed.nftlistedForSales.forEach(async (nft) => {
+    if (dataListedSale && dataListedSale.nftlistedForSales) {
+      dataListedSale.nftlistedForSales.forEach(async (nft) => {
         const metadata = await getNFTMetadata(nft.contractAddress, nft.tokenId);
         if (metadata.image) {
           setNftImages((prevState) => ({
@@ -132,47 +58,34 @@ const NFTList = () => {
         }
       });
     }
-  }, [dataListed, getNFTMetadata]);
+  }, [dataListedSale, getNFTMetadata]);
 
-  // Fetch the user's address
   useEffect(() => {
-    const fetchUserAddress = async () => {
-      try {
-        const address = await signer.getAddress();
-        setUserAddress(address);
-      } catch (error) {
-        console.error("Error fetching user address:", error);
-      }
-    };
-
-    fetchUserAddress();
-  }, [signer]);
-
-useEffect(() => {
-  if (
-    dataListed &&
-    dataListed.nftlistedForSales &&
-    dataSold &&
-    dataSold.nftsolds &&
-    dataCancelledSales &&
-    dataCancelledSales.nftsaleCancelleds
-  ) {
-    const soldIds = dataSold.nftsolds.map(nft => nft.Contract_id);
-    const cancelledSaleIds = dataCancelledSales.nftsaleCancelleds.map(nft => nft.Contract_id);
-    const unsold = dataListed.nftlistedForSales.filter(
-      nft => !soldIds.includes(nft.Contract_id) && !cancelledSaleIds.includes(nft.Contract_id)
-    );
-    setUnsoldNFTs(unsold);
-  }
-}, [dataListed, dataSold, dataCancelledSales]);
+    if (
+      dataListedSale &&
+      dataListedSale.nftlistedForSales &&
+      dataSold &&
+      dataSold.nftsolds &&
+      dataCancelledSales &&
+      dataCancelledSales.nftsaleCancelleds
+    ) {
+      const soldIds = dataSold.nftsolds.map((nft) => nft.Contract_id);
+      const cancelledSaleIds = dataCancelledSales.nftsaleCancelleds.map(
+        (nft) => nft.Contract_id
+      );
+      const unsold = dataListedSale.nftlistedForSales.filter(
+        (nft) =>
+          !soldIds.includes(nft.Contract_id) &&
+          !cancelledSaleIds.includes(nft.Contract_id)
+      );
+      setUnsoldNFTs(unsold);
+    }
+  }, [dataListedSale, dataSold, dataCancelledSales]);
 
 
-
-
-
-  if (loadingListed || loadingSold) return "Loading...";
-  if (errorListed || errorSold)
-    return `Error! ${errorListed?.message || errorSold?.message}`;
+  if (loadingListedSale || loadingSold) return "Loading...";
+  if (errorListedSale || errorSold)
+    return `Error! ${errorListedSale?.message || errorSold?.message}`;
   if (!unsoldNFTs.length) return "No data available";
 
   return (
@@ -220,7 +133,7 @@ useEffect(() => {
               <Text>
                 <strong>Price:</strong> {formatEther(nft.price)} ETH
               </Text>
-              {nft.seller.toLowerCase() === userAddress?.toLowerCase() ? (
+              {nft.seller.toLowerCase() === account?.toLowerCase() ? (
                 <Button
                   mt={4}
                   colorScheme="red"
