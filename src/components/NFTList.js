@@ -1,35 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from 'react-redux';
+import React from "react";
+import { useSelector } from "react-redux";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
 import useQueries from "../Hooks/useQueries";
-import useAlchemyProvider from "../Hooks/useAlchemyProvider";
 import useWeb3Provider from "../Hooks/useWeb3Provider";
-import useNFTMetadata from "../Hooks/useNFTMetadata";
 import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
+import useNFTListData from "../Hooks/NftSale/useNFTListData";
 
 const NFTList = () => {
-  const [nftImages, setNftImages] = useState({});
-  const [unsoldNFTs, setUnsoldNFTs] = useState([]);
+  const { nftImages, unsoldNFTs } = useNFTListData();
+  console.log("listed",unsoldNFTs);
 
   // Redux state'inden account bilgisini al
   const account = useSelector((state) => state.wallet.account);
   const balance = useSelector((state) => state.wallet.balance);
-
-  //queries
-  const {
-    loadingListedSale,
-    errorListedSale,
-    dataListedSale,
-    loadingSold,
-    errorSold,
-    dataSold,
-    dataCancelledSales,
-  } = useQueries();
-
-  //Alchemy Provider
-  const alchemyProvider = useAlchemyProvider();
 
   //Web3 Provider
   const { provider, signer } = useWeb3Provider();
@@ -37,51 +22,15 @@ const NFTList = () => {
   //Contract Address
   const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
 
-  //Helper function to view images of NFTs in auction
-  const getNFTMetadata = useNFTMetadata(alchemyProvider);
+  //queries
+  const { loadingListedSale, errorListedSale, loadingSold, errorSold } =
+    useQueries();
 
   //Helper function to buy Nft
   const buyNFT = useBuyNFT(signer, provider, CONTRACT_ADDRESS, balance);
 
   // useCancelNFTSale hook'unu kullan
   const cancelNFTSale = useCancelNFTSale(signer, provider, CONTRACT_ADDRESS);
-
-  useEffect(() => {
-    if (dataListedSale && dataListedSale.nftlistedForSales) {
-      dataListedSale.nftlistedForSales.forEach(async (nft) => {
-        const metadata = await getNFTMetadata(nft.contractAddress, nft.tokenId);
-        if (metadata.image) {
-          setNftImages((prevState) => ({
-            ...prevState,
-            [nft.tokenId]: metadata.image,
-          }));
-        }
-      });
-    }
-  }, [dataListedSale, getNFTMetadata]);
-
-  useEffect(() => {
-    if (
-      dataListedSale &&
-      dataListedSale.nftlistedForSales &&
-      dataSold &&
-      dataSold.nftsolds &&
-      dataCancelledSales &&
-      dataCancelledSales.nftsaleCancelleds
-    ) {
-      const soldIds = dataSold.nftsolds.map((nft) => nft.Contract_id);
-      const cancelledSaleIds = dataCancelledSales.nftsaleCancelleds.map(
-        (nft) => nft.Contract_id
-      );
-      const unsold = dataListedSale.nftlistedForSales.filter(
-        (nft) =>
-          !soldIds.includes(nft.Contract_id) &&
-          !cancelledSaleIds.includes(nft.Contract_id)
-      );
-      setUnsoldNFTs(unsold);
-    }
-  }, [dataListedSale, dataSold, dataCancelledSales]);
-
 
   if (loadingListedSale || loadingSold) return "Loading...";
   if (errorListedSale || errorSold)
@@ -117,6 +66,8 @@ const NFTList = () => {
             >
               {nftImages[nft.tokenId] && (
                 <Image
+                boxSize="300px"
+                mt={4}
                   src={nftImages[nft.tokenId]}
                   alt={`NFT ${nft.tokenId}`}
                 />
