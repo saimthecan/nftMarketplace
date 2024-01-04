@@ -425,7 +425,7 @@ const MyNfts = () => {
                     selected={auctionStartTime}
                     showTimeSelect
                     timeFormat="HH:mm"
-                    timeIntervals={1}
+                    timeIntervals={5}
                     timeCaption="time"
                     dateFormat="MMMM d, yyyy h:mm aa"
                   />
@@ -437,7 +437,7 @@ const MyNfts = () => {
                     selected={auctionEndTime}
                     showTimeSelect
                     timeFormat="HH:mm"
-                    timeIntervals={1}
+                    timeIntervals={5}
                     timeCaption="time"
                     dateFormat="MMMM d, yyyy h:mm aa"
                   />
