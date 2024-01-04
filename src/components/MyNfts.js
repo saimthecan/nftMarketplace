@@ -8,7 +8,13 @@ import {
   Button,
   Input,
   Tooltip,
-  Grid,
+  Modal,
+  ModalOverlay,
+  ModalBody,
+  ModalHeader,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import noImage from "../assests/noImage.png";
@@ -24,16 +30,33 @@ import useAuctionActions from "../Hooks/MyNfts/useAuctionActions";
 import useUnlistedNftsData from "../Hooks/MyNfts/useUnlistedNftsData";
 import { formatEther } from "ethers/utils";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
+import useOnAuctionData from "../Hooks/MyNfts/useOnAuctionData";
+import useCancelNFTAuction from "../Hooks/NftAuction/useCancelNFTAuction";
 
 const MyNfts = () => {
   const [nfts, setNfts] = useState([]);
   const [enteredPrices, setEnteredPrices] = useState({});
-  const [enteredQuantities, setEnteredQuantities] = useState({});
   const [auctionStartTime, setAuctionStartTime] = useState(new Date());
   const [auctionEndTime, setAuctionEndTime] = useState(new Date());
-  const [displayedList, setDisplayedList] = useState("listed");
+  const [displayedList, setDisplayedList] = useState("unlisted");
+  const [isSellModalOpen, setSellModalOpen] = useState(false);
+  const [isAuctionModalOpen, setAuctionModalOpen] = useState(false);
+  const [selectedNft, setSelectedNft] = useState(null);
 
   const { nftData, loadingListedSale, errorListedSale } = useUnlistedNftsData();
+  const { nftDataAuction } = useOnAuctionData();
+
+  const onSellModalOpen = (nft) => {
+    setSelectedNft(nft);
+    setSellModalOpen(true);
+  };
+  const onSellModalClose = () => setSellModalOpen(false);
+
+  const onAuctionModalOpen = (nft) => {
+    setSelectedNft(nft);
+    setAuctionModalOpen(true);
+  };
+  const onAuctionModalClose = () => setAuctionModalOpen(false);
 
   // Redux state'inden account bilgisini al
   const wallet = useSelector((state) => state.wallet.account);
@@ -53,14 +76,16 @@ const MyNfts = () => {
   // useApproveNFT hook'unu kullan
   const approveNFT = useApproveNFT(signer, CONTRACT_ADDRESS);
 
-  
+  // useCancelAuction hook'unu kullan
+  const cancelAuction = useCancelNFTAuction(signer, CONTRACT_ADDRESS);
+
   // useCancelNFTSale hook'unu kullan
   const cancelNFTSale = useCancelNFTSale(signer, provider, CONTRACT_ADDRESS);
 
   // useNFTActions hook'unu kullan
   const { startNFTSale } = useNFTActions(signer, provider, CONTRACT_ADDRESS);
 
-  const sellNFT = async (nft, index) => {
+  const sellNFT = async (nft) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
 
@@ -69,9 +94,19 @@ const MyNfts = () => {
       await approveNFT(contractAddress, tokenId);
     }
 
-    const uniqueKey = `${index}-${nft.tokenId}`;
-    const price = enteredPrices[uniqueKey];
-    await startNFTSale(nft, price);
+    const price = enteredPrices[tokenId];
+    if (!price || isNaN(parseFloat(price))) {
+      toast.error("Please enter a valid ETH value");
+      return;
+    }
+
+    try {
+      await startNFTSale(nft, price);
+      onSellModalClose();
+    } catch (error) {
+      console.error("Error starting NFT sale:", error);
+      toast.error("Error starting NFT sale");
+    }
   };
 
   const { startNFTAuction } = useAuctionActions(
@@ -80,9 +115,17 @@ const MyNfts = () => {
     CONTRACT_ADDRESS
   );
 
-  const startAuction = async (nft, index) => {
-    const price = enteredPrices[`${index}-${nft.tokenId}`];
-    const currentTimestamp = Math.floor(Date.now() / 1000); // Şu anki zamanın Unix zaman damgası
+  const startAuction = async (nft) => {
+    const contractAddress = nft.contract.address;
+    const tokenId = nft.tokenId;
+
+    const price = enteredPrices[tokenId];
+    if (!price || isNaN(parseFloat(price))) {
+      toast.error("Please enter a valid ETH value");
+      return;
+    }
+
+    const currentTimestamp = Math.floor(Date.now() / 1000);
     const unixTimestampStart = Math.floor(auctionStartTime.getTime() / 1000);
     const unixTimestampEnd = Math.floor(auctionEndTime.getTime() / 1000);
 
@@ -95,13 +138,18 @@ const MyNfts = () => {
       return;
     }
 
+    try {
+      const isApproved = await checkApproval(contractAddress, tokenId);
+      if (!isApproved) {
+        await approveNFT(contractAddress, tokenId);
+      }
 
-    const isApproved = await checkApproval(nft.contract.address, nft.tokenId);
-    if (!isApproved) {
-      await approveNFT(nft.contract.address, nft.tokenId);
+      await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
+      onAuctionModalClose();
+    } catch (error) {
+      console.error("Error starting auction:", error);
+      toast.error("Error starting auction");
     }
-
-    await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
   };
 
   useEffect(() => {
@@ -160,9 +208,48 @@ const MyNfts = () => {
           </Button>
         </Tooltip>
       </Flex>
-      {displayedList === "myNfts" && nfts.length === 0 && (
-        <Text>You have no NFTs</Text>
+      {displayedList === "onAuction" && (
+        <Flex wrap="wrap">
+          {nftDataAuction.map((nft, index) => (
+            <Box
+              key={index}
+              p={4}
+              borderWidth={1}
+              borderRadius="md"
+              boxShadow="md"
+              m={2}
+              overflow="auto"
+              width="350px"
+            >
+              <Image
+                src={nft.metadata?.image || noImage}
+                alt={`NFT ${nft.tokenId}`}
+                boxSize="300px" // Resim boyutu
+                mt={4}
+              />
+              <Flex flexDirection="column" gap={2} mt={2}>
+                <Text mt={2}>
+                  <strong>Token ID:</strong> {nft.tokenId}
+                </Text>
+                <Text>
+                  <strong>Seller:</strong> {nft.seller}
+                </Text>
+                <Text>
+                  <strong>Contract ID:</strong> {nft.Contract_id}
+                </Text>
+                <Button
+                  mt={4}
+                  colorScheme="red"
+                  onClick={() => cancelAuction(nft, index)}
+                >
+                  Cancel NFT Sale
+                </Button>
+              </Flex>
+            </Box>
+          ))}
+        </Flex>
       )}
+
       {displayedList === "nftsforsale" && (
         <Flex wrap="wrap">
           {nftData.map((nft, index) => (
@@ -233,71 +320,140 @@ const MyNfts = () => {
                 <Text>{`Name: ${nft.contract.name}`}</Text>
                 <Text>{`Description: ${nft.rawMetadata?.description}`}</Text>
                 <Text>{`Token ID: ${nft.tokenId}`}</Text>
-                <Input
-                  type="number"
-                  placeholder="Enter listing price in ETH"
-                  value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
-                  onChange={(e) =>
-                    setEnteredPrices((prevPrices) => ({
-                      ...prevPrices,
-                      [`${index}-${nft.tokenId}`]: e.target.value,
-                    }))
-                  }
-                />
-                <Button
-                  colorScheme="blue"
-                  onClick={() => {
-                    const price = enteredPrices[`${index}-${nft.tokenId}`];
-                    if (!price || isNaN(parseFloat(price))) {
-                      toast.error("Please enter a valid ETH value");
-                    } else {
-                      sellNFT(nft, index);
-                    }
-                  }}
-                >
-                  Sell NFT
-                </Button>
-
-                <Text>
-                  <strong>AuctionStartTime</strong>
-                </Text>
-                <DatePicker
-                  onChange={setAuctionStartTime}
-                  selected={auctionStartTime}
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={1}
-                  timeCaption="time"
-                  dateFormat="MMMM d, yyyy h:mm aa"
-                />
-                <Text>
-                  <strong>AuctionEndTime</strong>
-                </Text>
-                <DatePicker
-                  onChange={setAuctionEndTime}
-                  selected={auctionEndTime}
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={1}
-                  timeCaption="time"
-                  dateFormat="MMMM d, yyyy h:mm aa"
-                />
-                <Button
-                  onClick={() => {
-                    const price = enteredPrices[`${index}-${nft.tokenId}`];
-                    if (!price || isNaN(parseFloat(price))) {
-                      toast.error("Please enter a valid ETH value");
-                    } else {
-                      startAuction(nft, index);
-                    }
-                  }}
-                >
-                  Auction Start
-                </Button>
+              </Flex>
+              <Flex>
+                <Flex mt={4}>
+                  <Button
+                    w="150px"
+                    colorScheme="blue"
+                    onClick={() => onSellModalOpen(nft)}
+                  >
+                    Sell
+                  </Button>
+                  <Button
+                    w="150px"
+                    colorScheme="green"
+                    onClick={() => onAuctionModalOpen(nft)}
+                  >
+                    Auction
+                  </Button>
+                </Flex>
               </Flex>
             </Box>
           ))}
         </Flex>
+      )}
+      {/* Sell NFT Modal */}
+      {selectedNft && (
+        <Modal isOpen={isSellModalOpen} onClose={onSellModalClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Sell NFT</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Box p={4} borderWidth={1} borderRadius="md" boxShadow="md">
+                <Badge colorScheme="green">{`Balance: ${selectedNft.balance}`}</Badge>
+                <Image
+                  boxSize="300px"
+                  src={selectedNft.rawMetadata?.image || noImage}
+                  alt="NFT Image"
+                  mt={4}
+                />
+                <Flex flexDirection="column" gap={2} mt={2}>
+                  <Text>{`Name: ${selectedNft.contract.name}`}</Text>
+                  <Text>{`Description: ${selectedNft.rawMetadata?.description}`}</Text>
+                  <Text>{`Token ID: ${selectedNft.tokenId}`}</Text>
+                  <Input
+                    type="number"
+                    placeholder="Enter listing price in ETH"
+                    value={enteredPrices[`${selectedNft.tokenId}`] || ""}
+                    onChange={(e) =>
+                      setEnteredPrices((prevPrices) => ({
+                        ...prevPrices,
+                        [`${selectedNft.tokenId}`]: e.target.value,
+                      }))
+                    }
+                  />
+                </Flex>
+              </Box>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" onClick={() => sellNFT(selectedNft)}>
+                Sell NFT
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {/* Auction Start Modal */}
+      {selectedNft && (
+        <Modal isOpen={isAuctionModalOpen} onClose={onAuctionModalClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Start Auction</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Box p={4} borderWidth={1} borderRadius="md" boxShadow="md">
+                <Badge colorScheme="green">{`Balance: ${selectedNft.balance}`}</Badge>
+                <Image
+                  boxSize="300px"
+                  src={selectedNft.rawMetadata?.image || noImage}
+                  alt="NFT Image"
+                  mt={4}
+                />
+                <Flex flexDirection="column" gap={2} mt={2}>
+                  <Text>{`Name: ${selectedNft.contract.name}`}</Text>
+                  <Text>{`Description: ${selectedNft.rawMetadata?.description}`}</Text>
+                  <Text>{`Token ID: ${selectedNft.tokenId}`}</Text>
+                  <Input
+                    type="number"
+                    placeholder="Enter listing price in ETH"
+                    value={enteredPrices[`${selectedNft.tokenId}`] || ""}
+                    onChange={(e) =>
+                      setEnteredPrices((prevPrices) => ({
+                        ...prevPrices,
+                        [`${selectedNft.tokenId}`]: e.target.value,
+                      }))
+                    }
+                  />
+                  <Text>
+                    <strong>AuctionStartTime</strong>
+                  </Text>
+                  <DatePicker
+                    onChange={setAuctionStartTime}
+                    selected={auctionStartTime}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={1}
+                    timeCaption="time"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                  />
+                  <Text>
+                    <strong>AuctionEndTime</strong>
+                  </Text>
+                  <DatePicker
+                    onChange={setAuctionEndTime}
+                    selected={auctionEndTime}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={1}
+                    timeCaption="time"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                  />
+                </Flex>
+              </Box>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                colorScheme="green"
+                onClick={() => startAuction(selectedNft)}
+              >
+                Start Auction
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       )}
     </Box>
   );

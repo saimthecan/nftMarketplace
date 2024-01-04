@@ -5,17 +5,15 @@ import { ERC721 } from '../../components/erc721abi';
 import { ethers } from 'ethers';
 import { useSelector } from 'react-redux';
 
-const useUnlistedNftsData = () => {
-  const [nftData, setNftData] = useState([]);
+const useOnAuctionData = () => {
+  const [nftDataAuction, setNftData] = useState([]);
   const account = useSelector(state => state.wallet.account);
 
   const { provider } = useWeb3Provider();
   const {
-    dataListedSale,
-    dataSold,
-    dataCancelledSales,
-    loadingListedSale,
-    errorListedSale
+    dataListedAuction,
+    dataSoldAuction,
+    dataCancelledAuction,
   } = useQueries();
 
   useEffect(() => {
@@ -33,11 +31,11 @@ const useUnlistedNftsData = () => {
     };
 
     const fetchAllData = async () => {
-      if (dataListedSale && dataListedSale.nftlistedForSales) {
-        const soldIds = dataSold?.nftsolds?.map((nft) => nft.Contract_id) || [];
-        const cancelledSaleIds = dataCancelledSales?.nftsaleCancelleds?.map((nft) => nft.Contract_id) || [];
-        
-        const unsoldNfts = dataListedSale.nftlistedForSales.filter(
+      if (dataListedAuction && dataListedAuction.nftlistedForAuctions) {
+        const soldIds = dataSoldAuction?.nftauctionFinisheds?.map((nft) => nft.Contract_id) || [];
+        const cancelledSaleIds = dataCancelledAuction?.nftauctionCancelleds?.map((nft) => nft.Contract_id) || [];
+
+        const unsoldNfts = dataListedAuction.nftlistedForAuctions.filter(
           (nft) =>
             !soldIds.includes(nft.Contract_id) &&
             !cancelledSaleIds.includes(nft.Contract_id) &&
@@ -54,9 +52,9 @@ const useUnlistedNftsData = () => {
     };
 
     fetchAllData();
-  }, [dataListedSale, dataSold, dataCancelledSales, account, provider, loadingListedSale, errorListedSale]);
+  }, [dataListedAuction, dataSoldAuction, dataCancelledAuction, account, provider]);
 
-  return { nftData };
+  return { nftDataAuction };
 };
 
-export default useUnlistedNftsData;
+export default useOnAuctionData;

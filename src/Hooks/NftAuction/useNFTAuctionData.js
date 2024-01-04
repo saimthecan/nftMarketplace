@@ -10,7 +10,7 @@ const useNFTAuctionData = () => {
   
     const { provider } = useWeb3Provider();
   
-     //queries
+  //queries
   const { 
     loadingListedAuction, errorListedAuction, dataListedAuction,
     loadingSoldAuction, errorSoldAuction,dataSoldAuction,

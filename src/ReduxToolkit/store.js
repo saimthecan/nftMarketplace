@@ -1,15 +1,17 @@
 // store.js
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import walletReducer from './walletSlice';
-import walletMiddleware from './walletMiddleware'; // Middleware'i import et
-
-const middleware = [...getDefaultMiddleware(), walletMiddleware]; // Middleware'i ekle
+import nftAuctionReducer from './nftAuctionSlice';
+import nftAuctionMiddleware from './nftAuctionMiddleware';
+import walletMiddleware from './walletMiddleware';
 
 const store = configureStore({
   reducer: {
     wallet: walletReducer,
+    nftAuction: nftAuctionReducer,
   },
-  middleware,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(walletMiddleware, nftAuctionMiddleware),
 });
 
 export default store;
