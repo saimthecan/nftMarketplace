@@ -71,7 +71,7 @@ const Home = () => {
                   bg="#363c42"
                   color="white"
                 >
-                  Buy and Sell
+                  Buy
                 </Button>
               </VStack>
             </Box>
