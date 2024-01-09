@@ -7,6 +7,7 @@ import store from './ReduxToolkit/store';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from './components/Navbar';
 import MyNfts from "./components/MyNfts";
+import Home from "./components/Home";
 import NFTList from "./components/NFTList";
 import NFTAuction from "./components/NFTAuction"
 
@@ -20,8 +21,9 @@ function App() {
           <Router>
             <Navbar />
             <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/nftlist" element={<NFTList />} />
-              <Route path="/" element={<MyNfts />} />
+              <Route path="/mynfts" element={<MyNfts />} />
               <Route path="/nftauction" element={<NFTAuction />} />
             </Routes>
           </Router>

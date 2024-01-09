@@ -1,4 +1,4 @@
-import React from "react";
+import React  from "react";
 import { useSelector } from "react-redux";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
@@ -7,8 +7,12 @@ import useWeb3Provider from "../Hooks/useWeb3Provider";
 import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 import useNFTListData from "../Hooks/NftSale/useNFTListData";
-
+import useWalletConnection from '../Hooks/useWalletConnection';
 const NFTList = () => {
+
+  const wallet = useSelector((state) => state.wallet.account);
+  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
+
   const { nftImages, unsoldNFTs } = useNFTListData();
   console.log("listed",unsoldNFTs);
 
@@ -84,23 +88,34 @@ const NFTList = () => {
               <Text>
                 <strong>Price:</strong> {formatEther(nft.price)} ETH
               </Text>
-              {nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                <Button
-                  mt={4}
-                  colorScheme="red"
-                  onClick={() => cancelNFTSale(nft.Contract_id)}
-                >
-                  Cancel NFT Sale
-                </Button>
-              ) : (
-                <Button
-                  mt={4}
-                  colorScheme="blue"
-                  onClick={() => buyNFT(nft.Contract_id, nft.price)}
-                >
-                  Buy NFT
-                </Button>
-              )}
+              {wallet ? (
+  nft.seller.toLowerCase() === account?.toLowerCase() ? (
+    <Button
+      mt={4}
+      colorScheme="red"
+      onClick={() => cancelNFTSale(nft.Contract_id)}
+    >
+      Cancel NFT Sale
+    </Button>
+  ) : (
+    <Button
+      mt={4}
+      colorScheme="blue"
+      onClick={() => buyNFT(nft.Contract_id, nft.price)}
+    >
+      Buy NFT
+    </Button>
+  )
+) : (
+  <Button
+    mt={4}
+    colorScheme="teal"
+    onClick={connectWallet} // Make sure the connectWallet function is defined in your component
+  >
+    Connect
+  </Button>
+)}
+
             </Box>
           ))
         )}

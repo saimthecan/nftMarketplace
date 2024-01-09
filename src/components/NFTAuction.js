@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text, Image, Grid, Button, Input } from "@chakra-ui/react";
-import {  formatEther } from "ethers/utils";
+import { formatEther } from "ethers/utils";
 import { toast } from "react-toastify";
 import useQueries from "../Hooks/useQueries";
 import useWeb3Provider from "../Hooks/useWeb3Provider";
@@ -8,17 +8,22 @@ import { useSelector, useDispatch } from "react-redux";
 import useNFTAuctionData from "../Hooks/NftAuction/useNFTAuctionData";
 import useCancelNFTAuction from "../Hooks/NftAuction/useCancelNFTAuction";
 import useClaimNFTAuction from "../Hooks/NftAuction/useClaimNFTAuction";
-import usePlaceBid from '../Hooks/NftAuction/usePlaceBid';
-import useAuctionOutcome from '../Hooks/NftAuction/useAuctionOutcome';
-import { fetchLatestBids } from '../ReduxToolkit/nftAuctionSlice';
-
+import usePlaceBid from "../Hooks/NftAuction/usePlaceBid";
+import useAuctionOutcome from "../Hooks/NftAuction/useAuctionOutcome";
+import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
+import useWalletConnection from "../Hooks/useWalletConnection";
 
 const NFTAuction = () => {
   //states
   const { nftImages, unsoldNFTs } = useNFTAuctionData();
   const [enteredPrices, setEnteredPrices] = useState({});
 
-  const { latestBids, loading, error } = useSelector((state) => state.nftAuction);
+  const wallet = useSelector((state) => state.wallet.account);
+  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
+
+  const { latestBids, loading, error } = useSelector(
+    (state) => state.nftAuction
+  );
   const balance = useSelector((state) => state.wallet.balance);
   const account = useSelector((state) => state.wallet.account);
 
@@ -45,12 +50,23 @@ const NFTAuction = () => {
   const cancelAuction = useCancelNFTAuction(signer, CONTRACT_ADDRESS);
 
   // usePlaceBid hook'unu kullan
-  const placeBid = usePlaceBid(signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBids);
+  const placeBid = usePlaceBid(
+    signer,
+    CONTRACT_ADDRESS,
+    enteredPrices,
+    balance,
+    latestBids
+  );
 
- // useClaimNFT hook'unu kullan
- const claimNFT = useClaimNFTAuction(signer, CONTRACT_ADDRESS);
+  // useClaimNFT hook'unu kullan
+  const claimNFT = useClaimNFTAuction(signer, CONTRACT_ADDRESS);
 
- const { isAuctionEnded, isAuctionStarted , isAuctionEndedAndUserIsHighestBidder, isUserHighestBidder} = useAuctionOutcome();
+  const {
+    isAuctionEnded,
+    isAuctionStarted,
+    isAuctionEndedAndUserIsHighestBidder,
+    isUserHighestBidder,
+  } = useAuctionOutcome();
 
   //USE EFFECTS
 
@@ -135,54 +151,65 @@ const NFTAuction = () => {
                   : "No bids yet"}
               </Text>
 
-              {nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                <Button
-                  colorScheme="red"
-                  onClick={() => cancelAuction(nft, index)}
-                >
-                  Cancel Auction
-                </Button>
-              ) : !isAuctionStarted(nft) ? (
-                // Eğer açık artırma henüz başlamadıysa
-                <Text>Açık artırma başlamadı</Text>
-              ) : isAuctionEnded(nft) ? (
-                // Eğer açık artırma süresi dolduysa
-                <Text>Açık artırmanın süresi doldu</Text>
-              ) : isUserHighestBidder(nft) ? (
-                // Eğer kullanıcı en yüksek teklifi vermişse
-                <Text>
-                  <strong>You have the highest bid</strong>
-                </Text>
-              ) : (
-                <Box mt={2}>
-                  <Input
-                    type="number"
-                    placeholder="Enter listing price in ETH"
-                    value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
-                    onChange={(e) =>
-                      setEnteredPrices((prevPrices) => ({
-                        ...prevPrices,
-                        [`${index}-${nft.tokenId}`]: e.target.value,
-                      }))
-                    }
-                  />
+              {wallet ? (
+                nft.seller.toLowerCase() === account?.toLowerCase() ? (
+                  // If the current user is the seller
                   <Button
-                    mt={2}
-                    colorScheme="blue"
-                    onClick={() => {
-                      const price = enteredPrices[`${index}-${nft.tokenId}`];
-                      if (!price || isNaN(parseFloat(price))) {
-                        toast.error("Please enter a valid ETH value");
-                      } else {
-                        placeBid(nft, index);
-                      }
-                    }}
+                    colorScheme="red"
+                    onClick={() => cancelAuction(nft, index)}
                   >
-                    Bid on NFT
+                    Cancel Auction
                   </Button>
-                </Box>
+                ) : !isAuctionStarted(nft) ? (
+                  // If the auction has not started
+                  <Text>Açık artırma başlamadı</Text>
+                ) : isAuctionEnded(nft) ? (
+                  // If the auction has ended
+                  <Text>Açık artırmanın süresi doldu</Text>
+                ) : isUserHighestBidder(nft) ? (
+                  // If the current user is the highest bidder
+                  <Text>
+                    <strong>You have the highest bid</strong>
+                  </Text>
+                ) : (
+                  // Allow the user to place a bid
+                  <Box mt={2}>
+                    <Input
+                      type="number"
+                      placeholder="Enter bid price in ETH"
+                      value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
+                      onChange={(e) =>
+                        setEnteredPrices((prevPrices) => ({
+                          ...prevPrices,
+                          [`${index}-${nft.tokenId}`]: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      mt={2}
+                      colorScheme="blue"
+                      onClick={() => {
+                        const price = enteredPrices[`${index}-${nft.tokenId}`];
+                        if (!price || isNaN(parseFloat(price))) {
+                          toast.error("Please enter a valid ETH value");
+                        } else {
+                          placeBid(nft, index);
+                        }
+                      }}
+                    >
+                      Bid on NFT
+                    </Button>
+                  </Box>
+                )
+              ) : (
+                // If the user's wallet is not connected
+                <Button colorScheme="teal" onClick={connectWallet}>
+                  Connect
+                </Button>
               )}
+
               {isAuctionEndedAndUserIsHighestBidder(nft) && (
+                // If the auction has ended and the current user is the highest bidder
                 <Button colorScheme="blue" onClick={() => claimNFT(nft)}>
                   Claim NFT
                 </Button>

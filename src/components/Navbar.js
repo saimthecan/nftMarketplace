@@ -20,6 +20,7 @@ import { connect } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
+import useWalletConnection from '../Hooks/useWalletConnection';
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -28,30 +29,21 @@ export const Navbar = () => {
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [isWrongNetwork, setIsWrongNetwork] = useState(false);
 
-  const connectWallet = async () => {
-    await switchToGoerliNetwork();
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        const address = accounts[0];
-        dispatch(connectWalletAction(address));
-        setIsConnected(true);
-        localStorage.setItem("walletAddress", address);
-      } catch (error) {
-        console.error("User denied wallet access:", error);
-      }
-    } else {
-      console.log("Please install Metamask.");
-    }
-  };
+  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
 
   const disconnectWallet = () => {
     localStorage.removeItem("walletAddress");
     dispatch(connectWalletAction(null));
     setIsConnected(false);
   };
+
+  useEffect(() => {
+    const savedWalletAddress = localStorage.getItem("walletAddress");
+    if (savedWalletAddress) {
+      dispatch(connectWalletAction(savedWalletAddress));
+      setIsConnected(true);
+    }
+  }, [dispatch]);
 
   const handleConnectClick = () => {
     if (wallet) {
@@ -63,16 +55,6 @@ export const Navbar = () => {
     }
   };
 
-  const switchToGoerliNetwork = async () => {
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x5" }], // Goerli Test Network's chainId is 0x5
-      });
-    } catch (switchError) {
-      console.error("Error switching network:", switchError);
-    }
-  };
 
   const checkNetwork = async () => {
     if (window.ethereum) {
@@ -96,7 +78,6 @@ export const Navbar = () => {
       localStorage.removeItem("walletAddress");
     }
   };
-
 
   useEffect(() => {
     checkNetwork();
@@ -149,7 +130,8 @@ export const Navbar = () => {
         <Box ml={isMobile ? 2 : 10}>
           <Link as={RouterLink} to="/" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Home</Link>
           <Link as={RouterLink} to="/nftlist" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Nft Marketplace</Link>
-          <Link as={RouterLink} to="/nftauction" color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Auctions</Link>
+          <Link as={RouterLink} to="/nftauction" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Auctions</Link>
+          {wallet && <Link as={RouterLink} to="/mynfts" color="rgba(0, 0, 0, 0.8)" fontWeight="medium">My Nfts</Link>}
         </Box>
         <Spacer />
       </Flex>

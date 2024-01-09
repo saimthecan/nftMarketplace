@@ -253,6 +253,7 @@ const MyNfts = () => {
       {displayedList === "nftsforsale" && (
         <Flex wrap="wrap">
           {nftData.map((nft, index) => (
+          
             <Box
               key={index}
               p={4}
@@ -271,7 +272,7 @@ const MyNfts = () => {
               />
               <Flex flexDirection="column" gap={2} mt={2}>
                 <Text>
-                  <strong>Contract Address:</strong> {nft.contractAddress}
+                  <strong>Name:</strong> {nft.name}
                 </Text>
                 <Text>
                   <strong>ID:</strong> {nft.tokenId}

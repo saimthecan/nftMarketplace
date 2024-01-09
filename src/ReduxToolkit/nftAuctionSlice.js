@@ -32,7 +32,7 @@ const nftAuctionSlice = createSlice({
     error: null,
   },
   reducers: {
-    // Özel reducer'lar
+   
   },
   extraReducers: {
     [fetchLatestBids.pending]: (state) => {
