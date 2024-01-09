@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Flex,
   Image,
@@ -12,7 +12,6 @@ import {
   MenuItem,
   IconButton,
   Spacer,
-  Text
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FaUser } from "react-icons/fa";
@@ -20,28 +19,27 @@ import { connect } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
-import useWalletConnection from '../Hooks/useWalletConnection';
+import useWalletConnection from "../Hooks/useWalletConnection";
 
 export const Navbar = () => {
   const dispatch = useDispatch();
   const wallet = useSelector((state) => state.wallet.account);
-  const [isConnected, setIsConnected] = useState(false);
   const isMobile = useBreakpointValue({ base: true, md: false });
-  const [isWrongNetwork, setIsWrongNetwork] = useState(false);
+  const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
-  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
-
-  const disconnectWallet = () => {
-    localStorage.removeItem("walletAddress");
-    dispatch(connectWalletAction(null));
-    setIsConnected(false);
-  };
+  const {
+    connectWallet,
+    disconnectWallet,
+    switchToGoerliNetwork,
+    checkNetwork,
+  } = useWalletConnection();
+ 
 
   useEffect(() => {
     const savedWalletAddress = localStorage.getItem("walletAddress");
     if (savedWalletAddress) {
       dispatch(connectWalletAction(savedWalletAddress));
-      setIsConnected(true);
+
     }
   }, [dispatch]);
 
@@ -55,59 +53,36 @@ export const Navbar = () => {
     }
   };
 
+  useEffect(() => {
+    const handleChainChanged = (_chainId) => {
+      checkNetwork();
+    };
 
-  const checkNetwork = async () => {
-    if (window.ethereum) {
-      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-      setIsWrongNetwork(chainId !== '0x5');
-    }
-  };
 
-  const handleChainChanged = (_chainId) => {
-    checkNetwork();
-  };
-
+  //cüzdan değiştirme
   const handleAccountsChanged = (accounts) => {
     if (accounts.length > 0) {
       const newAddress = accounts[0];
       dispatch(connectWalletAction(newAddress));
-      setIsConnected(true);
       localStorage.setItem("walletAddress", newAddress);
     } else {
-      setIsConnected(false);
       localStorage.removeItem("walletAddress");
     }
   };
 
-  useEffect(() => {
-    checkNetwork();
-    if (window.ethereum) {
-      window.ethereum.on('chainChanged', handleChainChanged);
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-    }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-      }
-    };
-  }, []);
-
-  if (isWrongNetwork) {
-    return (
-      <Flex align="center" justify="center" height="100vh" width="100%">
-        <Box textAlign="center">
-          <Text fontSize="xl" color="red.500" mb="4">
-            Wrong Network! Please switch to Goerli Test Network.
-          </Text>
-          <Button colorScheme="teal" onClick={switchToGoerliNetwork}>
-            Switch to Goerli Test Network
-          </Button>
-        </Box>
-      </Flex>
-    );
+  checkNetwork();
+  if (window.ethereum) {
+    window.ethereum.on("chainChanged", handleChainChanged);
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
   }
+
+  return () => {
+    if (window.ethereum) {
+      window.ethereum.removeListener("chainChanged", handleChainChanged);
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    }
+  };
+}, [checkNetwork, dispatch]);
 
   return (
     <Flex
@@ -128,23 +103,72 @@ export const Navbar = () => {
           </Link>
         </Box>
         <Box ml={isMobile ? 2 : 10}>
-          <Link as={RouterLink} to="/" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Home</Link>
-          <Link as={RouterLink} to="/nftlist" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Nft Marketplace</Link>
-          <Link as={RouterLink} to="/nftauction" mr={isMobile ? 2.5 : 5} color="rgba(0, 0, 0, 0.8)" fontWeight="medium">Auctions</Link>
-          {wallet && <Link as={RouterLink} to="/mynfts" color="rgba(0, 0, 0, 0.8)" fontWeight="medium">My Nfts</Link>}
+          <Link
+            as={RouterLink}
+            to="/"
+            mr={isMobile ? 2.5 : 5}
+            color="rgba(0, 0, 0, 0.8)"
+            fontWeight="medium"
+          >
+            Home
+          </Link>
+          <Link
+            as={RouterLink}
+            to="/nftlist"
+            mr={isMobile ? 2.5 : 5}
+            color="rgba(0, 0, 0, 0.8)"
+            fontWeight="medium"
+          >
+            Nft Marketplace
+          </Link>
+          <Link
+            as={RouterLink}
+            to="/nftauction"
+            mr={isMobile ? 2.5 : 5}
+            color="rgba(0, 0, 0, 0.8)"
+            fontWeight="medium"
+          >
+            Auctions
+          </Link>
+          {wallet && (
+            <Link
+              as={RouterLink}
+              to="/mynfts"
+              color="rgba(0, 0, 0, 0.8)"
+              fontWeight="medium"
+            >
+              My Nfts
+            </Link>
+          )}
         </Box>
         <Spacer />
       </Flex>
       <Box>
-        {wallet ? (
+        {wallet && !isWrongNetwork ? (
           <>
             <Box display={isMobile ? "none" : "block"}>
               <Menu>
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="teal" bg="teal.700" variant="solid" _hover={{ bg: "teal.700" }}>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  colorScheme="teal"
+                  bg="teal.700"
+                  variant="solid"
+                  _hover={{ bg: "teal.700" }}
+                >
                   {wallet.substring(0, 8) + "..."}
                 </MenuButton>
                 <MenuList bg="teal.500" border="none">
-                  <MenuItem onClick={disconnectWallet} color="white" h="auto" p={2} m={0}>Disconnect</MenuItem>
+                  <MenuItem
+                    onClick={disconnectWallet}
+                    bg="teal.500"
+                    color="white"
+                    h="auto"
+                    p={1}
+                    m={0}
+                  >
+                    Disconnect
+                  </MenuItem>
                 </MenuList>
               </Menu>
             </Box>
@@ -152,13 +176,37 @@ export const Navbar = () => {
               <Menu>
                 <MenuButton as={IconButton} icon={<FaUser />} />
                 <MenuList bg="teal.500" border="none">
-                  <MenuItem bg="teal.400" onClick={disconnectWallet} color="white">Disconnect</MenuItem>
+                  <MenuItem
+                    bg="teal.400"
+                    onClick={disconnectWallet}
+                    color="white"
+                  >
+                    Disconnect
+                  </MenuItem>
                 </MenuList>
               </Menu>
             </Box>
           </>
+        ) : isWrongNetwork ? (
+          <Button
+            colorScheme="red"
+            bg="red.500"
+            variant="solid"
+            onClick={switchToGoerliNetwork}
+            size={isMobile ? "sm" : "md"}
+          >
+            Wrong Network - Switch to Goerli
+          </Button>
         ) : (
-          <Button colorScheme="teal" bg="teal.700" variant="solid" onClick={handleConnectClick} size={isMobile ? "sm" : "md"}>Connect</Button>
+          <Button
+            colorScheme="teal"
+            bg="teal.700"
+            variant="solid"
+            onClick={handleConnectClick}
+            size={isMobile ? "sm" : "md"}
+          >
+            Connect
+          </Button>
         )}
       </Box>
     </Flex>
