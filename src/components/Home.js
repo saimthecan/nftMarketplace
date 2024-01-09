@@ -27,6 +27,7 @@ const Home = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     swipeToSlide: true,
+    pauseOnHover: false,
   };
 
   return (

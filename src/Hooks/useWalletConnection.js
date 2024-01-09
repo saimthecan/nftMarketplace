@@ -15,7 +15,7 @@ const useWalletConnection = () => {
         });
         const address = accounts[0];
         dispatch(connectWalletAction(address));
-        localStorage.setItem("walletAddress", address);
+        sessionStorage.setItem("walletAddress", address);
       } catch (error) {
         console.error("User denied wallet access:", error);
       }
@@ -25,7 +25,7 @@ const useWalletConnection = () => {
   };
 
   const disconnectWallet = () => {
-    localStorage.removeItem("walletAddress");
+    sessionStorage.removeItem("walletAddress");
     dispatch(connectWalletAction(null));
   };
 

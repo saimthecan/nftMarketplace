@@ -36,7 +36,7 @@ export const Navbar = () => {
  
 
   useEffect(() => {
-    const savedWalletAddress = localStorage.getItem("walletAddress");
+    const savedWalletAddress = sessionStorage.getItem("walletAddress");
     if (savedWalletAddress) {
       dispatch(connectWalletAction(savedWalletAddress));
 
@@ -64,9 +64,9 @@ export const Navbar = () => {
     if (accounts.length > 0) {
       const newAddress = accounts[0];
       dispatch(connectWalletAction(newAddress));
-      localStorage.setItem("walletAddress", newAddress);
+      sessionStorage.setItem("walletAddress", newAddress);
     } else {
-      localStorage.removeItem("walletAddress");
+      sessionStorage.removeItem("walletAddress");
     }
   };
 
