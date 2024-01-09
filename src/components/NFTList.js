@@ -15,7 +15,6 @@ const NFTList = () => {
   const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
 
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
-  console.log("listed", unsoldNFTs);
 
   // Redux state'inden account bilgisini al
   const account = useSelector((state) => state.wallet.account);
