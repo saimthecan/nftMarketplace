@@ -15,7 +15,8 @@ import useWalletConnection from "../Hooks/useWalletConnection";
 
 const NFTAuction = () => {
   //states
-  const { nftImages, unsoldNFTs } = useNFTAuctionData();
+  const { nftImages, nftDetails, unsoldNFTs } = useNFTAuctionData();
+    const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
   const [enteredPrices, setEnteredPrices] = useState({});
 
   const wallet = useSelector((state) => state.wallet.account);
@@ -113,6 +114,7 @@ const NFTAuction = () => {
               borderRadius="md"
               boxShadow="md"
               overflow="hidden"
+              w="350px"
             >
               {nftImages[nft.tokenId] && (
                 <Image
@@ -120,19 +122,18 @@ const NFTAuction = () => {
                   alt={`NFT ${nft.tokenId}`}
                 />
               )}
-              <Text mt={2}>
-                <strong>Token ID:</strong> {nft.tokenId}
+              <Text  mt={3}>
+                <strong>Name:</strong> {nftDetails[nft.tokenId]?.name}
               </Text>
               <Text>
-                <strong>Seller:</strong> {nft.seller}
+                <strong>Description:</strong>{" "}
+                {nftDetails[nft.tokenId]?.description}
               </Text>
               <Text>
-                <strong>Contract ID:</strong> {nft.Contract_id}
+                <strong>Created By:</strong>{" "}
+                {nftDetails[nft.tokenId]?.createdBy}
               </Text>
-              <Text>
-                <strong>Starting Price:</strong>{" "}
-                {formatEther(nft.startingPrice)} ETH
-              </Text>
+
               <Text>
                 <strong>Auction Start Time:</strong>{" "}
                 {new Date(nft.auctionStartTime * 1000).toLocaleString()}
@@ -142,7 +143,8 @@ const NFTAuction = () => {
                 {new Date(nft.auctionEndTime * 1000).toLocaleString()}
               </Text>
               <Text>
-                <strong>Contract Address:</strong> {nft.contractAddress}
+                <strong>Starting Price:</strong>{" "}
+                {formatEther(nft.startingPrice)} ETH
               </Text>
               <Text>
                 <strong>Last Bid: </strong>{" "}
@@ -152,23 +154,25 @@ const NFTAuction = () => {
               </Text>
 
               {wallet ? (
+                !isWrongNetwork ? (
                 nft.seller.toLowerCase() === account?.toLowerCase() ? (
                   // If the current user is the seller
                   <Button
                     colorScheme="red"
                     onClick={() => cancelAuction(nft, index)}
+                    mt={4}
                   >
                     Cancel Auction
                   </Button>
                 ) : !isAuctionStarted(nft) ? (
                   // If the auction has not started
-                  <Text>Açık artırma başlamadı</Text>
+                  <Text mt={4}>Açık artırma başlamadı</Text>
                 ) : isAuctionEnded(nft) ? (
                   // If the auction has ended
-                  <Text>Açık artırmanın süresi doldu</Text>
+                  <Text mt={4}>Açık artırmanın süresi doldu</Text>
                 ) : isUserHighestBidder(nft) ? (
                   // If the current user is the highest bidder
-                  <Text>
+                  <Text mt={4}>
                     <strong>You have the highest bid</strong>
                   </Text>
                 ) : (
@@ -186,7 +190,7 @@ const NFTAuction = () => {
                       }
                     />
                     <Button
-                      mt={2}
+                      mt={4}
                       colorScheme="blue"
                       onClick={() => {
                         const price = enteredPrices[`${index}-${nft.tokenId}`];
@@ -201,10 +205,19 @@ const NFTAuction = () => {
                     </Button>
                   </Box>
                 )
+                ) : (
+                  <Button
+                    mt={4}
+                    colorScheme="red"
+                    onClick={switchToGoerliNetwork}
+                  >
+                    Wrong Network - Switch to Goerli
+                  </Button>
+                )
               ) : (
                 // If the user's wallet is not connected
-                <Button colorScheme="teal" onClick={connectWallet}>
-                  Connect
+                <Button mt={4} colorScheme="teal" onClick={connectWallet}>
+                  Connect Wallet
                 </Button>
               )}
 

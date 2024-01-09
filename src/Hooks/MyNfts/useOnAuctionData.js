@@ -23,6 +23,7 @@ const useOnAuctionData = () => {
         const tokenUri = await contract.tokenURI(tokenId);
         const response = await fetch(tokenUri);
         const metadata = await response.json();
+        console.log("auctionmeta", metadata);
         return metadata;
       } catch (error) {
         console.error(`Error fetching metadata for token ID ${tokenId}:`, error);

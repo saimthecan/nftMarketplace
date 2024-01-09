@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Provider } from 'react-redux';
 import store from './ReduxToolkit/store';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from './components/Navbar';
+import Navbars from './components/Navbars';
 import MyNfts from "./components/MyNfts";
 import Home from "./components/Home";
 import NFTList from "./components/NFTList";
@@ -19,7 +19,7 @@ function App() {
         <ToastContainer />
         <Provider store={store}>
           <Router>
-            <Navbar />
+            <Navbars />
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/nftlist" element={<NFTList />} />

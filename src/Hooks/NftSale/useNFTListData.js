@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 const useNFTListData = () => {
   const [nftImages, setNftImages] = useState({});
   const [unsoldNFTs, setUnsoldNFTs] = useState([]);
+  const [nftDetails, setNftDetails] = useState({});
 
   const { provider } = useWeb3Provider();
 
@@ -21,7 +22,16 @@ const useNFTListData = () => {
             const tokenUri = await contract.tokenURI(nft.tokenId);
             const response = await fetch(tokenUri);
             const metadata = await response.json();
+            console.log(`Metadata for token ID ${nft.tokenId}:`, metadata); // Log the metadata
             setNftImages(prev => ({ ...prev, [nft.tokenId]: metadata.image }));
+            setNftDetails(prev => ({
+              ...prev,
+              [nft.tokenId]: {
+                name: metadata.name,
+                description: metadata.description,
+                createdBy: metadata.created_by, // Assuming 'created_by' is the correct field in your metadata
+              },
+            }));
           } catch (error) {
             console.error(`Error fetching metadata for token ID ${nft.tokenId}:`, error);
           }
@@ -54,7 +64,7 @@ const useNFTListData = () => {
     }
   }, [dataListedSale, dataSold, dataCancelledSales]);
 
-  return { nftImages, unsoldNFTs, loadingListedSale, errorListedSale, loadingSold, errorSold };
+  return { nftImages, nftDetails, unsoldNFTs, loadingListedSale, errorListedSale, loadingSold, errorSold };
 };
 
 export default useNFTListData;

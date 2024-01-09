@@ -70,6 +70,7 @@ const Home = () => {
                   h="48px"
                   bg="#363c42"
                   color="white"
+                  _hover={{ bg: "#363c42" }}
                 >
                   Buy
                 </Button>
@@ -133,6 +134,7 @@ const Home = () => {
                   h="48px"
                   bg="#363c42"
                   color="white"
+                  _hover={{ bg: "#363c42" }}
                 >
                   Auctions Items
                 </Button>
@@ -184,8 +186,8 @@ const Home = () => {
                 <Text fontSize="md" ml="50px">
                   Explore your NFT collection with our versatile platform. Use
                   'Unlisted NFTs' for easy preparation of your digital assets
-                  for sale or auction. In 'NFTs for Sale,' quickly view and
-                  manage your listed items. For 'On Auctions,' effortlessly
+                  for sale or auction. In 'NFTs for Sale' quickly view and
+                  manage your listed items. For 'NFTs In Auction' effortlessly
                   oversee your NFTs in live auctions, giving you full control
                   over the auction process.
                 </Text>

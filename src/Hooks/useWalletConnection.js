@@ -1,6 +1,7 @@
 // useWalletConnection.js
-import { useDispatch } from "react-redux";
+import {  useDispatch } from 'react-redux';
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
+import { setNetworkStatus } from '../ReduxToolkit/networkSlice';
 
 const useWalletConnection = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,18 @@ const useWalletConnection = () => {
     }
   };
 
+  const disconnectWallet = () => {
+    localStorage.removeItem("walletAddress");
+    dispatch(connectWalletAction(null));
+  };
+
+  const checkNetwork = async () => {
+    if (window.ethereum) {
+      const chainId = await window.ethereum.request({ method: "eth_chainId" });
+      dispatch(setNetworkStatus(chainId !== "0x5"));
+    }
+  };
+
 
   const switchToGoerliNetwork = async () => {
     try {
@@ -35,7 +48,7 @@ const useWalletConnection = () => {
     }
   };
 
-  return { connectWallet, switchToGoerliNetwork };
+  return { connectWallet, disconnectWallet, switchToGoerliNetwork, checkNetwork };
 };
 
 export default useWalletConnection;

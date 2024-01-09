@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
@@ -7,14 +7,15 @@ import useWeb3Provider from "../Hooks/useWeb3Provider";
 import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 import useNFTListData from "../Hooks/NftSale/useNFTListData";
-import useWalletConnection from '../Hooks/useWalletConnection';
-const NFTList = () => {
+import useWalletConnection from "../Hooks/useWalletConnection";
 
+const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
+  const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
   const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
 
-  const { nftImages, unsoldNFTs } = useNFTListData();
-  console.log("listed",unsoldNFTs);
+  const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
+  console.log("listed", unsoldNFTs);
 
   // Redux state'inden account bilgisini al
   const account = useSelector((state) => state.wallet.account);
@@ -67,55 +68,62 @@ const NFTList = () => {
               borderRadius="md"
               boxShadow="md"
               overflow="auto"
+              w="300px"
             >
               {nftImages[nft.tokenId] && (
                 <Image
-                boxSize="300px"
-                mt={4}
                   src={nftImages[nft.tokenId]}
                   alt={`NFT ${nft.tokenId}`}
                 />
               )}
-              <Text>
-                <strong>Contract Address:</strong> {nft.contractAddress}
+              <Text mt={3}>
+                <strong>Name:</strong> {nftDetails[nft.tokenId]?.name}
               </Text>
               <Text>
-                <strong>ID:</strong> {nft.tokenId}
+                <strong>Description:</strong>{" "}
+                {nftDetails[nft.tokenId]?.description}
               </Text>
               <Text>
-                <strong>Seller:</strong> {nft.seller}
+                <strong>Created By:</strong>{" "}
+                {nftDetails[nft.tokenId]?.createdBy}
               </Text>
               <Text>
                 <strong>Price:</strong> {formatEther(nft.price)} ETH
               </Text>
-              {wallet ? (
-  nft.seller.toLowerCase() === account?.toLowerCase() ? (
-    <Button
-      mt={4}
-      colorScheme="red"
-      onClick={() => cancelNFTSale(nft.Contract_id)}
-    >
-      Cancel NFT Sale
-    </Button>
-  ) : (
-    <Button
-      mt={4}
-      colorScheme="blue"
-      onClick={() => buyNFT(nft.Contract_id, nft.price)}
-    >
-      Buy NFT
-    </Button>
-  )
-) : (
-  <Button
-    mt={4}
-    colorScheme="teal"
-    onClick={connectWallet} // Make sure the connectWallet function is defined in your component
-  >
-    Connect
-  </Button>
-)}
 
+              {wallet ? (
+                !isWrongNetwork ? (
+                  nft.seller.toLowerCase() === account?.toLowerCase() ? (
+                    <Button
+                      mt={4}
+                      colorScheme="red"
+                      onClick={() => cancelNFTSale(nft.Contract_id)}
+                    >
+                      Cancel NFT Sale
+                    </Button>
+                  ) : (
+                    <Button
+                      mt={4}
+                      colorScheme="blue"
+                      onClick={() => buyNFT(nft.Contract_id, nft.price)}
+                    >
+                      Buy NFT
+                    </Button>
+                  )
+                ) : (
+                  <Button
+                    mt={4}
+                    colorScheme="red"
+                    onClick={switchToGoerliNetwork}
+                  >
+                    Wrong Network - Switch to Goerli
+                  </Button>
+                )
+              ) : (
+                <Button mt={4} colorScheme="teal" onClick={connectWallet}>
+                  Connect Wallet
+                </Button>
+              )}
             </Box>
           ))
         )}
