@@ -169,6 +169,8 @@ const MyNfts = () => {
     }
   }, [wallet, alchemy.nft]);
 
+  console.log(nfts);
+
   // Function to toggle the displayed list
   const toggleList = (list) => {
     setDisplayedList(list);
@@ -325,7 +327,9 @@ const MyNfts = () => {
 
 {displayedList === "unlisted" && (
   <Flex wrap="wrap">
-    {nfts.map((nft, index) => (
+    {nfts
+      .filter((nft) => nft.tokenType === "ERC721") // Filtreleme işlemi
+      .map((nft, index) => (
       <Box
         key={index}
         p={4}
