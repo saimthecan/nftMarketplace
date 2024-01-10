@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useState} from "react";
 import { useSelector } from "react-redux";
 import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
@@ -8,13 +8,28 @@ import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 import useNFTListData from "../Hooks/NftSale/useNFTListData";
 import useWalletConnection from "../Hooks/useWalletConnection";
+import Pagination from "./Pagination"
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
-  const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
-  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
 
+  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
+  const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 1; 
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = unsoldNFTs.slice(indexOfFirstItem, indexOfLastItem);
+ 
+  const totalPages = Math.ceil(unsoldNFTs.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
 
   // Redux state'inden account bilgisini al
   const account = useSelector((state) => state.wallet.account);
@@ -52,14 +67,12 @@ const NFTList = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Grid
-        templateColumns={{ base: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" }} // 3 sütunlu bir grid düzeni tanımla
-        gap={4} // grid öğeleri arasında boşluk bırak
-      >
-        {!unsoldNFTs.length ? (
+  <Grid templateColumns="repeat(auto-fit, minmax(300px, 0.2fr))" gap={0} mb={10}>
+      
+        {currentItems.length === 0 ? (
           <Text>No data available</Text>
         ) : (
-          unsoldNFTs.map((nft) => (
+          currentItems.map((nft) => (
             <Box
               key={nft.id}
               p={4}
@@ -68,6 +81,8 @@ const NFTList = () => {
               boxShadow="md"
               overflow="auto"
               w="300px"
+             
+            
             >
               {nftImages[nft.tokenId] && (
                 <Image
@@ -126,7 +141,14 @@ const NFTList = () => {
             </Box>
           ))
         )}
-      </Grid>
+      </Grid >
+      <Box display="flex" justifyContent="center" p={4}>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </Box>
     </Box>
   );
 };

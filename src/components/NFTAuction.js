@@ -12,6 +12,7 @@ import usePlaceBid from "../Hooks/NftAuction/usePlaceBid";
 import useAuctionOutcome from "../Hooks/NftAuction/useAuctionOutcome";
 import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
+import Pagination from "./Pagination"
 
 const NFTAuction = () => {
   //states
@@ -39,6 +40,19 @@ const NFTAuction = () => {
     loadingCancelledAuction,
     errorCancelledAuction,
   } = useQueries();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 1; 
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = unsoldNFTs.slice(indexOfFirstItem, indexOfLastItem);
+ 
+  const totalPages = Math.ceil(unsoldNFTs.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   //Web3 Provider
   const { signer } = useWeb3Provider();
@@ -99,14 +113,11 @@ const NFTAuction = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Grid
-        templateColumns={{ base: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" }}
-        gap={4}
-      >
-        {unsoldNFTs.length === 0 ? (
+      <Grid templateColumns="repeat(auto-fit, minmax(350px, 0.2fr))" gap={0} mb={10}>
+        {currentItems.length === 0 ? (
           <Text>No NFTs available for auction</Text>
         ) : (
-          unsoldNFTs.map((nft, index) => (
+          currentItems.map((nft, index) => (
             <Box
               key={index}
               p={4}
@@ -231,6 +242,13 @@ const NFTAuction = () => {
           ))
         )}
       </Grid>
+      <Box display="flex" justifyContent="center" p={4}>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </Box>
     </Box>
   );
 };
