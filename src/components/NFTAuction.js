@@ -12,6 +12,7 @@ import usePlaceBid from "../Hooks/NftAuction/usePlaceBid";
 import useAuctionOutcome from "../Hooks/NftAuction/useAuctionOutcome";
 import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
+import noImage from "../assests/noImage.png";
 import Pagination from "./Pagination"
 
 const NFTAuction = () => {
@@ -129,7 +130,7 @@ const NFTAuction = () => {
             >
               {nftImages[nft.tokenId] && (
                 <Image
-                  src={nftImages[nft.tokenId]}
+                  src={nftImages[nft.tokenId] || noImage}
                   alt={`NFT ${nft.tokenId}`}
                 />
               )}

@@ -8,6 +8,7 @@ import useBuyNFT from "../Hooks/NftSale/useBuyNFT";
 import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 import useNFTListData from "../Hooks/NftSale/useNFTListData";
 import useWalletConnection from "../Hooks/useWalletConnection";
+import noImage from "../assests/noImage.png";
 import Pagination from "./Pagination"
 
 const NFTList = () => {
@@ -82,13 +83,12 @@ const NFTList = () => {
               overflow="auto"
               w="300px"
              
-            
             >
               {nftImages[nft.tokenId] && (
-                <Image
-                  src={nftImages[nft.tokenId]}
-                  alt={`NFT ${nft.tokenId}`}
-                />
+              <Image
+              src={nftImages[nft.tokenId] || noImage}
+              alt={`NFT ${nft.tokenId}`}
+            />
               )}
               <Text mt={3}>
                 <strong>Name:</strong> {nftDetails[nft.tokenId]?.name}
