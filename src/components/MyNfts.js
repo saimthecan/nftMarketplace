@@ -34,6 +34,9 @@ import useOnAuctionData from "../Hooks/MyNfts/useOnAuctionData";
 import useCancelNFTAuction from "../Hooks/NftAuction/useCancelNFTAuction";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import Pagination from "./Pagination";
+import NoNftWallet from "../assests/NoNftWallet.png";
+import NoNftSale from "../assests/NoNftSale.png";
+import NoNftAuction from "../assests/NoNftAuction.png";
 
 const MyNfts = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
@@ -55,7 +58,7 @@ const MyNfts = () => {
   const [currentPageOnAuction, setCurrentPageOnAuction] = useState(1);
   const [totalPagesOnAuction, setTotalPagesOnAuction] = useState(0);
 
-  const itemsPerPage = 1;
+  const itemsPerPage = 10;
 
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
@@ -298,248 +301,289 @@ const MyNfts = () => {
       </Flex>
 
       {displayedList === "onAuction" && (
-  <>
-    <Flex wrap="wrap">
-      {nftDataAuction.length === 0 ? (
-        <Text>No NFTs in auction</Text>
-      ) : (
-        <Flex wrap="wrap">
-          {getCurrentPageOnAuctionNfts().map((nft, index) => (
-            <Box
-              key={index}
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              boxShadow="md"
-              m={2}
-              overflow="auto"
-              width="350px"
-            >
-              <Image
-                src={nft.metadata?.image || noImage}
-                alt={`NFT ${nft.tokenId}`}
-                boxSize="300px" // Resim boyutu
-                mt={4}
-              />
-              <Flex flexDirection="column" gap={2} mt={2}>
-                <Text>
-                  <strong>Name:</strong> {nft.metadata?.name}
-                </Text>
-                <Text>
-                  <strong>Description:</strong> {nft.metadata?.description}
-                </Text>
-                <Text>
-                  <strong>Created By:</strong> {nft.metadata?.created_by}
-                </Text>
-                <Text>
-                  <strong>Auction Start Time:</strong>{" "}
-                  {new Date(nft.auctionStartTime * 1000).toLocaleString()}
-                </Text>
-                <Text>
-                  <strong>Auction End Time:</strong>{" "}
-                  {new Date(nft.auctionEndTime * 1000).toLocaleString()}
-                </Text>
-                <Text>
-                  <strong>Starting Price:</strong>{" "}
-                  {formatEther(nft.startingPrice)} ETH
-                </Text>
-                <Text>
-                  <strong>Last Bid: </strong>{" "}
-                  {latestBids[nft.Contract_id]
-                    ? `${formatEther(latestBids[nft.Contract_id].amount)} ETH`
-                    : "No bids yet"}
-                </Text>
-                {isWrongNetwork ? (
-                  <Button
-                    mt={4}
-                    colorScheme="red"
-                    onClick={switchToGoerliNetwork}
-                  >
-                    Wrong Network - Switch to Goerli
-                  </Button>
-                ) : (
-                  <Button
-                    w="150px"
-                    mt={4}
-                    colorScheme="red"
-                    onClick={() => cancelAuction(nft, index)}
-                  >
-                    Cancel NFT Sale
-                  </Button>
-                )}
-              </Flex>
-            </Box>
-          ))}
-        </Flex>
-      )}
-    </Flex>
-    {nftDataAuction.length > 0 && (
-      <Box display="flex" justifyContent="center" p={4}>
-        <Pagination
-          currentPage={currentPageOnAuction}
-          totalPages={totalPagesOnAuction}
-          onPageChange={handlePageChangeOnAuction}
-        />
-      </Box>
-    )}
-  </>
-)}
-
-
-{displayedList === "nftsforsale" && (
-  <>
-    <Flex wrap="wrap">
-      {nftData.length === 0 ? (
-        <Text>No NFTs for sale</Text>
-      ) : (
-        getCurrentPageForSaleNfts().map((nft, index) => (
-          <Box
-            key={index}
-            p={4}
-            borderWidth={1}
-            borderRadius="md"
-            boxShadow="md"
-            m={2}
-            overflow="auto"
-            width="350px"
-          >
-            <Image
-              src={nft.metadata?.image || noImage}
-              alt={`NFT ${nft.tokenId}`}
-              boxSize="300px" // Resim boyutu
-              mt={4}
-            />
-            <Flex flexDirection="column" gap={2} mt={2}>
-              <Text>
-                <strong>Name:</strong> {nft.metadata?.name}
-              </Text>
-              <Text>
-                <strong>Description:</strong> {nft.metadata?.description}
-              </Text>
-              <Text>
-                <strong>Created By:</strong> {nft.metadata?.created_by}
-              </Text>
-              <Text>
-                <strong>Price:</strong> {formatEther(nft.price)} ETH
-              </Text>
-              {isWrongNetwork ? (
-                <Button
-                  mt={4}
-                  colorScheme="red"
-                  onClick={switchToGoerliNetwork}
-                >
-                  Wrong Network - Switch to Goerli
-                </Button>
-              ) : (
-                <Button
-                  mt={4}
-                  colorScheme="red"
-                  onClick={() => cancelNFTSale(nft.Contract_id)}
-                  w="150px"
-                >
-                  Cancel NFT Sale
-                </Button>
-              )}
-            </Flex>
-
-          </Box>
-        ))
-      )}
-    </Flex>
-    {nftData.length > 0 && (
-      <Box display="flex" justifyContent="center" p={4}>
-        <Pagination
-          currentPage={currentPageForSale}
-          totalPages={totalPagesForSale}
-          onPageChange={handlePageChangeForSale}
-        />
-      </Box>
-    )}
-  </>
-)}
-
-
-{displayedList === "unlisted" && (
-  <>
-    <Flex wrap="wrap">
-      {isLoadingUnlistedNfts ? (
-        <Text>Loading...</Text>
-      ) : unlistedNfts.length === 0 ? (
-        <Text>No unlisted NFTs</Text>
-      ) : (
-        getCurrentPageUnlistedNfts().map((nft, index) => (
-          <Box
-            key={index}
-            p={4}
-            borderWidth={1}
-            borderRadius="md"
-            boxShadow="md"
-            m={2}
-          >
-            <Badge
-              colorScheme="green"
-              ml="1"
-            >{`Balance: ${nft.balance}`}</Badge>
-            <Image
-              boxSize="300px"
-              src={nft.rawMetadata?.image || noImage}
-              alt="NFT Image"
-              mt={4}
-            />
-            <Flex flexDirection="column" gap={2} mt={2}>
-              <Text>
-                <strong>Name:</strong> {nft.contract.name}
-              </Text>
-              <Text>
-                <strong>Description:</strong>{" "}
-                {nft.rawMetadata?.description}
-              </Text>
-              <Text>
-                <strong>Created By:</strong> {nft.rawMetadata?.created_by}
-              </Text>
-            </Flex>
-            {isWrongNetwork ? (
-              <Button
-                mt={4}
-                colorScheme="red"
-                onClick={switchToGoerliNetwork}
+        <>
+          <Flex wrap="wrap">
+            {nftDataAuction.length === 0 ? (
+              <Box
+                width="100vw"
+                height="90vh"
+                display="flex"
+                justifyContent="center"
               >
-                Wrong Network - Switch to Goerli
-              </Button>
+                <Image
+                  mt="5"
+                  src={NoNftAuction}
+                  alt="No Nft For Sale"
+                  width="50%"
+                  height="50%" // Adjust height accordingly if needed
+                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                />
+              </Box>
             ) : (
-              <Flex mt={4}>
-                <Button
-                  w="150px"
-                  colorScheme="blue"
-                  onClick={() => onSellModalOpen(nft)}
-                >
-                  Sell
-                </Button>
-                <Button
-                  w="150px"
-                  colorScheme="green"
-                  onClick={() => onAuctionModalOpen(nft)}
-                >
-                  Auction
-                </Button>
+              <Flex wrap="wrap">
+                {getCurrentPageOnAuctionNfts().map((nft, index) => (
+                  <Box
+                    key={index}
+                    p={4}
+                    borderWidth={1}
+                    borderRadius="md"
+                    boxShadow="md"
+                    m={2}
+                    overflow="auto"
+                    width="350px"
+                  >
+                    <Image
+                      src={nft.metadata?.image || noImage}
+                      alt={`NFT ${nft.tokenId}`}
+                      boxSize="300px" // Resim boyutu
+                      mt={4}
+                    />
+                    <Flex flexDirection="column" gap={2} mt={2}>
+                      <Text>
+                        <strong>Name:</strong> {nft.metadata?.name}
+                      </Text>
+                      <Text>
+                        <strong>Description:</strong>{" "}
+                        {nft.metadata?.description}
+                      </Text>
+                      <Text>
+                        <strong>Created By:</strong> {nft.metadata?.created_by}
+                      </Text>
+                      <Text>
+                        <strong>Auction Start Time:</strong>{" "}
+                        {new Date(nft.auctionStartTime * 1000).toLocaleString()}
+                      </Text>
+                      <Text>
+                        <strong>Auction End Time:</strong>{" "}
+                        {new Date(nft.auctionEndTime * 1000).toLocaleString()}
+                      </Text>
+                      <Text>
+                        <strong>Starting Price:</strong>{" "}
+                        {formatEther(nft.startingPrice)} ETH
+                      </Text>
+                      <Text>
+                        <strong>Last Bid: </strong>{" "}
+                        {latestBids[nft.Contract_id]
+                          ? `${formatEther(
+                              latestBids[nft.Contract_id].amount
+                            )} ETH`
+                          : "No bids yet"}
+                      </Text>
+                      {isWrongNetwork ? (
+                        <Button
+                          mt={4}
+                          colorScheme="red"
+                          onClick={switchToGoerliNetwork}
+                        >
+                          Wrong Network - Switch to Goerli
+                        </Button>
+                      ) : (
+                        <Button
+                          w="150px"
+                          mt={4}
+                          colorScheme="red"
+                          onClick={() => cancelAuction(nft, index)}
+                        >
+                          Cancel NFT Sale
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+                ))}
               </Flex>
             )}
-          </Box>
-        ))
+          </Flex>
+          {nftDataAuction.length > 0 && (
+            <Box display="flex" justifyContent="center" p={4}>
+              <Pagination
+                currentPage={currentPageOnAuction}
+                totalPages={totalPagesOnAuction}
+                onPageChange={handlePageChangeOnAuction}
+              />
+            </Box>
+          )}
+        </>
       )}
-    </Flex>
-    {unlistedNfts.length > 0 && !isLoadingUnlistedNfts && (
-      <Box display="flex" justifyContent="center" p={4}>
-        <Pagination
-          currentPage={currentPageUnlisted}
-          totalPages={totalPagesUnlisted}
-          onPageChange={handlePageChangeUnlisted}
-        />
-      </Box>
-    )}
-  </>
-)}
 
+      {displayedList === "nftsforsale" && (
+        <>
+          <Flex wrap="wrap">
+            {nftData.length === 0 ? (
+              <Box
+                width="100vw"
+                height="90vh"
+                display="flex"
+                justifyContent="center"
+              >
+                <Image
+                  mt="5"
+                  src={NoNftSale}
+                  alt="No Nft For Sale"
+                  width="50%"
+                  height="50%" // Adjust height accordingly if needed
+                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                />
+              </Box>
+            ) : (
+              getCurrentPageForSaleNfts().map((nft, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                  boxShadow="md"
+                  m={2}
+                  overflow="auto"
+                  width="350px"
+                >
+                  <Image
+                    src={nft.metadata?.image || noImage}
+                    alt={`NFT ${nft.tokenId}`}
+                    boxSize="300px" // Resim boyutu
+                    mt={4}
+                  />
+                  <Flex flexDirection="column" gap={2} mt={2}>
+                    <Text>
+                      <strong>Name:</strong> {nft.metadata?.name}
+                    </Text>
+                    <Text>
+                      <strong>Description:</strong> {nft.metadata?.description}
+                    </Text>
+                    <Text>
+                      <strong>Created By:</strong> {nft.metadata?.created_by}
+                    </Text>
+                    <Text>
+                      <strong>Price:</strong> {formatEther(nft.price)} ETH
+                    </Text>
+                    {isWrongNetwork ? (
+                      <Button
+                        mt={4}
+                        colorScheme="red"
+                        onClick={switchToGoerliNetwork}
+                      >
+                        Wrong Network - Switch to Goerli
+                      </Button>
+                    ) : (
+                      <Button
+                        mt={4}
+                        colorScheme="red"
+                        onClick={() => cancelNFTSale(nft.Contract_id)}
+                        w="150px"
+                      >
+                        Cancel NFT Sale
+                      </Button>
+                    )}
+                  </Flex>
+                </Box>
+              ))
+            )}
+          </Flex>
+          {nftData.length > 0 && (
+            <Box display="flex" justifyContent="center" p={4}>
+              <Pagination
+                currentPage={currentPageForSale}
+                totalPages={totalPagesForSale}
+                onPageChange={handlePageChangeForSale}
+              />
+            </Box>
+          )}
+        </>
+      )}
+
+      {displayedList === "unlisted" && (
+        <>
+          <Flex wrap="wrap">
+            {isLoadingUnlistedNfts ? (
+              <Text>Loading...</Text>
+            ) : unlistedNfts.length === 0 ? (
+              <Box
+                width="100vw"
+                height="90vh"
+                display="flex"
+                justifyContent="center"
+              >
+                <Image
+                  mt="5"
+                  src={NoNftWallet}
+                  alt="No Nft For Sale"
+                  width="50%"
+                  height="50%" // Adjust height accordingly if needed
+                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                />
+              </Box>
+            ) : (
+              getCurrentPageUnlistedNfts().map((nft, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                  boxShadow="md"
+                  m={2}
+                >
+                  <Badge
+                    colorScheme="green"
+                    ml="1"
+                  >{`Balance: ${nft.balance}`}</Badge>
+                  <Image
+                    boxSize="300px"
+                    src={nft.rawMetadata?.image || noImage}
+                    alt="NFT Image"
+                    mt={4}
+                  />
+                  <Flex flexDirection="column" gap={2} mt={2}>
+                    <Text>
+                      <strong>Name:</strong> {nft.contract.name}
+                    </Text>
+                    <Text>
+                      <strong>Description:</strong>{" "}
+                      {nft.rawMetadata?.description}
+                    </Text>
+                    <Text>
+                      <strong>Created By:</strong> {nft.rawMetadata?.created_by}
+                    </Text>
+                  </Flex>
+                  {isWrongNetwork ? (
+                    <Button
+                      mt={4}
+                      colorScheme="red"
+                      onClick={switchToGoerliNetwork}
+                    >
+                      Wrong Network - Switch to Goerli
+                    </Button>
+                  ) : (
+                    <Flex mt={4}>
+                      <Button
+                        w="150px"
+                        colorScheme="blue"
+                        onClick={() => onSellModalOpen(nft)}
+                      >
+                        Sell
+                      </Button>
+                      <Button
+                        w="150px"
+                        colorScheme="green"
+                        onClick={() => onAuctionModalOpen(nft)}
+                      >
+                        Auction
+                      </Button>
+                    </Flex>
+                  )}
+                </Box>
+              ))
+            )}
+          </Flex>
+          {unlistedNfts.length > 0 && !isLoadingUnlistedNfts && (
+            <Box display="flex" justifyContent="center" p={4}>
+              <Pagination
+                currentPage={currentPageUnlisted}
+                totalPages={totalPagesUnlisted}
+                onPageChange={handlePageChangeUnlisted}
+              />
+            </Box>
+          )}
+        </>
+      )}
 
       {/* Sell NFT Modal */}
       {selectedNft && (

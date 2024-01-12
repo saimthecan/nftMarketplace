@@ -13,12 +13,12 @@ import useAuctionOutcome from "../Hooks/NftAuction/useAuctionOutcome";
 import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
-import Pagination from "./Pagination"
+import Pagination from "./Pagination";
 
 const NFTAuction = () => {
   //states
   const { nftImages, nftDetails, unsoldNFTs } = useNFTAuctionData();
-    const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
+  const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
   const [enteredPrices, setEnteredPrices] = useState({});
 
   const wallet = useSelector((state) => state.wallet.account);
@@ -43,12 +43,12 @@ const NFTAuction = () => {
   } = useQueries();
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 1; 
+  const itemsPerPage = 10;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = unsoldNFTs.slice(indexOfFirstItem, indexOfLastItem);
- 
+
   const totalPages = Math.ceil(unsoldNFTs.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -101,7 +101,6 @@ const NFTAuction = () => {
       errorSoldAuction?.message ||
       errorCancelledAuction?.message
     }`;
-  if (!unsoldNFTs.length) return "No data available";
 
   return (
     <Box
@@ -114,9 +113,13 @@ const NFTAuction = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Grid templateColumns="repeat(auto-fit, minmax(350px, 0.2fr))" gap={0} mb={10}>
+      <Grid
+        templateColumns="repeat(auto-fit, minmax(350px, 0.2fr))"
+        gap={0}
+        mb={10}
+      >
         {currentItems.length === 0 ? (
-          <Text>No NFTs available for auction</Text>
+          <Text>No Nft In Auction Yet</Text>
         ) : (
           currentItems.map((nft, index) => (
             <Box
@@ -134,7 +137,7 @@ const NFTAuction = () => {
                   alt={`NFT ${nft.tokenId}`}
                 />
               )}
-              <Text  mt={3}>
+              <Text mt={3}>
                 <strong>Name:</strong> {nftDetails[nft.tokenId]?.name}
               </Text>
               <Text>
@@ -167,56 +170,57 @@ const NFTAuction = () => {
 
               {wallet ? (
                 !isWrongNetwork ? (
-                nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                  // If the current user is the seller
-                  <Button
-                    colorScheme="red"
-                    onClick={() => cancelAuction(nft, index)}
-                    mt={4}
-                  >
-                    Cancel Auction
-                  </Button>
-                ) : !isAuctionStarted(nft) ? (
-                  // If the auction has not started
-                  <Text mt={4}>Açık artırma başlamadı</Text>
-                ) : isAuctionEnded(nft) ? (
-                  // If the auction has ended
-                  <Text mt={4}>Açık artırmanın süresi doldu</Text>
-                ) : isUserHighestBidder(nft) ? (
-                  // If the current user is the highest bidder
-                  <Text mt={4}>
-                    <strong>You have the highest bid</strong>
-                  </Text>
-                ) : (
-                  // Allow the user to place a bid
-                  <Box mt={2}>
-                    <Input
-                      type="number"
-                      placeholder="Enter bid price in ETH"
-                      value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
-                      onChange={(e) =>
-                        setEnteredPrices((prevPrices) => ({
-                          ...prevPrices,
-                          [`${index}-${nft.tokenId}`]: e.target.value,
-                        }))
-                      }
-                    />
+                  nft.seller.toLowerCase() === account?.toLowerCase() ? (
+                    // If the current user is the seller
                     <Button
+                      colorScheme="red"
+                      onClick={() => cancelAuction(nft, index)}
                       mt={4}
-                      colorScheme="blue"
-                      onClick={() => {
-                        const price = enteredPrices[`${index}-${nft.tokenId}`];
-                        if (!price || isNaN(parseFloat(price))) {
-                          toast.error("Please enter a valid ETH value");
-                        } else {
-                          placeBid(nft, index);
-                        }
-                      }}
                     >
-                      Bid on NFT
+                      Cancel Auction
                     </Button>
-                  </Box>
-                )
+                  ) : !isAuctionStarted(nft) ? (
+                    // If the auction has not started
+                    <Text mt={4}>Açık artırma başlamadı</Text>
+                  ) : isAuctionEnded(nft) ? (
+                    // If the auction has ended
+                    <Text mt={4}>Açık artırmanın süresi doldu</Text>
+                  ) : isUserHighestBidder(nft) ? (
+                    // If the current user is the highest bidder
+                    <Text mt={4}>
+                      <strong>You have the highest bid</strong>
+                    </Text>
+                  ) : (
+                    // Allow the user to place a bid
+                    <Box mt={2}>
+                      <Input
+                        type="number"
+                        placeholder="Enter bid price in ETH"
+                        value={enteredPrices[`${index}-${nft.tokenId}`] || ""}
+                        onChange={(e) =>
+                          setEnteredPrices((prevPrices) => ({
+                            ...prevPrices,
+                            [`${index}-${nft.tokenId}`]: e.target.value,
+                          }))
+                        }
+                      />
+                      <Button
+                        mt={4}
+                        colorScheme="blue"
+                        onClick={() => {
+                          const price =
+                            enteredPrices[`${index}-${nft.tokenId}`];
+                          if (!price || isNaN(parseFloat(price))) {
+                            toast.error("Please enter a valid ETH value");
+                          } else {
+                            placeBid(nft, index);
+                          }
+                        }}
+                      >
+                        Bid on NFT
+                      </Button>
+                    </Box>
+                  )
                 ) : (
                   <Button
                     mt={4}
@@ -243,13 +247,15 @@ const NFTAuction = () => {
           ))
         )}
       </Grid>
-      <Box display="flex" justifyContent="center" p={4}>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
-    </Box>
+      {currentItems.length > 0 && (
+        <Box display="flex" justifyContent="center" p={4}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

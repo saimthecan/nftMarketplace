@@ -23,7 +23,7 @@ const Home = () => {
     infinite: true,
     speed: 500,
     autoplay: true,
-    autoplaySpeed: 5000,
+    autoplaySpeed: 55000,
     slidesToShow: 1,
     slidesToScroll: 1,
     swipeToSlide: true,
@@ -36,7 +36,7 @@ const Home = () => {
         <Box
           mt="10"
           width="100vw"
-          height="65vh"
+          height="60vh"
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -83,12 +83,13 @@ const Home = () => {
               p={4}
               alignItems="center"
               justifyContent="center"
+              maxHeight="100%"
             >
               <Image
                 src={nftsale}
                 alt="NFT"
                 borderRadius="lg"
-                maxHeight="100%"
+                width="85%"
                 alignSelf="center"
                 objectFit="contain"
               />
@@ -99,7 +100,7 @@ const Home = () => {
         <Box
           mt="10"
           width="100vw"
-          height="65vh"
+          height="60vh"
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -147,12 +148,13 @@ const Home = () => {
               p={4}
               alignItems="center"
               justifyContent="center"
+              maxHeight="100%"
             >
               <Image
                 src={nftauction}
                 alt="NFT"
                 borderRadius="lg"
-                maxHeight="100%"
+                width="85%"
                 alignSelf="center"
                 objectFit="contain"
               />
@@ -163,7 +165,7 @@ const Home = () => {
         <Box
           mt="10"
           width="100vw"
-          height="65vh"
+          height="60vh"
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -200,12 +202,13 @@ const Home = () => {
               p={4}
               alignItems="center"
               justifyContent="center"
+              maxHeight="100%"
             >
               <Image
                 src={mynfts}
                 alt="NFT"
                 borderRadius="lg"
-                maxHeight="100%"
+                width="85%"
                 alignSelf="center"
                 objectFit="contain"
               />
