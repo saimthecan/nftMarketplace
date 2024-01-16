@@ -51,7 +51,7 @@ const Home = () => {
     height: '60vh',
     '@media (min-height: 350px)': {
       width: '90vw',
-      height: '117vh',
+      height: '100vh',
     },
     '@media (min-height: 652px)': {
       width: '90vw',
