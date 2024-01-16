@@ -271,31 +271,37 @@ const MyNfts = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Flex justifyContent="flex-end" mb="4">
+      <Flex justifyContent="flex-end" mb="4" p={1}>
         <Tooltip placement="top">
           <Button
-            colorScheme={displayedList === "unlisted" ? "blue" : "gray"}
+            width="110px"
+            fontSize="14px"
+            colorScheme={displayedList === "unlisted" ? "green" : "gray"}
             onClick={() => toggleList("unlisted")}
           >
-            Unlisted NFTs
+            Unlisted
           </Button>
         </Tooltip>
         <Tooltip placement="top">
           <Button
-            colorScheme={displayedList === "nftsforsale" ? "blue" : "gray"}
+            width="110px"
+            fontSize="14px"
+            colorScheme={displayedList === "nftsforsale" ? "green" : "gray"}
             onClick={() => setDisplayedList("nftsforsale")}
           >
-            NFTs For Sale
+            For Sale
           </Button>
         </Tooltip>
 
         <Tooltip placement="top">
           <Button
+            width="110px"
+            fontSize="14px"
             ml="2"
-            colorScheme={displayedList === "onAuction" ? "blue" : "gray"}
+            colorScheme={displayedList === "onAuction" ? "green" : "gray"}
             onClick={() => toggleList("onAuction")}
           >
-            NFTs In Auction
+            In Auction
           </Button>
         </Tooltip>
       </Flex>
