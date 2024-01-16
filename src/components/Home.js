@@ -42,39 +42,48 @@ const Home = () => {
       slidesToScroll: 1,
       swipeToSlide: true,
       pauseOnHover: false,
-      adaptiveHeight: false, // Keep a fixed height for desktop view
+      adaptiveHeight: false // Keep a fixed height for desktop view
     },
   });
 
   const boxSize = {
     width: '100vw',
     height: '60vh',
-    '@media (min-width: 360px)': {
+    '@media (min-height: 350px)': {
       width: '90vw',
-      height: '75vh',
+      height: '117vh',
     },
-    '@media (min-width: 375px)': {
+    '@media (min-height: 652px)': {
+      width: '90vw',
+      height: '95vh',
+    },
+    '@media (min-height: 666px)': {
       width: '90vw',
       height: '81vh',
     },
-    '@media (min-width: 390px)': {
+    '@media (min-height: 739px)': {
+      width: '90vw',
+      height: '76vh',
+    },
+    '@media (min-height: 843px)': {
       width: '100vw',
       height: '65vh',
     },
-    '@media (min-width: 412px)': {
+    '@media (min-height: 895px)': {
       width: '100vw',
       height: '60vh',
     },
-    '@media (min-width: 430px)': {
+    '@media (min-width: 1000px)': {
       width: '100vw',
-      height: '58vh',
+      height: '60vh',
     },
+  
   };
 
   
 
   return (
-    <Container maxW="container.xl" p={5}>
+    <Container maxW="container.xl" mt={{ base: "-1.5rem", md: "0" }}>
       <Slider {...sliderSettings}>
         {/* Slide 1 */}
         <Box
