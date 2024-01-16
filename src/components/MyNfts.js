@@ -58,7 +58,7 @@ const MyNfts = () => {
   const [currentPageOnAuction, setCurrentPageOnAuction] = useState(1);
   const [totalPagesOnAuction, setTotalPagesOnAuction] = useState(0);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
