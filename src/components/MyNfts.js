@@ -271,13 +271,15 @@ const MyNfts = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
-      <Flex justifyContent="flex-end" mb="4" p={1}>
+      <Flex justifyContent="flex-end" mb="4">
         <Tooltip placement="top">
           <Button
             width="110px"
             fontSize="14px"
-            colorScheme={displayedList === "unlisted" ? "green" : "gray"}
             onClick={() => toggleList("unlisted")}
+            bgColor={displayedList === "unlisted" ? "green" : "gray.300"}
+            _hover={displayedList === "unlisted" ? "green" : "gray.300"}
+            color={displayedList === "unlisted" ? "white" : "black"}
           >
             Unlisted
           </Button>
@@ -286,8 +288,11 @@ const MyNfts = () => {
           <Button
             width="110px"
             fontSize="14px"
-            colorScheme={displayedList === "nftsforsale" ? "green" : "gray"}
+            bgColor={displayedList === "nftsforsale" ? "green" : "gray.300"}
+            _hover={displayedList === "nftsforsale" ? "green" : "gray.300"}
+            color={displayedList === "nftsforsale" ? "white" : "black"}
             onClick={() => setDisplayedList("nftsforsale")}
+            ml="2"
           >
             For Sale
           </Button>
@@ -298,8 +303,10 @@ const MyNfts = () => {
             width="110px"
             fontSize="14px"
             ml="2"
-            colorScheme={displayedList === "onAuction" ? "green" : "gray"}
+            bgColor={displayedList === "onAuction" ? "green" : "gray.300"}
+            _hover={displayedList === "onAuction" ? "green" : "gray.300"}
             onClick={() => toggleList("onAuction")}
+            color={displayedList === "onAuction" ? "white" : "black"}
           >
             In Auction
           </Button>
