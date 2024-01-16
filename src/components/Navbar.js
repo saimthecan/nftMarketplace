@@ -1,4 +1,4 @@
-import React, { useEffect} from "react";
+import React, { useEffect } from "react";
 import {
   Flex,
   Image,
@@ -26,9 +26,12 @@ import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
+import { useLocation } from "react-router-dom";
 
 export const Navbar = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+
   const wallet = useSelector((state) => state.wallet.account);
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -89,6 +92,22 @@ export const Navbar = () => {
     };
   }, [checkNetwork, dispatch]);
 
+  const fontStyle = {
+    fontSize: "16px",
+    fontFamily: "Inter, sans-serif",
+    textDecoration: "none",
+    color: "#8c8cb1",
+    fontWeight: 500,
+  
+  };
+  const selectedLinkStyle = {
+    fontSize: "16px",
+    fontFamily: "Inter, sans-serif",
+    textDecoration: "none",
+    color: "teal",
+    fontWeight: 500,
+  };
+
   return (
     <Flex
       as="nav"
@@ -128,17 +147,51 @@ export const Navbar = () => {
           </DrawerHeader>
           <DrawerBody>
             <Stack spacing={4}>
-              <Link as={RouterLink} to="/" onClick={onClose}>
+              <Link
+                as={RouterLink}
+                to="/"
+                onClick={onClose}
+                style={
+                  location.pathname === "/" ? selectedLinkStyle : fontStyle
+                }
+              >
                 Home
               </Link>
-              <Link as={RouterLink} to="/nftlist" onClick={onClose}>
+              <Link
+                as={RouterLink}
+                to="/nftlist"
+                onClick={onClose}
+                style={
+                  location.pathname === "/nftlist"
+                    ? selectedLinkStyle
+                    : fontStyle
+                }
+              >
                 Nft Marketplace
               </Link>
-              <Link as={RouterLink} to="/nftauction" onClick={onClose}>
+              <Link
+                as={RouterLink}
+                to="/nftauction"
+                onClick={onClose}
+                style={
+                  location.pathname === "/nftauction"
+                    ? selectedLinkStyle
+                    : fontStyle
+                }
+              >
                 Auctions
               </Link>
               {wallet && (
-                <Link as={RouterLink} to="/mynfts" onClick={onClose}>
+                <Link
+                  as={RouterLink}
+                  to="/mynfts"
+                  onClick={onClose}
+                  style={
+                    location.pathname === "/mynfts"
+                      ? selectedLinkStyle
+                      : fontStyle
+                  }
+                >
                   My Nfts
                 </Link>
               )}
@@ -198,17 +251,46 @@ export const Navbar = () => {
       </Drawer>
 
       <Flex display={{ base: "none", md: "flex" }} mr="auto" ml={10}>
-        <Link as={RouterLink} to="/" onClick={onClose} mr={2}>
+        <Link
+          as={RouterLink}
+          to="/"
+          onClick={onClose}
+          mr={12}
+          style={location.pathname === "/" ? selectedLinkStyle : fontStyle}
+        >
           Home
         </Link>
-        <Link as={RouterLink} to="/nftlist" onClick={onClose} mr={2}>
+        <Link
+          as={RouterLink}
+          to="/nftlist"
+          onClick={onClose}
+          mr={12}
+          style={
+            location.pathname === "/nftlist" ? selectedLinkStyle : fontStyle
+          }
+        >
           Nft Marketplace
         </Link>
-        <Link as={RouterLink} to="/nftauction" onClick={onClose} mr={2}>
+        <Link
+          as={RouterLink}
+          to="/nftauction"
+          onClick={onClose}
+          mr={12}
+          style={
+            location.pathname === "/nftauction" ? selectedLinkStyle : fontStyle
+          }
+        >
           Auctions
         </Link>
         {wallet && (
-          <Link as={RouterLink} to="/mynfts" onClick={onClose}>
+          <Link
+            as={RouterLink}
+            to="/mynfts"
+            onClick={onClose}
+            style={
+              location.pathname === "/mynfts" ? selectedLinkStyle : fontStyle
+            }
+          >
             My Nfts
           </Link>
         )}
