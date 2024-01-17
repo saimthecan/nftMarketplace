@@ -76,7 +76,7 @@ const MyNfts = () => {
   useEffect(() => {
     setTotalPagesForSale(Math.ceil(nftData.length / itemsPerPage));
   }, [nftData]);
-  console.log("name", nftData[0].metadata.name);
+
 
   useEffect(() => {
     setTotalPagesOnAuction(Math.ceil(nftDataAuction.length / itemsPerPage));
