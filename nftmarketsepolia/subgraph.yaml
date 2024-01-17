@@ -1,0 +1,42 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: sepolia
+    source:
+      address: "0x4ca47023e48f139c1737e40c3b935f19f8593319"
+      abi: Contract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NFTAuctionCancelled
+        - NFTAuctionFinished
+        - NFTBid
+        - NFTListedForAuction
+        - NFTListedForSale
+        - NFTSaleCancelled
+        - NFTSold
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: NFTAuctionCancelled(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTAuctionCancelled
+        - event: NFTAuctionFinished(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTAuctionFinished
+        - event: NFTBid(indexed uint256,indexed address,uint256,address,uint256)
+          handler: handleNFTBid
+        - event: NFTListedForAuction(indexed uint256,indexed address,uint256,address,uint256,uint256,uint256)
+          handler: handleNFTListedForAuction
+        - event: NFTListedForSale(indexed uint256,indexed address,uint256,address,uint256)
+          handler: handleNFTListedForSale
+        - event: NFTSaleCancelled(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTSaleCancelled
+        - event: NFTSold(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTSold
+      file: ./src/contract.ts
