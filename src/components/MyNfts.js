@@ -65,7 +65,7 @@ const MyNfts = () => {
   const { nftData, loadingListedSale, errorListedSale } = useUnlistedNftsData();
   const { nftDataAuction } = useOnAuctionData();
   const { latestBids } = useSelector((state) => state.nftAuction);
-  const { switchToGoerliNetwork } = useWalletConnection();
+  const { switchToSepoliaNetwork } = useWalletConnection();
 
   useEffect(() => {
     // Toplam sayfa sayısını hesaplayın ve güncelleyin
@@ -76,6 +76,7 @@ const MyNfts = () => {
   useEffect(() => {
     setTotalPagesForSale(Math.ceil(nftData.length / itemsPerPage));
   }, [nftData]);
+  console.log("name", nftData[0].metadata.name);
 
   useEffect(() => {
     setTotalPagesOnAuction(Math.ceil(nftDataAuction.length / itemsPerPage));
@@ -86,7 +87,7 @@ const MyNfts = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return unlistedNfts.slice(indexOfFirstItem, indexOfLastItem);
   };
-
+console.log(unlistedNfts);
   const getCurrentPageForSaleNfts = () => {
     const indexOfLastItem = currentPageForSale * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -386,9 +387,9 @@ const MyNfts = () => {
                         <Button
                           mt={4}
                           colorScheme="red"
-                          onClick={switchToGoerliNetwork}
+                          onClick={switchToSepoliaNetwork}
                         >
-                          Wrong Network - Switch to Goerli
+                          Wrong Network - Switch to Sepolia
                         </Button>
                       ) : (
                         <Button
@@ -472,9 +473,9 @@ const MyNfts = () => {
                       <Button
                         mt={4}
                         colorScheme="red"
-                        onClick={switchToGoerliNetwork}
+                        onClick={switchToSepoliaNetwork}
                       >
-                        Wrong Network - Switch to Goerli
+                        Wrong Network - Switch to Sepolia
                       </Button>
                     ) : (
                       <Button
@@ -560,9 +561,9 @@ const MyNfts = () => {
                     <Button
                       mt={4}
                       colorScheme="red"
-                      onClick={switchToGoerliNetwork}
+                      onClick={switchToSepoliaNetwork}
                     >
-                      Wrong Network - Switch to Goerli
+                      Wrong Network - Switch to Sepolia
                     </Button>
                   ) : (
                     <Flex mt={4}>

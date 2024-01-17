@@ -7,7 +7,7 @@ const useAlchemy = () => {
   const alchemy = useMemo(() => {
     const settings = {
       apiKey: process.env.REACT_APP_ALCHEMY_API_KEY ,
-      network: Network.ETH_GOERLI,
+      network: Network.ETH_SEPOLIA,
     };
 
     return new Alchemy(settings);

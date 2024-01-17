@@ -22,7 +22,7 @@ const NFTAuction = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
 
   const wallet = useSelector((state) => state.wallet.account);
-  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
+  const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
 
   const { latestBids, loading, error } = useSelector(
     (state) => state.nftAuction
@@ -225,9 +225,9 @@ const NFTAuction = () => {
                   <Button
                     mt={4}
                     colorScheme="red"
-                    onClick={switchToGoerliNetwork}
+                    onClick={switchToSepoliaNetwork}
                   >
-                    Wrong Network - Switch to Goerli
+                    Wrong Network - Switch to Sepolia
                   </Button>
                 )
               ) : (

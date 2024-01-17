@@ -38,7 +38,7 @@ export const Navbar = () => {
   const {
     connectWallet,
     disconnectWallet,
-    switchToGoerliNetwork,
+    switchToSepoliaNetwork,
     checkNetwork,
   } = useWalletConnection();
 
@@ -228,10 +228,10 @@ export const Navbar = () => {
                     colorScheme="red"
                     bg="red.500"
                     variant="solid"
-                    onClick={switchToGoerliNetwork}
+                    onClick={switchToSepoliaNetwork}
                     size="sm"
                   >
-                    Wrong Network - Switch to Goerli
+                    Wrong Network - Switch to Sepolia
                   </Button>
                 ) : (
                   <Button
@@ -336,11 +336,11 @@ export const Navbar = () => {
             colorScheme="red"
             bg="red.500"
             variant="solid"
-            onClick={switchToGoerliNetwork}
+            onClick={switchToSepoliaNetwork}
             size="md"
             display={{ base: "none", md: "block" }}
           >
-            Wrong Network - Switch to Goerli
+            Wrong Network - Switch to Sepolia
           </Button>
         ) : (
           <Button

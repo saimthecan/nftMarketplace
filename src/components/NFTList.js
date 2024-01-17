@@ -14,7 +14,7 @@ import Pagination from "./Pagination";
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
 
-  const { connectWallet, switchToGoerliNetwork } = useWalletConnection();
+  const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
@@ -128,9 +128,9 @@ const NFTList = () => {
                   <Button
                     mt={4}
                     colorScheme="red"
-                    onClick={switchToGoerliNetwork}
+                    onClick={switchToSepoliaNetwork}
                   >
-                    Wrong Network - Switch to Goerli
+                    Wrong Network - Switch to Sepolia
                   </Button>
                 )
               ) : (

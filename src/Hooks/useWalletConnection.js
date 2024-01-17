@@ -7,7 +7,7 @@ const useWalletConnection = () => {
   const dispatch = useDispatch();
 
   const connectWallet = async () => {
-    await switchToGoerliNetwork();
+    await switchToSepoliaNetwork();
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({
@@ -32,23 +32,23 @@ const useWalletConnection = () => {
   const checkNetwork = async () => {
     if (window.ethereum) {
       const chainId = await window.ethereum.request({ method: "eth_chainId" });
-      dispatch(setNetworkStatus(chainId !== "0x5"));
+      dispatch(setNetworkStatus(chainId !== "0xaa36a7"));
     }
   };
 
 
-  const switchToGoerliNetwork = async () => {
+  const switchToSepoliaNetwork = async () => {
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x5" }], // Goerli Test Network's chainId is 0x5
+        params: [{ chainId: "0xaa36a7" }], 
       });
     } catch (switchError) {
       console.error("Error switching network:", switchError);
     }
   };
 
-  return { connectWallet, disconnectWallet, switchToGoerliNetwork, checkNetwork };
+  return { connectWallet, disconnectWallet, switchToSepoliaNetwork, checkNetwork };
 };
 
 export default useWalletConnection;
