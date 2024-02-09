@@ -154,8 +154,11 @@ console.log(unlistedNfts);
   const sellNFT = async (nft) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
+    const nftType = nft.tokenType === "ERC721" ? 0 : 1; 
+    console.log(nftType);
 
-    const isApproved = await checkApproval(contractAddress, tokenId);
+    const isApproved = await checkApproval(nftType, contractAddress, tokenId);
+    console.log(isApproved);
     if (!isApproved) {
       await approveNFT(contractAddress, tokenId);
     }
