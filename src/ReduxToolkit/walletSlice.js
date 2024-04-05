@@ -8,6 +8,7 @@ const walletSlice = createSlice({
   },
   reducers: {
     connectWallet: (state, action) => {
+      console.log('Dispatching connectWallet action:', action);
       state.account = action.payload;
     },
     setBalance: (state, action) => { 

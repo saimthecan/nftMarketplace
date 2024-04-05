@@ -13,9 +13,6 @@ import {
   useBreakpointValue,
   Flex,
 } from "@chakra-ui/react";
-import nftsale from "../assests/nftsale.png";
-import nftauction from "../assests/nftauction.png";
-import mynfts from "../assests/mynfts.png";
 import { Link as RouterLink } from "react-router-dom";
 
 const Home = () => {
@@ -99,7 +96,7 @@ const Home = () => {
           {/* Mobile View */}
           <VStack spacing={4} display={{ base: "flex", md: "none" }}>
             <Image
-              src={nftsale}
+              src={`${process.env.PUBLIC_URL}/nftsale.png`}
               alt="NFT for sale"
               borderRadius="lg"
               width="full"
@@ -175,7 +172,7 @@ const Home = () => {
               maxHeight="100%"
             >
               <Image
-                src={nftsale}
+                 src={`${process.env.PUBLIC_URL}/nftsale.png`}
                 alt="NFT for sale"
                 borderRadius="lg"
                 width="85%"
@@ -201,7 +198,7 @@ const Home = () => {
           {/* Mobile View */}
           <VStack spacing={4} display={{ base: "flex", md: "none" }}>
             <Image
-              src={nftauction}
+             src={`${process.env.PUBLIC_URL}/nftauction.png`}
               alt="NFT for sale"
               borderRadius="lg"
               width="full"
@@ -279,7 +276,7 @@ const Home = () => {
               maxHeight="100%"
             >
               <Image
-                src={nftauction}
+                src={`${process.env.PUBLIC_URL}/nftauction.png`}
                 alt="NFT for auction"
                 borderRadius="lg"
                 width="85%"
@@ -304,7 +301,7 @@ const Home = () => {
           {/* Mobile View */}
           <VStack spacing={4} display={{ base: "flex", md: "none" }}>
             <Image
-              src={mynfts}
+              src={`${process.env.PUBLIC_URL}/mynfts.png`}
               alt="NFT for sale"
               borderRadius="lg"
               width="full"
@@ -363,7 +360,7 @@ const Home = () => {
               maxHeight="100%"
             >
               <Image
-                src={mynfts}
+                 src={`${process.env.PUBLIC_URL}/mynfts.png`}
                 alt="MyNFts"
                 borderRadius="lg"
                 width="85%"

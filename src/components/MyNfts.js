@@ -62,6 +62,7 @@ const MyNfts = () => {
 
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
+
   const { nftData, loadingListedSale, errorListedSale } = useUnlistedNftsData();
   const { nftDataAuction } = useOnAuctionData();
   const { latestBids } = useSelector((state) => state.nftAuction);

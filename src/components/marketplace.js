@@ -341,6 +341,7 @@ export const marketplace = [
       { internalType: "address", name: "_contractAddress", type: "address" },
       { internalType: "uint256", name: "_tokenId", type: "uint256" },
       { internalType: "address", name: "_operator", type: "address" },
+      { internalType: "address", name: "_owner", type: "address" },
     ],
     name: "isTokenApproved",
     outputs: [{ internalType: "bool", name: "", type: "bool" }],

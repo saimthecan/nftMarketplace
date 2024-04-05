@@ -4,14 +4,11 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract NFTMarketplace is ReentrancyGuard {
-   constructor(address _owner) {
+    constructor(address _owner) {
         owner = _owner;
     }
-
-    using SafeMath for uint256;
 
     address public owner;
     uint256 public idForSale;
@@ -60,19 +57,16 @@ contract NFTMarketplace is ReentrancyGuard {
     );
 
     event NFTSaleCancelled(
-    uint256 indexed id,
-    address indexed seller,
-    address contractAddress,
-    uint256 tokenId
-);
-
+        uint256 indexed id,
+        address indexed seller,
+        address contractAddress,
+        uint256 tokenId
+    );
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not the contract owner");
         _;
     }
-
-  
 
     enum NFTType {
         ERC721,
@@ -158,10 +152,28 @@ contract NFTMarketplace is ReentrancyGuard {
         if (_type == NFTType.ERC721) {
             IERC721 NFT = IERC721(_contractAddress);
             require(NFT.ownerOf(_tokenId) == msg.sender);
+            require(
+                _auctionStartTime >= block.timestamp,
+                "Auction start time must be in the future"
+            );
+            require(
+                _auctionEndTime > _auctionStartTime,
+                "Auction end time must be after the start time"
+            );
+
             NFT.transferFrom(msg.sender, address(this), _tokenId);
         } else {
             IERC1155 NFT = IERC1155(_contractAddress);
             require(NFT.balanceOf(msg.sender, _tokenId) >= _quantity);
+            require(
+                _auctionStartTime >= block.timestamp,
+                "Auction start time must be in the future"
+            );
+            require(
+                _auctionEndTime > _auctionStartTime,
+                "Auction end time must be after the start time"
+            );
+
             NFT.safeTransferFrom(
                 msg.sender,
                 address(this),
@@ -179,18 +191,18 @@ contract NFTMarketplace is ReentrancyGuard {
             item.contractAddress,
             item.tokenId,
             _auctionStartTime,
-            _auctionEndTime 
+            _auctionEndTime
         );
         idForAuction++;
     }
 
     function buyNFT(uint256 _id) public payable nonReentrant {
-      Item storage item = idToItemForSale[_id];
-    require(item.seller != address(0), "Item does not exist");
-    require(msg.sender != item.seller, "Seller cannot buy their own item");
-    require(!item.state, "Item is already sold");
-    require(item.buyer == address(0), "Item is already reserved");
-    require(msg.value >= item.price, "Insufficient payment");
+        Item storage item = idToItemForSale[_id];
+        require(item.seller != address(0), "Item does not exist");
+        require(msg.sender != item.seller, "Seller cannot buy their own item");
+        require(!item.state, "Item is already sold");
+        require(item.buyer == address(0), "Item is already reserved");
+        require(msg.value >= item.price, "Insufficient payment");
 
         uint256 price = msg.value.mul(95).div(100);
         payable(item.seller).transfer(price);
@@ -220,87 +232,83 @@ contract NFTMarketplace is ReentrancyGuard {
         owner = _newOwner;
     }
 
-    function isNFTApprovedForMarketplace(
-        NFTType _type,
-        address _contractAddress,
-        address _ownerAddress
-    ) public view returns (bool) {
-        if (_type == NFTType.ERC721) {
-            IERC721 NFT = IERC721(_contractAddress);
-            return NFT.isApprovedForAll(_ownerAddress, address(this));
-        } else if (_type == NFTType.ERC1155) {
-            IERC1155 NFT = IERC1155(_contractAddress);
-            return NFT.isApprovedForAll(_ownerAddress, address(this));
+    function cancelNFTSale(uint256 Id) public {
+        Item storage item = idToItemForSale[Id];
+        require(item.seller == msg.sender, "You are not owner of this NFT!");
+        require(!item.state, "This NFT sold!");
+
+        if (item.nftType == NFTType.ERC721) {
+            IERC721 NFT = IERC721(item.contractAddress);
+            NFT.transferFrom(address(this), msg.sender, item.tokenId);
+        } else {
+            IERC1155 NFT = IERC1155(item.contractAddress);
+            NFT.safeTransferFrom(
+                address(this),
+                msg.sender,
+                item.tokenId,
+                item.quantity,
+                ""
+            );
         }
-        return false;
-    }
 
-   function cancelNFTSale(uint256 Id) public {
-    Item storage item = idToItemForSale[Id];
-    require(item.seller == msg.sender, "You are not owner of this NFT!");
-    require(!item.state, "This NFT sold!");
+        item.state = true; // Mark as cancelled
 
-    if (item.nftType == NFTType.ERC721) {
-        IERC721 NFT = IERC721(item.contractAddress);
-        NFT.transferFrom(address(this), msg.sender, item.tokenId);
-    } else {
-        IERC1155 NFT = IERC1155(item.contractAddress);
-        NFT.safeTransferFrom(
-            address(this),
+        emit NFTSaleCancelled(
+            Id,
             msg.sender,
-            item.tokenId,
-            item.quantity,
-            ""
+            item.contractAddress,
+            item.tokenId
         );
     }
 
-    item.state = true; // Mark as cancelled
+    function cancelNFTAuction(uint256 Id) public {
+        Item storage item = idToItemForAuction[Id];
+        require(item.seller == msg.sender, "You are not owner of this NFT!");
 
-    emit NFTSaleCancelled(
-        Id,
-        msg.sender,
-        item.contractAddress,
-        item.tokenId
-    );
-}
+        bool isAuctionStarted = block.timestamp >= item.auctionStartTime;
+        bool isAuctionEnded = block.timestamp > item.auctionEndTime;
+        bool isAfterClaimPeriod = block.timestamp >
+            item.auctionEndTime + 5 days;
+        bool noBids = item.buyer == address(0);
 
+        // Açık artırmayı iptal etme koşulları:
+        // Eğer açık artırma başladıysa ve hiç teklif alınmadıysa, açık artırma iptal edilebilir.
+        // Eğer açık artırma sona erdiyse ve 5 gün boyunca NFT claim edilmediyse, açık artırma iptal edilebilir.
+        require(
+            (isAuctionStarted && noBids) ||
+                (isAuctionEnded && isAfterClaimPeriod),
+            "Cannot cancel auction under these conditions"
+        );
 
- function cancelNFTAuction(uint256 Id) public {
-    Item storage item = idToItemForAuction[Id];
-    require(item.seller == msg.sender, "You are not owner of this NFT!");
-    require(!item.state, "This NFT sold!");
+        if (item.nftType == NFTType.ERC721) {
+            IERC721 NFT = IERC721(item.contractAddress);
+            NFT.transferFrom(address(this), msg.sender, item.tokenId);
+        } else {
+            IERC1155 NFT = IERC1155(item.contractAddress);
+            NFT.safeTransferFrom(
+                address(this),
+                msg.sender,
+                item.tokenId,
+                item.quantity,
+                ""
+            );
+        }
 
-    if (item.buyer != address(0)) {
-        // Eğer bir önceki teklif varsa, önceki alıcıya önceki teklif miktarını geri öde
-        payable(item.buyer).transfer(item.price);
-    }
-
-    if (item.nftType == NFTType.ERC721) {
-        IERC721 NFT = IERC721(item.contractAddress);
-        NFT.transferFrom(address(this), msg.sender, item.tokenId);
-    } else {
-        IERC1155 NFT = IERC1155(item.contractAddress);
-        NFT.safeTransferFrom(
-            address(this),
+        item.state = true; // Mark as cancelled
+        emit NFTAuctionCancelled(
+            Id,
             msg.sender,
-            item.tokenId,
-            item.quantity,
-            ""
+            item.contractAddress,
+            item.tokenId
         );
     }
-
-    item.state = true; // Mark as cancelled
-    emit NFTAuctionCancelled(
-        Id,
-        msg.sender,
-        item.contractAddress,
-        item.tokenId
-    );
-}
 
     function bid(uint256 Id) public payable {
         Item storage item = idToItemForAuction[Id];
-        require(block.timestamp >= item.auctionStartTime, "Auction has not started yet");
+        require(
+            block.timestamp >= item.auctionStartTime,
+            "Auction has not started yet"
+        );
         require(block.timestamp <= item.auctionEndTime, "Auction has ended");
         require(msg.sender != item.seller, "You are seller");
         require(msg.sender != item.buyer, "You have highest bid!");
@@ -324,26 +332,82 @@ contract NFTMarketplace is ReentrancyGuard {
     }
 
     function finishNFTAuction(uint256 Id) public {
-    Item storage item = idToItemForAuction[Id];
-    require(msg.sender == item.buyer, "You are not the highest bidder");
-    require(!item.state, "Auction already finished");
-    require(block.timestamp >= item.auctionEndTime, "Auction not yet ended");
+        Item storage item = idToItemForAuction[Id];
+        require(
+            block.timestamp >= item.auctionEndTime,
+            "Auction not yet ended"
+        );
+        require(!item.state, "Auction already finished");
+        require(msg.sender == item.buyer, "You are not the highest bidder");
 
-    uint256 ownerCommission = item.price.mul(5).div(100); // %5 komisyon
-    uint256 sellerAmount = item.price.sub(ownerCommission);
+        uint256 ownerCommission = item.price.mul(5).div(100); // %5 komisyon
+        uint256 sellerAmount = item.price.sub(ownerCommission);
 
-    payable(item.seller).transfer(sellerAmount);
-    payable(owner).transfer(ownerCommission);
+        payable(item.seller).transfer(sellerAmount);
+        payable(owner).transfer(ownerCommission);
 
-    if (item.nftType == NFTType.ERC721) {
-        IERC721(item.contractAddress).transferFrom(address(this), msg.sender, item.tokenId);
-    } else {
-        IERC1155(item.contractAddress).safeTransferFrom(address(this), msg.sender, item.tokenId, item.quantity, "");
+        if (item.nftType == NFTType.ERC721) {
+            IERC721(item.contractAddress).transferFrom(
+                address(this),
+                msg.sender,
+                item.tokenId
+            );
+        } else {
+            IERC1155(item.contractAddress).safeTransferFrom(
+                address(this),
+                msg.sender,
+                item.tokenId,
+                item.quantity,
+                ""
+            );
+        }
+
+        item.state = true;
+        emit NFTAuctionFinished(
+            Id,
+            msg.sender,
+            item.contractAddress,
+            item.tokenId
+        );
     }
 
-    item.state = true;
-    emit NFTAuctionFinished(Id, msg.sender, item.contractAddress, item.tokenId);
-}
+    function approveNFT(
+        NFTType _type,
+        address _contractAddress,
+        uint256 _tokenId
+    ) external {
+        if (_type == NFTType.ERC721) {
+            IERC721 erc721Contract = IERC721(_contractAddress);
+            require(
+                erc721Contract.ownerOf(_tokenId) == msg.sender,
+                "Caller is not the token owner"
+            );
+            erc721Contract.approve(address(this), _tokenId);
+        } else if (_type == NFTType.ERC1155) {
+            IERC1155 erc1155Contract = IERC1155(_contractAddress);
+            require(
+                erc1155Contract.isApprovedForAll(msg.sender, address(this)) ==
+                    false,
+                "Contract is already approved"
+            );
+            erc1155Contract.setApprovalForAll(address(this), true);
+        }
+    }
 
-
+    function isTokenApproved(
+        NFTType _type,
+        address _contractAddress,
+        uint256 _tokenId,
+        address _operator,
+        address _owner // Yeni parametre
+    ) external view returns (bool) {
+        if (_type == NFTType.ERC721) {
+            IERC721 nftContract = IERC721(_contractAddress);
+            return nftContract.getApproved(_tokenId) == _operator;
+        } else if (_type == NFTType.ERC1155) {
+            IERC1155 nftContract = IERC1155(_contractAddress);
+            return nftContract.isApprovedForAll(_owner, _operator); 
+        }
+        return false;
+    }
 }
