@@ -62,7 +62,6 @@ const MyNfts = () => {
 
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
-
   const { nftData, loadingListedSale, errorListedSale } = useUnlistedNftsData();
   const { nftDataAuction } = useOnAuctionData();
   const { latestBids } = useSelector((state) => state.nftAuction);
@@ -78,7 +77,6 @@ const MyNfts = () => {
     setTotalPagesForSale(Math.ceil(nftData.length / itemsPerPage));
   }, [nftData]);
 
-
   useEffect(() => {
     setTotalPagesOnAuction(Math.ceil(nftDataAuction.length / itemsPerPage));
   }, [nftDataAuction]);
@@ -88,7 +86,7 @@ const MyNfts = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return unlistedNfts.slice(indexOfFirstItem, indexOfLastItem);
   };
-console.log(unlistedNfts);
+  console.log(unlistedNfts);
   const getCurrentPageForSaleNfts = () => {
     const indexOfLastItem = currentPageForSale * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -141,7 +139,7 @@ console.log(unlistedNfts);
   const checkApproval = useCheckApproval(provider, CONTRACT_ADDRESS);
 
   // useApproveNFT hook'unu kullan
-  const approveNFT = useApproveNFT(signer, CONTRACT_ADDRESS);
+  const { approveNFT } = useApproveNFT(signer, CONTRACT_ADDRESS);
 
   // useCancelAuction hook'unu kullan
   const cancelAuction = useCancelNFTAuction(signer, CONTRACT_ADDRESS);
@@ -153,27 +151,45 @@ console.log(unlistedNfts);
   const { startNFTSale } = useNFTActions(signer, provider, CONTRACT_ADDRESS);
 
   const sellNFT = async (nft) => {
+    console.log("sellNFT called with:", nft);
+    
+
+    if (!nft.contract || !nft.contract.address) {
+      console.error("Contract details are missing in the NFT object");
+      toast.error("Contract details are missing. Please check your NFT object.");
+      return;
+  }
+
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
-    const nftType = nft.tokenType === "ERC721" ? 0 : 1; 
-    console.log(nftType);
+    // nft.tokenType 'ERC721' veya 'ERC1155' olabilir. Bu bilgiye göre nftType değerini ayarlayın.
+    const nftType = nft.tokenType === "ERC721" ? 0 : 1;
+    const quantity = nft.quantity || 1;
 
-    const isApproved = await checkApproval(nftType, contractAddress, tokenId);
-    console.log(isApproved);
-    if (!isApproved) {
-      await approveNFT(contractAddress, tokenId);
-    }
+    console.log("Contract Address:", contractAddress);
+    console.log("nftType:", nftType);
+    console.log("Calling approveNFT with", contractAddress, tokenId, nftType);
 
-    const price = enteredPrices[tokenId];
-    if (!price || isNaN(parseFloat(price))) {
-      toast.error("Please enter a valid ETH value");
-      return;
-    }
-
+    // Girdi olarak nftType da ekleyerek approveNFT fonksiyonunu çağırıyoruz.
+    // Bu fonksiyon, gerektiğinde kullanıcıdan onay alacak.
     try {
-      await startNFTSale(nft, price);
+      await approveNFT(contractAddress, tokenId, nftType);
+      console.log("approveNFT success");
+
+      const price = enteredPrices[tokenId];
+      if (!price || isNaN(parseFloat(price))) {
+        toast.error("Please enter a valid ETH value");
+        return;
+      }
+
+      console.log("Calling startNFTSale with", contractAddress, tokenId, price);
+      // Burada NFT'nizi satışa çıkaracak fonksiyonu çağırın.
+      // Bu örnekte startNFTSale fonksiyonu bu işlevi görmektedir.
+     await startNFTSale(nft, price);
+      console.log("startNFTSale success");
       onSellModalClose();
       setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+      toast.success("NFT is listed for sale successfully.");
     } catch (error) {
       console.error("Error starting NFT sale:", error);
       toast.error("Error starting NFT sale");
@@ -185,6 +201,7 @@ console.log(unlistedNfts);
     provider,
     CONTRACT_ADDRESS
   );
+  
 
   const startAuction = async (nft) => {
     const contractAddress = nft.contract.address;
@@ -231,6 +248,7 @@ console.log(unlistedNfts);
       const nftsForOwner = await alchemy.nft.getNftsForOwner(wallet);
       setUnlistedNfts(
         nftsForOwner.ownedNfts.filter((nft) => nft.tokenType === "ERC721")
+      
       );
       setIsLoadingUnlistedNfts(false);
     }

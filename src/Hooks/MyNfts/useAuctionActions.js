@@ -37,4 +37,5 @@ const useAuctionActions = (signer, provider, CONTRACT_ADDRESS) => {
   return { startNFTAuction };
 };
 
+
 export default useAuctionActions;

@@ -2,7 +2,7 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/57324/nftmarketsepolia/v0.0.2',
+  uri: 'https://api.studio.thegraph.com/query/57324/nftmarketsepolia1/v0.0.1',
   cache: new InMemoryCache(), 
 });
 
