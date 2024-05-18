@@ -164,7 +164,7 @@ const MyNfts = () => {
     const tokenId = nft.tokenId;
     // nft.tokenType 'ERC721' veya 'ERC1155' olabilir. Bu bilgiye göre nftType değerini ayarlayın.
     const nftType = nft.tokenType === "ERC721" ? 0 : 1;
-    const quantity = nft.quantity || 1;
+    
 
     console.log("Contract Address:", contractAddress);
     console.log("nftType:", nftType);
