@@ -1,6 +1,6 @@
 # Vote dApp
 
-https://votedapp.netlify.app/
+https://nftmarketcanozgen.netlify.app/
 
 To fully use this application, please ensure the following:
 
