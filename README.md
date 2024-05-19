@@ -8,8 +8,10 @@ To fully use this application, please ensure the following:
 
 2. **Sepolia Test Network**: The application uses the Sepolia test network. Make sure your Metamask is connected to the Sepolia test network.
 
+![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft3.PNG)
+
 ![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft1.PNG)
 
 ![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft2.PNG)
 
-![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft3.PNG)
+
