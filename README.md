@@ -10,6 +10,6 @@ To fully use this application, please ensure the following:
 
 ![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft1.PNG)
 
-![Example Image](https://github.com/saimthecan/nftMarketplace/blob/master/readmePic/nft2.PNG)
+![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft2.PNG)
 
-![Example Image](https://github.com/saimthecan/nftMarketplace/blob/master/readmePic/nft3.PNG)
+![Example Image](https://github.com/saimthecan/nftMarketplace/blob/main/readmePic/nft3.PNG)
