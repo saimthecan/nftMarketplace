@@ -152,49 +152,50 @@ const MyNfts = () => {
 
   const sellNFT = async (nft) => {
     console.log("sellNFT called with:", nft);
-    
 
     if (!nft.contract || !nft.contract.address) {
-      console.error("Contract details are missing in the NFT object");
-      toast.error("Contract details are missing. Please check your NFT object.");
-      return;
-  }
+        console.error("Contract details are missing in the NFT object");
+        toast.error("Contract details are missing. Please check your NFT object.");
+        return;
+    }
 
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
-    // nft.tokenType 'ERC721' veya 'ERC1155' olabilir. Bu bilgiye göre nftType değerini ayarlayın.
     const nftType = nft.tokenType === "ERC721" ? 0 : 1;
-    
+    const owner = await signer.getAddress();  // Owner address should be the current signer address
 
     console.log("Contract Address:", contractAddress);
     console.log("nftType:", nftType);
-    console.log("Calling approveNFT with", contractAddress, tokenId, nftType);
 
-    // Girdi olarak nftType da ekleyerek approveNFT fonksiyonunu çağırıyoruz.
-    // Bu fonksiyon, gerektiğinde kullanıcıdan onay alacak.
     try {
-      await approveNFT(contractAddress, tokenId, nftType);
-      console.log("approveNFT success");
+        // Önce NFT'nin zaten onaylanmış olup olmadığını kontrol et
+        const isApproved = await checkApproval(nftType, contractAddress, tokenId, CONTRACT_ADDRESS, owner);
 
-      const price = enteredPrices[tokenId];
-      if (!price || isNaN(parseFloat(price))) {
-        toast.error("Please enter a valid ETH value");
-        return;
-      }
+        if (!isApproved) {
+            console.log("Token not approved. Requesting approval...");
+            await approveNFT(contractAddress, tokenId, nftType);
+            console.log("approveNFT success");
+        } else {
+            console.log("Token already approved");
+        }
 
-      console.log("Calling startNFTSale with", contractAddress, tokenId, price);
-      // Burada NFT'nizi satışa çıkaracak fonksiyonu çağırın.
-      // Bu örnekte startNFTSale fonksiyonu bu işlevi görmektedir.
-     await startNFTSale(nft, price);
-      console.log("startNFTSale success");
-      onSellModalClose();
-      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
-      toast.success("NFT is listed for sale successfully.");
+        const price = enteredPrices[tokenId];
+        if (!price || isNaN(parseFloat(price))) {
+            toast.error("Please enter a valid ETH value");
+            return;
+        }
+
+        console.log("Calling startNFTSale with", contractAddress, tokenId, price);
+        await startNFTSale(nft, price);
+        console.log("startNFTSale success");
+        onSellModalClose();
+        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+        toast.success("NFT is listed for sale successfully.");
     } catch (error) {
-      console.error("Error starting NFT sale:", error);
-      toast.error("Error starting NFT sale");
+        console.error("Error starting NFT sale:", error);
+        toast.error("Error starting NFT sale");
     }
-  };
+};
 
   const { startNFTAuction } = useAuctionActions(
     signer,
@@ -206,11 +207,13 @@ const MyNfts = () => {
   const startAuction = async (nft) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
+    const nftType = nft.tokenType === "ERC721" ? 0 : 1;
+    const owner = await signer.getAddress();  // Owner address should be the current signer address
 
     const price = enteredPrices[tokenId];
     if (!price || isNaN(parseFloat(price))) {
-      toast.error("Please enter a valid ETH value");
-      return;
+        toast.error("Please enter a valid ETH value");
+        return;
     }
 
     const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -218,28 +221,37 @@ const MyNfts = () => {
     const unixTimestampEnd = Math.floor(auctionEndTime.getTime() / 1000);
 
     if (unixTimestampStart <= currentTimestamp) {
-      toast.error("Auction start time must be in the future.");
-      return;
+        toast.error("Auction start time must be in the future.");
+        return;
     }
     if (unixTimestampEnd <= unixTimestampStart) {
-      toast.error("Auction end time must be after the start time.");
-      return;
+        toast.error("Auction end time must be after the start time.");
+        return;
     }
 
     try {
-      const isApproved = await checkApproval(contractAddress, tokenId);
-      if (!isApproved) {
-        await approveNFT(contractAddress, tokenId);
-      }
+        // Önce NFT'nin zaten onaylanmış olup olmadığını kontrol et
+        const isApproved = await checkApproval(nftType, contractAddress, tokenId, CONTRACT_ADDRESS, owner);
 
-      await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
-      onAuctionModalClose();
-      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+        if (!isApproved) {
+            console.log("Token not approved. Requesting approval...");
+            await approveNFT(contractAddress, tokenId, nftType);
+            console.log("approveNFT success");
+        } else {
+            console.log("Token already approved");
+        }
+
+        console.log("Calling startNFTAuction with", contractAddress, tokenId, price, unixTimestampStart, unixTimestampEnd);
+        await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
+        console.log("startNFTAuction success");
+        onAuctionModalClose();
+        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+        toast.success("NFT is listed for auction successfully.");
     } catch (error) {
-      console.error("Error starting auction:", error);
-      toast.error("Error starting auction");
+        console.error("Error starting NFT auction:", error);
+        toast.error("Error starting NFT auction");
     }
-  };
+};
 
   // Unlisted NFT'leri yüklemek için yeni bir fonksiyon
   const loadUnlistedNfts = useCallback(async () => {

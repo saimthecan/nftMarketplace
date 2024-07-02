@@ -2,14 +2,15 @@ import { ethers } from 'ethers';
 import { marketplace } from '../components/marketplace';
 
 const useCheckApproval = (provider, CONTRACT_ADDRESS) => {
-  const checkApproval = async (nftType, contractAddress, tokenId) => {
+  const checkApproval = async (nftType, contractAddress, tokenId, operator, owner) => {
     try {
-      const contract = new ethers.Contract(contractAddress, marketplace, provider);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, marketplace, provider);
       console.log("type", nftType);
       console.log("contractAddress", contractAddress);
       console.log("tokenId", tokenId);
-      console.log("CONTRACT_ADDRESS", CONTRACT_ADDRESS);
-      const isApproved = await contract.isTokenApproved(nftType, contractAddress, tokenId, CONTRACT_ADDRESS);
+      console.log("operator", operator);
+      console.log("owner", owner);
+      const isApproved = await contract.isTokenApproved(nftType, contractAddress, tokenId, operator, owner);
      
       return isApproved;
     } catch (error) {
