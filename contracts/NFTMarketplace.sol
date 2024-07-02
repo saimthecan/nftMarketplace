@@ -204,16 +204,25 @@ contract NFTMarketplace is ReentrancyGuard {
         require(item.buyer == address(0), "Item is already reserved");
         require(msg.value >= item.price, "Insufficient payment");
 
-        uint256 price = msg.value.mul(95).div(100);
-        payable(item.seller).transfer(price);
-        payable(owner).transfer(msg.value.sub(price));
+        uint256 price = (msg.value * 95) / 100;
+        // Ödeme satıcıya
+        (bool successSeller, ) = payable(item.seller).call{value: price}("");
+        require(successSeller, "Transfer to seller failed.");
+
+        // Platform ücreti
+        (bool successOwner, ) = payable(owner).call{value: msg.value - price}(
+            ""
+        );
+        require(successOwner, "Transfer to owner failed.");
 
         if (item.nftType == NFTType.ERC721) {
-            IERC721 NFT = IERC721(item.contractAddress);
-            NFT.transferFrom(address(this), msg.sender, item.tokenId);
+            IERC721(item.contractAddress).transferFrom(
+                address(this),
+                msg.sender,
+                item.tokenId
+            );
         } else {
-            IERC1155 NFT = IERC1155(item.contractAddress);
-            NFT.safeTransferFrom(
+            IERC1155(item.contractAddress).safeTransferFrom(
                 address(this),
                 msg.sender,
                 item.tokenId,
@@ -340,11 +349,18 @@ contract NFTMarketplace is ReentrancyGuard {
         require(!item.state, "Auction already finished");
         require(msg.sender == item.buyer, "You are not the highest bidder");
 
-        uint256 ownerCommission = item.price.mul(5).div(100); // %5 komisyon
-        uint256 sellerAmount = item.price.sub(ownerCommission);
+        uint256 ownerCommission = (item.price * 5) / 100; // %5 komisyon
+        uint256 sellerAmount = item.price - ownerCommission;
 
-        payable(item.seller).transfer(sellerAmount);
-        payable(owner).transfer(ownerCommission);
+        // Satıcıya ödeme
+        (bool successSeller, ) = payable(item.seller).call{value: sellerAmount}(
+            ""
+        );
+        require(successSeller, "Transfer to seller failed.");
+
+        // Platform sahibine komisyon
+        (bool successOwner, ) = payable(owner).call{value: ownerCommission}("");
+        require(successOwner, "Transfer to owner failed.");
 
         if (item.nftType == NFTType.ERC721) {
             IERC721(item.contractAddress).transferFrom(
@@ -406,7 +422,7 @@ contract NFTMarketplace is ReentrancyGuard {
             return nftContract.getApproved(_tokenId) == _operator;
         } else if (_type == NFTType.ERC1155) {
             IERC1155 nftContract = IERC1155(_contractAddress);
-            return nftContract.isApprovedForAll(_owner, _operator); 
+            return nftContract.isApprovedForAll(_owner, _operator);
         }
         return false;
     }
