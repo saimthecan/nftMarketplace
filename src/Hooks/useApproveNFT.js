@@ -42,6 +42,7 @@ const useApproveNFT = (signer, CONTRACT_ADDRESS) => {
     } catch (error) {
       toast.error(`Error approving NFT: ${error.message}`);
       console.error("Error approving NFT:", error);
+      throw error; // Hatanın yukarıya fırlatılmasını sağla
     }
   };
 
