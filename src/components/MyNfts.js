@@ -195,16 +195,26 @@ const MyNfts = () => {
       }
   
       console.log("Calling startNFTSale with", contractAddress, tokenId, price);
-      await startNFTSale(nft, price);
-      console.log("startNFTSale success");
-      onSellModalClose();
-      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
-      toast.success("NFT is listed for sale successfully.");
+      try {
+        await startNFTSale(nft, price);
+        console.log("startNFTSale success");
+        onSellModalClose();
+        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+        toast.success("NFT is listed for sale successfully.");
+      } catch (error) {
+        if (error.code === 4001) {
+          toast.error("Transaction was rejected by the user");
+        } else {
+          toast.error("Error starting NFT sale");
+        }
+        console.error("Error starting NFT sale:", error);
+      }
     } catch (error) {
-      console.error("Error starting NFT sale:", error);
-      toast.error("Error starting NFT sale");
+      console.error("Error during the process:", error);
+      toast.error("Error during the process");
     }
   };
+  
   
 
   const { startNFTAuction } = useAuctionActions(
@@ -261,17 +271,26 @@ const MyNfts = () => {
       }
   
       console.log("Calling startNFTAuction with", contractAddress, tokenId, price, unixTimestampStart, unixTimestampEnd);
-      await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
-      console.log("startNFTAuction success");
-      onAuctionModalClose();
-      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
-      toast.success("NFT is listed for auction successfully.");
+      try {
+        await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
+        console.log("startNFTAuction success");
+        onAuctionModalClose();
+        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+        toast.success("NFT is listed for auction successfully.");
+      } catch (error) {
+        if (error.code === 4001) {
+          toast.error("Transaction was rejected by the user");
+        } else {
+          toast.error("Error starting NFT auction");
+        }
+        console.error("Error starting NFT auction:", error);
+      }
     } catch (error) {
-      console.error("Error starting NFT auction:", error);
-      toast.error("Error starting NFT auction");
+      console.error("Error during the process:", error);
+      toast.error("Error during the process");
     }
   };
-
+  
   // Unlisted NFT'leri yüklemek için yeni bir fonksiyon
   const loadUnlistedNfts = useCallback(async () => {
     if (wallet) {

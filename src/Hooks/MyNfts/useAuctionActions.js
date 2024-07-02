@@ -1,4 +1,3 @@
-// useAuctionActions.js
 import { ethers } from 'ethers';
 import { marketplace } from '../../components/marketplace';
 import { toast } from 'react-toastify';
@@ -29,13 +28,17 @@ const useAuctionActions = (signer, provider, CONTRACT_ADDRESS) => {
       await provider.waitForTransaction(tx.hash, 1);
       toast.success("NFT auction started successfully");
     } catch (error) {
-      toast.error("Error starting NFT auction");
+      if (error.code === 4001) { // MetaMask Tx Signature: User denied transaction signature
+        toast.error("Transaction was rejected by the user");
+      } else {
+        toast.error("Error starting NFT auction");
+      }
       console.error("Error starting NFT auction:", error);
+      throw error; // Hatanın yukarıya fırlatılmasını sağla
     }
   };
 
   return { startNFTAuction };
 };
-
 
 export default useAuctionActions;

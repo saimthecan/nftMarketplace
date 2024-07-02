@@ -1,4 +1,3 @@
-// useNFTActions.js
 import { ethers } from 'ethers';
 import { marketplace } from '../../components/marketplace';
 import { toast } from 'react-toastify';
@@ -27,8 +26,13 @@ const useNFTActions = (signer, provider, CONTRACT_ADDRESS) => {
       await provider.waitForTransaction(tx.hash, 1);
       toast.success("NFT sale started successfully");
     } catch (error) {
-      toast.error("Error starting NFT sale");
+      if (error.code === 4001) { // MetaMask Tx Signature: User denied transaction signature
+        toast.error("Transaction was rejected by the user");
+      } else {
+        toast.error("Error starting NFT sale");
+      }
       console.error("Error starting NFT sale:", error);
+      throw error; // Hatanın yukarıya fırlatılmasını sağla
     }
   };
 
