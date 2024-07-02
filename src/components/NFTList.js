@@ -74,72 +74,75 @@ const NFTList = () => {
         {currentItems.length === 0 ? (
           <Text>No Nft On Sale Yet</Text>
         ) : (
-          currentItems.map((nft) => (
-            <Box
-              key={nft.id}
-              p={4}
-              borderWidth={1}
-              borderRadius="md"
-              boxShadow="md"
-              overflow="auto"
-              w="300px"
-            >
-              {nftImages[nft.tokenId] && (
-                <Image
-                  src={nftImages[nft.tokenId] || noImage}
-                  alt={`NFT ${nft.tokenId}`}
-                />
-              )}
-              <Text mt={3}>
-                <strong>Name:</strong> {nftDetails[nft.tokenId]?.name}
-              </Text>
-              <Text>
-                <strong>Description:</strong>{" "}
-                {nftDetails[nft.tokenId]?.description}
-              </Text>
-              <Text>
-                <strong>Created By:</strong>{" "}
-                {nftDetails[nft.tokenId]?.createdBy}
-              </Text>
-              <Text>
-                <strong>Price:</strong> {formatEther(nft.price)} ETH
-              </Text>
+          currentItems.map((nft) => {
+            const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
+            return (
+              <Box
+                key={uniqueKey}
+                p={4}
+                borderWidth={1}
+                borderRadius="md"
+                boxShadow="md"
+                overflow="auto"
+                w="300px"
+              >
+                {nftImages[uniqueKey] && (
+                  <Image
+                    src={nftImages[uniqueKey] || noImage}
+                    alt={`NFT ${nft.tokenId}`}
+                  />
+                )}
+                <Text mt={3}>
+                  <strong>Name:</strong> {nftDetails[uniqueKey]?.name}
+                </Text>
+                <Text>
+                  <strong>Description:</strong>{" "}
+                  {nftDetails[uniqueKey]?.description}
+                </Text>
+                <Text>
+                  <strong>Created By:</strong>{" "}
+                  {nftDetails[uniqueKey]?.createdBy}
+                </Text>
+                <Text>
+                  <strong>Price:</strong> {formatEther(nft.price)} ETH
+                </Text>
 
-              {wallet ? (
-                !isWrongNetwork ? (
-                  nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                    <Button
-                      mt={4}
-                      colorScheme="red"
-                      onClick={() => cancelNFTSale(nft.Contract_id)}
-                    >
-                      Cancel NFT Sale
-                    </Button>
+                {wallet ? (
+                  !isWrongNetwork ? (
+                    nft.seller.toLowerCase() === account?.toLowerCase() ? (
+                      <Button
+                        mt={4}
+                        colorScheme="red"
+                        onClick={() => cancelNFTSale(nft.Contract_id)}
+                      >
+                        Cancel NFT Sale
+                      </Button>
+                    ) : (
+                      <Button
+                        mt={4}
+                        colorScheme="blue"
+                        onClick={() => buyNFT(nft.Contract_id, nft.price)}
+                      >
+                        Buy NFT
+                      </Button>
+                    )
                   ) : (
                     <Button
                       mt={4}
-                      colorScheme="blue"
-                      onClick={() => buyNFT(nft.Contract_id, nft.price)}
+                      colorScheme="red"
+                      onClick={switchToSepoliaNetwork}
                     >
-                      Buy NFT
+                      Wrong Network - Switch to Sepolia
                     </Button>
                   )
                 ) : (
-                  <Button
-                    mt={4}
-                    colorScheme="red"
-                    onClick={switchToSepoliaNetwork}
-                  >
-                    Wrong Network - Switch to Sepolia
+                  <Button mt={4} colorScheme="teal" onClick={connectWallet}>
+                    Connect Wallet
                   </Button>
-                )
-              ) : (
-                <Button mt={4} colorScheme="teal" onClick={connectWallet}>
-                  Connect Wallet
-                </Button>
-              )}
-            </Box>
-          ))
+                )}
+              </Box>
+            );
+          })
         )}
       </Grid>
       {currentItems.length > 0 && (

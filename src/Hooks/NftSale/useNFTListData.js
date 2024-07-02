@@ -22,11 +22,12 @@ const useNFTListData = () => {
             const tokenUri = await contract.tokenURI(nft.tokenId);
             const response = await fetch(tokenUri);
             const metadata = await response.json();
-            console.log(`Metadata for token ID ${nft.tokenId}:`, metadata); // Log the metadata
-            setNftImages(prev => ({ ...prev, [nft.tokenId]: metadata.image }));
+            const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
+            console.log(`Metadata for token ID ${uniqueKey}:`, metadata); // Log the metadata
+            setNftImages(prev => ({ ...prev, [uniqueKey]: metadata.image }));
             setNftDetails(prev => ({
               ...prev,
-              [nft.tokenId]: {
+              [uniqueKey]: {
                 name: metadata.name,
                 description: metadata.description,
                 createdBy: metadata.created_by, // Assuming 'created_by' is the correct field in your metadata
