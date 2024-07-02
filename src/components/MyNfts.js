@@ -273,7 +273,6 @@ const MyNfts = () => {
       console.log("Calling startNFTAuction with", contractAddress, tokenId, price, unixTimestampStart, unixTimestampEnd);
       try {
         await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
-        console.log("startNFTAuction success");
         onAuctionModalClose();
         setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
         toast.success("NFT is listed for auction successfully.");
