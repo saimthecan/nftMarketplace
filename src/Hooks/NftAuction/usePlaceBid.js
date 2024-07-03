@@ -5,8 +5,8 @@ import { marketplace } from '../../components/marketplace'; // Marketplace kontr
 import { parseEther } from "ethers/utils";
 
 const usePlaceBid = (signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBids) => {
-    const placeBid = async (nft, index) => {
-      const uniqueKey = `${index}-${nft.tokenId}`;
+    const placeBid = async (nft) => {
+      const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
       const priceInEth = enteredPrices[uniqueKey];
   
       if (!priceInEth || isNaN(parseFloat(priceInEth))) {
