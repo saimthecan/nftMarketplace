@@ -1,3 +1,5 @@
+// File: /src/components/MyNfts.jsx
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -40,6 +42,7 @@ import NoNftAuction from "../assests/NoNftAuction.png";
 
 const MyNfts = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
+  const [enteredQuantities, setEnteredQuantities] = useState({});
   const [auctionStartTime, setAuctionStartTime] = useState(new Date());
   const [auctionEndTime, setAuctionEndTime] = useState(new Date());
   const [displayedList, setDisplayedList] = useState("unlisted");
@@ -68,9 +71,7 @@ const MyNfts = () => {
   const { switchToSepoliaNetwork } = useWalletConnection();
 
   useEffect(() => {
-    // Toplam sayfa sayısını hesaplayın ve güncelleyin
     setTotalPagesUnlisted(Math.ceil(unlistedNfts.length / itemsPerPage));
-    // Diğer display'ler için benzer hesaplamalar yapılacak
   }, [unlistedNfts]);
 
   useEffect(() => {
@@ -86,7 +87,7 @@ const MyNfts = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return unlistedNfts.slice(indexOfFirstItem, indexOfLastItem);
   };
-  console.log(unlistedNfts);
+
   const getCurrentPageForSaleNfts = () => {
     const indexOfLastItem = currentPageForSale * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -123,122 +124,86 @@ const MyNfts = () => {
   };
   const onAuctionModalClose = () => setAuctionModalOpen(false);
 
-  // Redux state'inden account bilgisini al
   const wallet = useSelector((state) => state.wallet.account);
 
-  //Contract Address
   const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
 
-  //useAlchemy
   const alchemy = useAlchemy();
 
-  //Web3 Provider
   const { provider, signer } = useWeb3Provider();
 
-  // useCheckApproval hook'unu kullan
   const checkApproval = useCheckApproval(provider, CONTRACT_ADDRESS);
 
-  // useApproveNFT hook'unu kullan
   const { approveNFT } = useApproveNFT(signer, CONTRACT_ADDRESS);
 
-  // useCancelAuction hook'unu kullan
   const cancelAuction = useCancelNFTAuction(signer, CONTRACT_ADDRESS);
 
-  // useCancelNFTSale hook'unu kullan
   const cancelNFTSale = useCancelNFTSale(signer, provider, CONTRACT_ADDRESS);
 
-  // useNFTActions hook'unu kullan
   const { startNFTSale } = useNFTActions(signer, provider, CONTRACT_ADDRESS);
+
   const sellNFT = async (nft) => {
-    console.log("sellNFT called with:", nft);
-  
     if (!nft.contract || !nft.contract.address) {
-      console.error("Contract details are missing in the NFT object");
       toast.error("Contract details are missing. Please check your NFT object.");
       return;
     }
-  
+
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
     const nftType = nft.tokenType === "ERC721" ? 0 : 1;
-    const owner = await signer.getAddress();  // Owner address should be the current signer address
-  
-    console.log("Contract Address:", contractAddress);
-    console.log("nftType:", nftType);
-  
+    const owner = await signer.getAddress();
+
     try {
-      // Önce NFT'nin zaten onaylanmış olup olmadığını kontrol et
       const isApproved = await checkApproval(nftType, contractAddress, tokenId, CONTRACT_ADDRESS, owner);
-  
+
       if (!isApproved) {
-        console.log("Token not approved. Requesting approval...");
         try {
           await approveNFT(contractAddress, tokenId, nftType);
-          console.log("approveNFT success");
         } catch (error) {
           if (error.message.includes("user rejected transaction")) {
-            console.error("Error approving NFT:", error.message);
             toast.error("Approve işlemini reddettiniz.");
-            return; // Fonksiyonun ilerlemesini durdur
+            return;
           } else {
-            throw error; // Diğer hatalar için üst bloğa yönlendir
+            throw error;
           }
         }
-      } else {
-        console.log("Token already approved");
       }
-  
+
       const price = enteredPrices[tokenId];
       if (!price || isNaN(parseFloat(price))) {
         toast.error("Please enter a valid ETH value");
         return;
       }
-  
-      console.log("Calling startNFTSale with", contractAddress, tokenId, price);
-      try {
-        await startNFTSale(nft, price);
-        console.log("startNFTSale success");
-        onSellModalClose();
-        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
-        toast.success("NFT is listed for sale successfully.");
-      } catch (error) {
-        if (error.code === 4001) {
-          toast.error("Transaction was rejected by the user");
-        } else {
-          toast.error("Error starting NFT sale");
-        }
-        console.error("Error starting NFT sale:", error);
-      }
+
+      const quantity = enteredQuantities[tokenId] || 1;
+
+      await startNFTSale(nft, price, quantity);
+      onSellModalClose();
+      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+      toast.success("NFT is listed for sale successfully.");
     } catch (error) {
-      console.error("Error during the process:", error);
       toast.error("Error during the process");
     }
   };
-  
-  
 
-  const { startNFTAuction } = useAuctionActions(
-    signer,
-    provider,
-    CONTRACT_ADDRESS
-  );
-  
+  const { startNFTAuction } = useAuctionActions(signer, provider, CONTRACT_ADDRESS);
+
   const startAuction = async (nft) => {
     const contractAddress = nft.contract.address;
     const tokenId = nft.tokenId;
     const nftType = nft.tokenType === "ERC721" ? 0 : 1;
-    const owner = await signer.getAddress();  // Owner address should be the current signer address
-  
+    const owner = await signer.getAddress();
+
     const price = enteredPrices[tokenId];
     if (!price || isNaN(parseFloat(price))) {
       toast.error("Please enter a valid ETH value");
       return;
     }
-  
+
     const currentTimestamp = Math.floor(Date.now() / 1000);
     const unixTimestampStart = Math.floor(auctionStartTime.getTime() / 1000);
     const unixTimestampEnd = Math.floor(auctionEndTime.getTime() / 1000);
-  
+
     if (unixTimestampStart <= currentTimestamp) {
       toast.error("Auction start time must be in the future.");
       return;
@@ -247,63 +212,45 @@ const MyNfts = () => {
       toast.error("Auction end time must be after the start time.");
       return;
     }
-  
+
     try {
-      // Önce NFT'nin zaten onaylanmış olup olmadığını kontrol et
       const isApproved = await checkApproval(nftType, contractAddress, tokenId, CONTRACT_ADDRESS, owner);
-  
+
       if (!isApproved) {
-        console.log("Token not approved. Requesting approval...");
         try {
           await approveNFT(contractAddress, tokenId, nftType);
-          console.log("approveNFT success");
         } catch (error) {
           if (error.message.includes("user rejected transaction")) {
-            console.error("Error approving NFT:", error.message);
             toast.error("Approve işlemini reddettiniz.");
-            return; // Fonksiyonun ilerlemesini durdur
+            return;
           } else {
-            throw error; // Diğer hatalar için üst bloğa yönlendir
+            throw error;
           }
         }
-      } else {
-        console.log("Token already approved");
       }
-  
-      console.log("Calling startNFTAuction with", contractAddress, tokenId, price, unixTimestampStart, unixTimestampEnd);
-      try {
-        await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd);
-        onAuctionModalClose();
-        setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
-        toast.success("NFT is listed for auction successfully.");
-      } catch (error) {
-        if (error.code === 4001) {
-          toast.error("Transaction was rejected by the user");
-        } else {
-          toast.error("Error starting NFT auction");
-        }
-        console.error("Error starting NFT auction:", error);
-      }
+
+      const quantity = enteredQuantities[tokenId] || 1;
+
+      await startNFTAuction(nft, price, unixTimestampStart, unixTimestampEnd, quantity);
+      onAuctionModalClose();
+      setUnlistedNfts(unlistedNfts.filter((n) => n.tokenId !== nft.tokenId));
+      toast.success("NFT is listed for auction successfully.");
     } catch (error) {
-      console.error("Error during the process:", error);
       toast.error("Error during the process");
     }
   };
-  
-  // Unlisted NFT'leri yüklemek için yeni bir fonksiyon
+
   const loadUnlistedNfts = useCallback(async () => {
     if (wallet) {
       setIsLoadingUnlistedNfts(true);
       const nftsForOwner = await alchemy.nft.getNftsForOwner(wallet);
       setUnlistedNfts(
-        nftsForOwner.ownedNfts.filter((nft) => nft.tokenType === "ERC721")
-      
+        nftsForOwner.ownedNfts.filter((nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155")
       );
       setIsLoadingUnlistedNfts(false);
     }
   }, [alchemy.nft, wallet]);
 
-  // Buton tıklama işlevini güncelle
   const toggleList = (list) => {
     setDisplayedList(list);
     if (list === "unlisted") {
@@ -318,7 +265,6 @@ const MyNfts = () => {
   }, [displayedList, loadUnlistedNfts]);
 
   if (!wallet) {
-    // Cüzdan bağlı değilse hata mesajı göster
     return (
       <Box w="100%" p={5} textAlign="center">
         <Text fontSize="xl" color="red.500">
@@ -337,7 +283,7 @@ const MyNfts = () => {
       w="100%"
       minH="100vh"
       p={5}
-      bg={`linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('/bg.jpg')`}
+      bg="linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('/bg.jpg')"
       bgPosition="center"
       bgRepeat="no-repeat"
       bgSize="cover"
@@ -369,7 +315,6 @@ const MyNfts = () => {
             For Sale
           </Button>
         </Tooltip>
-
         <Tooltip placement="top">
           <Button
             width="110px"
@@ -400,8 +345,8 @@ const MyNfts = () => {
                   src={NoNftAuction}
                   alt="No Nft For Sale"
                   width="50%"
-                  height="50%" // Adjust height accordingly if needed
-                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                  height="50%"
+                  objectFit="contain"
                 />
               </Box>
             ) : (
@@ -420,7 +365,7 @@ const MyNfts = () => {
                     <Image
                       src={nft.metadata?.image || noImage}
                       alt={`NFT ${nft.tokenId}`}
-                      boxSize="300px" // Resim boyutu
+                      boxSize="300px"
                       mt={4}
                     />
                     <Flex flexDirection="column" gap={2} mt={2}>
@@ -505,8 +450,8 @@ const MyNfts = () => {
                   src={NoNftSale}
                   alt="No Nft For Sale"
                   width="50%"
-                  height="50%" // Adjust height accordingly if needed
-                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                  height="50%"
+                  objectFit="contain"
                 />
               </Box>
             ) : (
@@ -524,7 +469,7 @@ const MyNfts = () => {
                   <Image
                     src={nft.metadata?.image || noImage}
                     alt={`NFT ${nft.tokenId}`}
-                    boxSize="300px" // Resim boyutu
+                    boxSize="300px"
                     mt={4}
                   />
                   <Flex flexDirection="column" gap={2} mt={2}>
@@ -592,8 +537,8 @@ const MyNfts = () => {
                   src={NoNftWallet}
                   alt="No Nft For Sale"
                   width="50%"
-                  height="50%" // Adjust height accordingly if needed
-                  objectFit="contain" // Use "cover" if you want the image to cover the area completely
+                  height="50%"
+                  objectFit="contain"
                 />
               </Box>
             ) : (
@@ -670,7 +615,6 @@ const MyNfts = () => {
         </>
       )}
 
-      {/* Sell NFT Modal */}
       {selectedNft && (
         <Modal isOpen={isSellModalOpen} onClose={onSellModalClose}>
           <ModalOverlay />
@@ -701,6 +645,19 @@ const MyNfts = () => {
                       }))
                     }
                   />
+                  {selectedNft.tokenType === "ERC1155" && (
+                    <Input
+                      type="number"
+                      placeholder="Enter quantity"
+                      value={enteredQuantities[`${selectedNft.tokenId}`] || ""}
+                      onChange={(e) =>
+                        setEnteredQuantities((prevQuantities) => ({
+                          ...prevQuantities,
+                          [`${selectedNft.tokenId}`]: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
                 </Flex>
               </Box>
             </ModalBody>
@@ -713,7 +670,6 @@ const MyNfts = () => {
         </Modal>
       )}
 
-      {/* Auction Start Modal */}
       {selectedNft && (
         <Modal isOpen={isAuctionModalOpen} onClose={onAuctionModalClose}>
           <ModalOverlay />
@@ -744,6 +700,19 @@ const MyNfts = () => {
                       }))
                     }
                   />
+                  {selectedNft.tokenType === "ERC1155" && (
+                    <Input
+                      type="number"
+                      placeholder="Enter quantity"
+                      value={enteredQuantities[`${selectedNft.tokenId}`] || ""}
+                      onChange={(e) =>
+                        setEnteredQuantities((prevQuantities) => ({
+                          ...prevQuantities,
+                          [`${selectedNft.tokenId}`]: e.target.value,
+                        }))
+                      }
+                    />
+                  )}
                   <Text>
                     <strong>AuctionStartTime</strong>
                   </Text>
