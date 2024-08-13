@@ -178,7 +178,7 @@ const NFTAuction = () => {
                       <Button
                         mt={4}
                         colorScheme="red"
-                        onClick={() => cancelAuction(nft.Contract_id)}
+                        onClick={() => cancelAuction(nft, index)}
                       >
                         Cancel Auction
                       </Button>

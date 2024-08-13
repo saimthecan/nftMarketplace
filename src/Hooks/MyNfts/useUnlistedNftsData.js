@@ -36,26 +36,31 @@ const useUnlistedNftsData = () => {
       if (dataListedSale && dataListedSale.nftlistedForSales) {
         const soldIds = dataSold?.nftsolds?.map((nft) => nft.Contract_id) || [];
         const cancelledSaleIds = dataCancelledSales?.nftsaleCancelleds?.map((nft) => nft.Contract_id) || [];
-        
+       
         const unsoldNfts = dataListedSale.nftlistedForSales.filter(
           (nft) =>
             !soldIds.includes(nft.Contract_id) &&
             !cancelledSaleIds.includes(nft.Contract_id) &&
             nft.seller.toLowerCase() === account?.toLowerCase()
+           
+          
         );
+
+      
 
         const nftsWithMetadata = await Promise.all(unsoldNfts.map(async nft => {
           const metadata = await fetchMetadata(nft.contractAddress, nft.tokenId);
           return { ...nft, metadata };
         }));
 
+        
         setNftData(nftsWithMetadata);
       }
     };
 
     fetchAllData();
   }, [dataListedSale, dataSold, dataCancelledSales, account, provider, loadingListedSale, errorListedSale]);
-
+  
   return { nftData };
 };
 

@@ -245,7 +245,7 @@ const MyNfts = () => {
       setIsLoadingUnlistedNfts(true);
       const nftsForOwner = await alchemy.nft.getNftsForOwner(wallet);
       setUnlistedNfts(
-        nftsForOwner.ownedNfts.filter((nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155")
+        nftsForOwner.ownedNfts.filter((nft) => nft.tokenType === "ERC721")
       );
       setIsLoadingUnlistedNfts(false);
     }

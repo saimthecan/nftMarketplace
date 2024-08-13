@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import useQueries from "../useQueries";
 import useWeb3Provider from '../useWeb3Provider'; 
 import { ERC721 } from '../../components/erc721abi'; 
+import { ERC1155 } from '../../components/erc1155abi';
 import { ethers } from 'ethers';
 
 const useNFTListData = () => {
@@ -15,15 +16,30 @@ const useNFTListData = () => {
 
   useEffect(() => {
     if (dataListedSale && dataListedSale.nftlistedForSales) {
+      console.log("Fetched Data: ", dataListedSale.nftlistedForSales); // Log the raw data
       const fetchMetadata = async () => {
         for (const nft of dataListedSale.nftlistedForSales) {
-          const contract = new ethers.Contract(nft.contractAddress, ERC721, provider);
+          const tokenType = nft.tokenType || "ERC721"; // Default to ERC721 if tokenType is undefined
+          
+          console.log(`Token type for contract: ${nft.contractAddress}, token ID: ${nft.tokenId} is ${tokenType}`);
+          
+          const contract = new ethers.Contract(nft.contractAddress, tokenType === "ERC721" ? ERC721 : ERC1155, provider);
           try {
-            const tokenUri = await contract.tokenURI(nft.tokenId);
+            console.log(`Fetching metadata for contract: ${nft.contractAddress}, token ID: ${nft.tokenId}, token type: ${tokenType}`);
+            let tokenUri;
+            if (tokenType === "ERC721") {
+              tokenUri = await contract.tokenURI(nft.tokenId);
+            } else {
+              console.log(`Using ERC1155 contract: ${nft.contractAddress}`);
+              tokenUri = await contract.uri(nft.tokenId);
+              console.log(`Raw token URI: ${tokenUri}`);
+              tokenUri = tokenUri.replace('{id}', nft.tokenId);
+            }
+            console.log(`Final token URI: ${tokenUri}`);
             const response = await fetch(tokenUri);
             const metadata = await response.json();
+            console.log(`Metadata fetched for token ID ${nft.tokenId}:`, metadata);
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
-            console.log(`Metadata for token ID ${uniqueKey}:`, metadata); // Log the metadata
             setNftImages(prev => ({ ...prev, [uniqueKey]: metadata.image }));
             setNftDetails(prev => ({
               ...prev,
