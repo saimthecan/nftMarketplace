@@ -14,6 +14,7 @@ import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
 import Pagination from "./Pagination";
+import NoNftView from './NoNftAuction';
 
 const NFTAuction = () => {
   //states
@@ -119,7 +120,7 @@ const NFTAuction = () => {
         mb={10}
       >
         {currentItems.length === 0 ? (
-          <Text>No Nft In Auction Yet</Text>
+          <NoNftView /> 
         ) : (
           currentItems.map((nft, index) => {
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;

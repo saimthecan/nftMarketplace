@@ -126,7 +126,7 @@ export const Navbar = () => {
       padding="1rem"
       bg="white"
       color="black"
-      w="100%"
+      w="100vw"
       px={["2rem", "4rem", "6rem"]}
     >
       {/* Logo */}

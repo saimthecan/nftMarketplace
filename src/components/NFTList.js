@@ -10,6 +10,7 @@ import useNFTListData from "../Hooks/NftSale/useNFTListData";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
 import Pagination from "./Pagination";
+import NoNftView from './NoNftSale';
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
@@ -72,7 +73,7 @@ const NFTList = () => {
         mb={10}
       >
         {currentItems.length === 0 ? (
-          <Text>No Nft On Sale Yet</Text>
+            <NoNftView /> 
         ) : (
           currentItems.map((nft) => {
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
