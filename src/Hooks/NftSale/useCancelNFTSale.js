@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import { marketplace } from "../../components/marketplace";
+import { marketplace } from "../../abi/marketplace";
 
 const useCancelNFTSale = (signer, provider, CONTRACT_ADDRESS) => {
   const cancelNFTSale = useCallback(async (id) => {

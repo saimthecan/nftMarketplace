@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { ERC721 } from '../components/erc721abi'; // ERC721 ABI yolunuz doğru olmalı
-import { ERC1155 } from '../components/erc1155abi'; // ERC1155 ABI yolunuz doğru olmalı
+import { ERC721 } from '../abi/erc721abi'; // ERC721 ABI yolunuz doğru olmalı
+import { ERC1155 } from '../abi/erc1155abi'; // ERC1155 ABI yolunuz doğru olmalı
 import { toast } from 'react-toastify';
 
 const useApproveNFT = (signer, CONTRACT_ADDRESS) => {

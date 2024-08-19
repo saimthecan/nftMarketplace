@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { marketplace } from '../components/marketplace';
+import { marketplace } from '../abi/marketplace';
 
 const useCheckApproval = (provider, CONTRACT_ADDRESS) => {
   const checkApproval = async (nftType, contractAddress, tokenId, operator, owner) => {

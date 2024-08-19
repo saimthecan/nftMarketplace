@@ -183,9 +183,9 @@ const NFTAuction = () => {
                         Cancel Auction
                       </Button>
                     ) : !isAuctionStarted(nft) ? (
-                      <Text mt={4}>Açık artırma başlamadı</Text>
+                      <Text mt={4}>The auction has not started yet.</Text>
                     ) : isAuctionEnded(nft) ? (
-                      <Text mt={4}>Açık artırmanın süresi doldu</Text>
+                      <Text mt={4}>The auction has expired.</Text>
                     ) : isUserHighestBidder(nft) ? (
                       <Text mt={4}>
                         <strong>You have the highest bid</strong>

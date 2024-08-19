@@ -1,7 +1,7 @@
 // useCancelAuction.js
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import { marketplace } from '../../components/marketplace'; // Marketplace kontratı
+import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
 
 const useCancelNFTAuction = (signer, CONTRACT_ADDRESS) => {
   const cancelAuction = async (nft, index) => {

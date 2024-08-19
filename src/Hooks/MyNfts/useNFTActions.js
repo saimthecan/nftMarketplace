@@ -1,7 +1,7 @@
 // File: /src/Hooks/MyNfts/useNFTActions.js
 
 import { ethers } from 'ethers';
-import { marketplace } from '../../components/marketplace';
+import { marketplace } from '../../abi/marketplace';
 import { toast } from 'react-toastify';
 import { parseEther } from 'ethers/utils';
 

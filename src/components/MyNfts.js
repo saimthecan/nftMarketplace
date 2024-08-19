@@ -161,7 +161,7 @@ const MyNfts = () => {
           await approveNFT(contractAddress, tokenId, nftType);
         } catch (error) {
           if (error.message.includes("user rejected transaction")) {
-            toast.error("Approve işlemini reddettiniz.");
+            toast.error("You have rejected the approval process.");
             return;
           } else {
             throw error;
@@ -221,7 +221,7 @@ const MyNfts = () => {
           await approveNFT(contractAddress, tokenId, nftType);
         } catch (error) {
           if (error.message.includes("user rejected transaction")) {
-            toast.error("Approve işlemini reddettiniz.");
+            toast.error("You have rejected the approval process.");
             return;
           } else {
             throw error;

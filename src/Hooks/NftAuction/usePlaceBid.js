@@ -1,7 +1,7 @@
 // usePlaceBid.js
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import { marketplace } from '../../components/marketplace'; // Marketplace kontratı
+import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
 import { parseEther } from "ethers/utils";
 
 const usePlaceBid = (signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBids) => {

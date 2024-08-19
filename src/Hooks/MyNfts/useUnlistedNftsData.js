@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useQueries from "../useQueries";
 import useWeb3Provider from '../useWeb3Provider';
-import { ERC721 } from '../../components/erc721abi';
+import { ERC721 } from '../../abi/erc721abi';
 import { ethers } from 'ethers';
 import { useSelector } from 'react-redux';
 

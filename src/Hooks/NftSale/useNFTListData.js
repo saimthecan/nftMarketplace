@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import useQueries from "../useQueries";
 import useWeb3Provider from '../useWeb3Provider'; 
-import { ERC721 } from '../../components/erc721abi'; 
-import { ERC1155 } from '../../components/erc1155abi';
+import { ERC721 } from '../../abi/erc721abi'; 
+import { ERC1155 } from '../../abi/erc1155abi';
 import { ethers } from 'ethers';
 
 const useNFTListData = () => {

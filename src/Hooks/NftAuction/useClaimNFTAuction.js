@@ -1,7 +1,7 @@
 // useClaimNFT.js
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
-import { marketplace } from '../../components/marketplace';  // Marketplace kontratı
+import { marketplace } from '../../abi/marketplace';  // Marketplace kontratı
 
 const useClaimNFTAuction = (signer, CONTRACT_ADDRESS) => {
   const claimNFT = async (nft) => {
