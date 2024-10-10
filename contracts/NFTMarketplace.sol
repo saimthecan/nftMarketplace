@@ -3,10 +3,11 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-
-contract NFTMarketplace is ReentrancyGuard {
+contract NFTMarketplace is ReentrancyGuard, IERC1155Receiver, ERC165 {
     constructor(address _owner) {
         owner = _owner;
     }
@@ -148,7 +149,7 @@ contract NFTMarketplace is ReentrancyGuard {
         item.price = _price;
         item.tokenId = _tokenId;
         item.quantity = _quantity;
-        item.state = false; // NFT henüz satılmadı
+        item.state = false;
 
         if (_type == NFTType.ERC721) {
             IERC721 NFT = IERC721(_contractAddress);
@@ -206,11 +207,10 @@ contract NFTMarketplace is ReentrancyGuard {
         require(msg.value >= item.price, "Insufficient payment");
 
         uint256 price = (msg.value * 95) / 100;
-        // Ödeme satıcıya
+
         (bool successSeller, ) = payable(item.seller).call{value: price}("");
         require(successSeller, "Transfer to seller failed.");
 
-        // Platform ücreti
         (bool successOwner, ) = payable(owner).call{value: msg.value - price}(
             ""
         );
@@ -261,7 +261,7 @@ contract NFTMarketplace is ReentrancyGuard {
             );
         }
 
-        item.state = true; // Mark as cancelled
+        item.state = true;
 
         emit NFTSaleCancelled(
             Id,
@@ -277,13 +277,9 @@ contract NFTMarketplace is ReentrancyGuard {
 
         bool isAuctionStarted = block.timestamp >= item.auctionStartTime;
         bool isAuctionEnded = block.timestamp > item.auctionEndTime;
-        bool isAfterClaimPeriod = block.timestamp >
-            item.auctionEndTime + 5 days;
+        bool isAfterClaimPeriod = block.timestamp > item.auctionEndTime + 5 days;
         bool noBids = item.buyer == address(0);
 
-        // Açık artırmayı iptal etme koşulları:
-        // Eğer açık artırma başladıysa ve hiç teklif alınmadıysa, açık artırma iptal edilebilir.
-        // Eğer açık artırma sona erdiyse ve 5 gün boyunca NFT claim edilmediyse, açık artırma iptal edilebilir.
         require(
             (isAuctionStarted && noBids) ||
                 (isAuctionEnded && isAfterClaimPeriod),
@@ -304,7 +300,7 @@ contract NFTMarketplace is ReentrancyGuard {
             );
         }
 
-        item.state = true; // Mark as cancelled
+        item.state = true;
         emit NFTAuctionCancelled(
             Id,
             msg.sender,
@@ -322,11 +318,10 @@ contract NFTMarketplace is ReentrancyGuard {
         require(block.timestamp <= item.auctionEndTime, "Auction has ended");
         require(msg.sender != item.seller, "You are seller");
         require(msg.sender != item.buyer, "You have highest bid!");
-        require(msg.value > item.price, "Wrong Price!"); // Teklif, önceki tekliften yüksek olmalı
+        require(msg.value > item.price, "Wrong Price!");
         require(!item.state, "Cannot buy!");
 
         if (item.buyer != address(0)) {
-            // Eğer bir önceki teklif varsa, önceki alıcıya önceki teklif miktarını geri öde
             payable(item.buyer).transfer(item.price);
         }
         item.buyer = msg.sender;
@@ -350,16 +345,14 @@ contract NFTMarketplace is ReentrancyGuard {
         require(!item.state, "Auction already finished");
         require(msg.sender == item.buyer, "You are not the highest bidder");
 
-        uint256 ownerCommission = (item.price * 5) / 100; // %5 komisyon
+        uint256 ownerCommission = (item.price * 5) / 100;
         uint256 sellerAmount = item.price - ownerCommission;
 
-        // Satıcıya ödeme
         (bool successSeller, ) = payable(item.seller).call{value: sellerAmount}(
             ""
         );
         require(successSeller, "Transfer to seller failed.");
 
-        // Platform sahibine komisyon
         (bool successOwner, ) = payable(owner).call{value: ownerCommission}("");
         require(successOwner, "Transfer to owner failed.");
 
@@ -416,7 +409,7 @@ contract NFTMarketplace is ReentrancyGuard {
         address _contractAddress,
         uint256 _tokenId,
         address _operator,
-        address _owner // Yeni parametre
+        address _owner
     ) external view returns (bool) {
         if (_type == NFTType.ERC721) {
             IERC721 nftContract = IERC721(_contractAddress);
@@ -426,5 +419,38 @@ contract NFTMarketplace is ReentrancyGuard {
             return nftContract.isApprovedForAll(_owner, _operator);
         }
         return false;
+    }
+
+    // Implement IERC1155Receiver functions
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC165, IERC165)
+        returns (bool)
+    {
+        return
+            interfaceId == type(IERC1155Receiver).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

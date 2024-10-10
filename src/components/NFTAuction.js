@@ -13,6 +13,7 @@ import useAuctionOutcome from "../Hooks/NftAuction/useAuctionOutcome";
 import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
+import noAuction from "../assests/noauction.png";
 import Pagination from "./Pagination";
 
 const NFTAuction = () => {
@@ -119,7 +120,48 @@ const NFTAuction = () => {
         mb={10}
       >
         {currentItems.length === 0 ? (
-          <Text>No Nft In Auction Yet</Text>
+          <Box
+          display="flex"
+          alignItems="center"
+         
+          minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
+          flexDirection="column"
+          textAlign="center"
+         w="100vw"
+        >
+          <Box
+            bg="white"
+            borderRadius="md"
+            p={3}
+            mt={4}
+            width="fit-content"
+            mx="auto"
+            boxShadow="lg"
+            position="relative"
+            _after={{
+              content: '""',
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              marginLeft: "-10px",
+              borderWidth: "10px",
+              borderStyle: "solid",
+              borderColor: "white transparent transparent transparent",
+            }}
+          >
+            <Text fontSize="lg">
+            "Left all alone on this big stage... <br /> Waiting for bids, but they never came. 😢"
+
+
+            </Text>
+          </Box>
+          <Image
+            src={noAuction}
+            alt="NFT Character"
+            boxSize="250px"
+            mx="auto"
+          />
+        </Box>
         ) : (
           currentItems.map((nft, index) => {
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;

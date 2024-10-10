@@ -25,7 +25,6 @@ const useNFTActions = (signer, provider, CONTRACT_ADDRESS) => {
         quantity
       );
       await provider.waitForTransaction(tx.hash, 1);
-      toast.success("NFT sale started successfully");
     } catch (error) {
       if (error.code === 4001) {
         toast.error("Transaction was rejected by the user");

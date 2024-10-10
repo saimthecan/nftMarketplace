@@ -9,6 +9,7 @@ import useCancelNFTSale from "../Hooks/NftSale/useCancelNFTSale";
 import useNFTListData from "../Hooks/NftSale/useNFTListData";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
+import noNft from "../assests/nonft.png";
 import Pagination from "./Pagination";
 
 const NFTList = () => {
@@ -71,8 +72,47 @@ const NFTList = () => {
         gap={0}
         mb={10}
       >
-        {currentItems.length === 0 ? (
-          <Text>No Nft On Sale Yet</Text>
+{currentItems.length === 0 ? (
+  <Box
+  display="flex"
+  alignItems="center"
+ 
+  minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
+  flexDirection="column"
+  textAlign="center"
+ w="100vw"
+>
+  <Box
+    bg="white"
+    borderRadius="md"
+    p={3}
+    mt={4}
+    width="fit-content"
+    mx="auto"
+    boxShadow="lg"
+    position="relative"
+    _after={{
+      content: '""',
+      position: "absolute",
+      top: "100%",
+      left: "50%",
+      marginLeft: "-10px",
+      borderWidth: "10px",
+      borderStyle: "solid",
+      borderColor: "white transparent transparent transparent",
+    }}
+  >
+    <Text fontSize="lg">
+    "Shelves are empty, and so is our spirit...<br /> Maybe an NFT would bring a little joy. 😢"
+    </Text>
+  </Box>
+  <Image
+    src={noNft}
+    alt="NFT Character"
+    boxSize="250px"
+    mx="auto"
+  />
+</Box>
         ) : (
           currentItems.map((nft) => {
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;

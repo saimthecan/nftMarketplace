@@ -36,9 +36,9 @@ import useOnAuctionData from "../Hooks/MyNfts/useOnAuctionData";
 import useCancelNFTAuction from "../Hooks/NftAuction/useCancelNFTAuction";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import Pagination from "./Pagination";
-import NoNftWallet from "../assests/NoNftWallet.png";
-import NoNftSale from "../assests/NoNftSale.png";
-import NoNftAuction from "../assests/NoNftAuction.png";
+import noNftWallet from "../assests/noNftWallet.png";
+import noNftSale from "../assests/noNftSale.png";
+import noNftAuction from "../assests/noNftAuction.png";
 
 const MyNfts = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
@@ -335,20 +335,45 @@ const MyNfts = () => {
           <Flex wrap="wrap">
             {nftDataAuction.length === 0 ? (
               <Box
-                width="100vw"
-                height="90vh"
-                display="flex"
-                justifyContent="center"
+              display="flex"
+              alignItems="center"
+             
+              minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
+              flexDirection="column"
+              textAlign="center"
+             w="100vw"
+            >
+              <Box
+                bg="white"
+                borderRadius="md"
+                p={3}
+                mt={4}
+                width="fit-content"
+                mx="auto"
+                boxShadow="lg"
+                position="relative"
+                _after={{
+                  content: '""',
+                  position: "absolute",
+                  top: "100%",
+                  left: "50%",
+                  marginLeft: "-10px",
+                  borderWidth: "10px",
+                  borderStyle: "solid",
+                  borderColor: "white transparent transparent transparent",
+                }}
               >
-                <Image
-                  mt="5"
-                  src={NoNftAuction}
-                  alt="No Nft For Sale"
-                  width="50%"
-                  height="50%"
-                  objectFit="contain"
-                />
+                <Text fontSize="lg">
+                "The auction has started, but there’s no NFT! <br /> I'm just swinging the gavel for nothing here. Come on, list an NFT and let the fun begin! 😂🔨"
+                </Text>
               </Box>
+              <Image
+                src={noNftAuction}
+                alt="NFT Character"
+                boxSize="250px"
+                mx="auto"
+              />
+            </Box>
             ) : (
               <Flex wrap="wrap">
                 {getCurrentPageOnAuctionNfts().map((nft, index) => (
@@ -439,21 +464,46 @@ const MyNfts = () => {
         <>
           <Flex wrap="wrap">
             {nftData.length === 0 ? (
-              <Box
-                width="100vw"
-                height="90vh"
-                display="flex"
-                justifyContent="center"
-              >
-                <Image
-                  mt="5"
-                  src={NoNftSale}
-                  alt="No Nft For Sale"
-                  width="50%"
-                  height="50%"
-                  objectFit="contain"
-                />
-              </Box>
+             <Box
+             display="flex"
+             alignItems="center"
+            
+             minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
+             flexDirection="column"
+             textAlign="center"
+            w="100vw"
+           >
+             <Box
+               bg="white"
+               borderRadius="md"
+               p={3}
+               mt={4}
+               width="fit-content"
+               mx="auto"
+               boxShadow="lg"
+               position="relative"
+               _after={{
+                 content: '""',
+                 position: "absolute",
+                 top: "100%",
+                 left: "50%",
+                 marginLeft: "-10px",
+                 borderWidth: "10px",
+                 borderStyle: "solid",
+                 borderColor: "white transparent transparent transparent",
+               }}
+             >
+               <Text fontSize="lg">
+               "The stall is empty, but the wallet could be full! <br /> List your NFTs, maybe riches are just around the corner! 😊💸"
+               </Text>
+             </Box>
+             <Image
+               src={noNftSale}
+               alt="NFT Character"
+               boxSize="250px"
+               mx="auto"
+             />
+           </Box>
             ) : (
               getCurrentPageForSaleNfts().map((nft, index) => (
                 <Box
@@ -527,20 +577,45 @@ const MyNfts = () => {
               <Text>Loading...</Text>
             ) : unlistedNfts.length === 0 ? (
               <Box
-                width="100vw"
-                height="90vh"
-                display="flex"
-                justifyContent="center"
-              >
-                <Image
-                  mt="5"
-                  src={NoNftWallet}
-                  alt="No Nft For Sale"
-                  width="50%"
-                  height="50%"
-                  objectFit="contain"
-                />
-              </Box>
+  display="flex"
+  alignItems="center"
+ 
+  minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
+  flexDirection="column"
+  textAlign="center"
+ w="100vw"
+>
+  <Box
+    bg="white"
+    borderRadius="md"
+    p={3}
+    mt={4}
+    width="fit-content"
+    mx="auto"
+    boxShadow="lg"
+    position="relative"
+    _after={{
+      content: '""',
+      position: "absolute",
+      top: "100%",
+      left: "50%",
+      marginLeft: "-10px",
+      borderWidth: "10px",
+      borderStyle: "solid",
+      borderColor: "white transparent transparent transparent",
+    }}
+  >
+    <Text fontSize="lg">
+    "Wallet’s empty, but the market’s full! <br /> Maybe buying an NFT will cheer me up. 😅"
+    </Text>
+  </Box>
+  <Image
+    src={noNftWallet}
+    alt="NFT Character"
+    boxSize="250px"
+    mx="auto"
+  />
+</Box>
             ) : (
               getCurrentPageUnlistedNfts().map((nft, index) => (
                 <Box
