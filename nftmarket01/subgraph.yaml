@@ -1,0 +1,44 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NFTMarketplace
+    network: sepolia
+    source:
+      address: "0x1b18232aF4aDa547C0CCb8A9ac453efAb9D7403d"
+      abi: NFTMarketplace
+      startBlock: 6851583
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NFTAuctionCancelled
+        - NFTAuctionFinished
+        - NFTBid
+        - NFTListedForAuction
+        - NFTListedForSale
+        - NFTSaleCancelled
+        - NFTSold
+      abis:
+        - name: NFTMarketplace
+          file: ./abis/NFTMarketplace.json
+      eventHandlers:
+        - event: NFTAuctionCancelled(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTAuctionCancelled
+        - event: NFTAuctionFinished(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTAuctionFinished
+        - event: NFTBid(indexed uint256,indexed address,uint256,address,uint256)
+          handler: handleNFTBid
+        - event: NFTListedForAuction(indexed uint256,indexed address,uint256,address,uint256,uint256,uint256)
+          handler: handleNFTListedForAuction
+        - event: NFTListedForSale(indexed uint256,indexed address,uint256,address,uint256)
+          handler: handleNFTListedForSale
+        - event: NFTSaleCancelled(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTSaleCancelled
+        - event: NFTSold(indexed uint256,indexed address,address,uint256)
+          handler: handleNFTSold
+      file: ./src/nft-marketplace.ts

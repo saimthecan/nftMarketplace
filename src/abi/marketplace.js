@@ -1,745 +1,428 @@
 export const marketplace = [
   {
-    "type": "constructor",
-    "inputs": [
+    inputs: [{ internalType: "address", name: "_owner", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  { inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "_owner",
-        "type": "address",
-        "internalType": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "nonpayable"
+    name: "NFTAuctionCancelled",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "approveNFT",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "_type",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
+        indexed: true,
+        internalType: "address",
+        name: "buyer",
+        type: "address",
       },
       {
-        "name": "_contractAddress",
-        "type": "address",
-        "internalType": "address"
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
       },
       {
-        "name": "_tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    name: "NFTAuctionFinished",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "bid",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "Id",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "bidder",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "payable"
+    name: "NFTBid",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "buyNFT",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "_id",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startingPrice",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "auctionStartTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "auctionEndTime",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "payable"
+    name: "NFTListedForAuction",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "cancelNFTAuction",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "Id",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    name: "NFTListedForSale",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "cancelNFTSale",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "Id",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "seller",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    name: "NFTSaleCancelled",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "changeOwner",
-    "inputs": [
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
       {
-        "name": "_newOwner",
-        "type": "address",
-        "internalType": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "buyer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    name: "NFTSold",
+    type: "event",
   },
   {
-    "type": "function",
-    "name": "finishNFTAuction",
-    "inputs": [
+    inputs: [
       {
-        "name": "Id",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "_type",
+        type: "uint8",
+      },
+      { internalType: "address", name: "_contractAddress", type: "address" },
+      { internalType: "uint256", name: "_tokenId", type: "uint256" },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    name: "approveNFT",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "idForAuction",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
+    name: "bid",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "idForSale",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [{ internalType: "uint256", name: "_id", type: "uint256" }],
+    name: "buyNFT",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "idToItemForAuction",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "nftType",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "seller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "buyer",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "price",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "quantity",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "state",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "auctionStartTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "auctionEndTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
+    name: "cancelNFTAuction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "idToItemForSale",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "nftType",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "seller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "buyer",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "price",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "quantity",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "state",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "auctionStartTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "auctionEndTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
+    name: "cancelNFTSale",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "isTokenApproved",
-    "inputs": [
-      {
-        "name": "_type",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
-      },
-      {
-        "name": "_contractAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_operator",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [{ internalType: "address", name: "_newOwner", type: "address" }],
+    name: "changeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "onERC1155BatchReceived",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "stateMutability": "pure"
+    inputs: [{ internalType: "uint256", name: "Id", type: "uint256" }],
+    name: "finishNFTAuction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "onERC1155Received",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "stateMutability": "pure"
+    inputs: [],
+    name: "idForAuction",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "owner",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
+    inputs: [],
+    name: "idForSale",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "startNFTAuction",
-    "inputs": [
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "idToItemForAuction",
+    outputs: [
       {
-        "name": "_type",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "nftType",
+        type: "uint8",
       },
-      {
-        "name": "_contractAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_price",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_quantity",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_auctionStartTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_auctionEndTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { internalType: "address", name: "contractAddress", type: "address" },
+      { internalType: "address", name: "seller", type: "address" },
+      { internalType: "address", name: "buyer", type: "address" },
+      { internalType: "uint256", name: "price", type: "uint256" },
+      { internalType: "uint256", name: "tokenId", type: "uint256" },
+      { internalType: "uint256", name: "quantity", type: "uint256" },
+      { internalType: "bool", name: "state", type: "bool" },
+      { internalType: "uint256", name: "auctionStartTime", type: "uint256" },
+      { internalType: "uint256", name: "auctionEndTime", type: "uint256" },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "startNFTSale",
-    "inputs": [
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "idToItemForSale",
+    outputs: [
       {
-        "name": "_type",
-        "type": "uint8",
-        "internalType": "enum NFTMarketplace.NFTType"
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "nftType",
+        type: "uint8",
       },
-      {
-        "name": "_contractAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_price",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_quantity",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { internalType: "address", name: "contractAddress", type: "address" },
+      { internalType: "address", name: "seller", type: "address" },
+      { internalType: "address", name: "buyer", type: "address" },
+      { internalType: "uint256", name: "price", type: "uint256" },
+      { internalType: "uint256", name: "tokenId", type: "uint256" },
+      { internalType: "uint256", name: "quantity", type: "uint256" },
+      { internalType: "bool", name: "state", type: "bool" },
+      { internalType: "uint256", name: "auctionStartTime", type: "uint256" },
+      { internalType: "uint256", name: "auctionEndTime", type: "uint256" },
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "function",
-    "name": "supportsInterface",
-    "inputs": [
+    inputs: [
       {
-        "name": "interfaceId",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "_type",
+        type: "uint8",
+      },
+      { internalType: "address", name: "_contractAddress", type: "address" },
+      { internalType: "uint256", name: "_tokenId", type: "uint256" },
+      { internalType: "address", name: "_operator", type: "address" },
+      { internalType: "address", name: "_owner", type: "address" },
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    name: "isTokenApproved",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTAuctionCancelled",
-    "inputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "seller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "uint256[]", name: "", type: "uint256[]" },
+      { internalType: "uint256[]", name: "", type: "uint256[]" },
+      { internalType: "bytes", name: "", type: "bytes" },
     ],
-    "anonymous": false
+    name: "onERC1155BatchReceived",
+    outputs: [{ internalType: "bytes4", name: "", type: "bytes4" }],
+    stateMutability: "pure",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTAuctionFinished",
-    "inputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "buyer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "uint256", name: "", type: "uint256" },
+      { internalType: "uint256", name: "", type: "uint256" },
+      { internalType: "bytes", name: "", type: "bytes" },
     ],
-    "anonymous": false
+    name: "onERC1155Received",
+    outputs: [{ internalType: "bytes4", name: "", type: "bytes4" }],
+    stateMutability: "pure",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTBid",
-    "inputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "bidder",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTListedForAuction",
-    "inputs": [
+    inputs: [
       {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "_type",
+        type: "uint8",
       },
-      {
-        "name": "seller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "startingPrice",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "auctionStartTime",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "auctionEndTime",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
+      { internalType: "address", name: "_contractAddress", type: "address" },
+      { internalType: "uint256", name: "_price", type: "uint256" },
+      { internalType: "uint256", name: "_tokenId", type: "uint256" },
+      { internalType: "uint256", name: "_quantity", type: "uint256" },
+      { internalType: "uint256", name: "_auctionStartTime", type: "uint256" },
+      { internalType: "uint256", name: "_auctionEndTime", type: "uint256" },
     ],
-    "anonymous": false
+    name: "startNFTAuction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTListedForSale",
-    "inputs": [
+    inputs: [
       {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
+        internalType: "enum NFTMarketplace.NFTType",
+        name: "_type",
+        type: "uint8",
       },
-      {
-        "name": "seller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "price",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
+      { internalType: "address", name: "_contractAddress", type: "address" },
+      { internalType: "uint256", name: "_price", type: "uint256" },
+      { internalType: "uint256", name: "_tokenId", type: "uint256" },
+      { internalType: "uint256", name: "_quantity", type: "uint256" },
     ],
-    "anonymous": false
+    name: "startNFTSale",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "type": "event",
-    "name": "NFTSaleCancelled",
-    "inputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "seller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
+    inputs: [{ internalType: "bytes4", name: "interfaceId", type: "bytes4" }],
+    name: "supportsInterface",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
   },
-  {
-    "type": "event",
-    "name": "NFTSold",
-    "inputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "buyer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "contractAddress",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "ReentrancyGuardReentrantCall",
-    "inputs": []
-  }
-]
+];
