@@ -12,6 +12,7 @@ import noImage from "../assests/noImage.png";
 import noNft from "../assests/nonft.png";
 import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
+import NFTListEmpty from './NFTListEmpty'; 
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
@@ -57,6 +58,11 @@ const NFTList = () => {
   if (errorListedSale || errorSold)
     return `Error! ${errorListedSale?.message || errorSold?.message}`;
 
+   // Eğer listede satılmamış NFT yoksa yeni bileşeni gösteriyoruz.
+   if (currentItems.length === 0) {
+    return <NFTListEmpty />;
+  }
+
   return (
     <Box
       w="100%"
@@ -73,117 +79,75 @@ const NFTList = () => {
         gap={0}
         mb={10}
       >
-{currentItems.length === 0 ? (
-  <Box
-  display="flex"
-  alignItems="center"
-  minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
-  flexDirection="column"
-  textAlign="center"
- w="100vw"
->
-  <Box
-    bg="white"
-    borderRadius="md"
-    p={3}
-    mt={4}
-    width="fit-content"
-    mx="auto"
-    boxShadow="lg"
-    position="relative"
-    _after={{
-      content: '""',
-      position: "absolute",
-      top: "100%",
-      left: "50%",
-      marginLeft: "-10px",
-      borderWidth: "10px",
-      borderStyle: "solid",
-      borderColor: "white transparent transparent transparent",
-    }}
-  >
-    <Text fontSize="lg">
-    "Shelves are empty, and so is our spirit...<br /> Maybe an NFT would bring a little joy. 😢"
-    </Text>
-  </Box>
-  <Image
-    src={noNft}
-    alt="NFT Character"
-    boxSize="250px"
-    mx="auto"
-  />
-</Box>
-        ) : (
-          currentItems.map((nft) => {
-            const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
-            return (
-              <Box
-                key={uniqueKey}
-                p={4}
-                borderWidth={1}
-                borderRadius="md"
-                boxShadow="md"
-                overflow="auto"
-                w="300px"
-              >
-                {nftImages[uniqueKey] && (
-                  <Image
-                    src={nftImages[uniqueKey] || noImage}
-                    alt={`NFT ${nft.tokenId}`}
-                  />
-                )}
-                <Text mt={3}>
-                  <strong>Name:</strong> {nftDetails[uniqueKey]?.name}
-                </Text>
-                <Text>
-                  <strong>Description:</strong>{" "}
-                  {nftDetails[uniqueKey]?.description}
-                </Text>
-                <Text>
-                  <strong>Created By:</strong>{" "}
-                  {nftDetails[uniqueKey]?.createdBy}
-                </Text>
-                <Text>
-                  <strong>Price:</strong> {formatEther(nft.price)} ETH
-                </Text>
+        {currentItems.map((nft) => {
+          const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
+          return (
+            <Box
+              key={uniqueKey}
+              p={4}
+              borderWidth={1}
+              borderRadius="md"
+              boxShadow="md"
+              overflow="auto"
+              w="300px"
+            >
+              {nftImages[uniqueKey] && (
+                <Image
+                  src={nftImages[uniqueKey] || noImage}
+                  alt={`NFT ${nft.tokenId}`}
+                />
+              )}
+              <Text mt={3}>
+                <strong>Name:</strong> {nftDetails[uniqueKey]?.name}
+              </Text>
+              <Text>
+                <strong>Description:</strong>{" "}
+                {nftDetails[uniqueKey]?.description}
+              </Text>
+              <Text>
+                <strong>Created By:</strong>{" "}
+                {nftDetails[uniqueKey]?.createdBy}
+              </Text>
+              <Text>
+                <strong>Price:</strong> {formatEther(nft.price)} ETH
+              </Text>
 
-                {wallet ? (
-                  !isWrongNetwork ? (
-                    nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                      <Button
-                        mt={4}
-                        colorScheme="red"
-                        onClick={() => cancelNFTSale(nft.NFTMarketplace_id)}
-                      >
-                        Cancel NFT Sale
-                      </Button>
-                    ) : (
-                      <Button
-                        mt={4}
-                        colorScheme="blue"
-                        onClick={() => buyNFT(nft.NFTMarketplace_id, nft.price)}
-                      >
-                        Buy NFT
-                      </Button>
-                    )
-                  ) : (
+              {wallet ? (
+                !isWrongNetwork ? (
+                  nft.seller.toLowerCase() === account?.toLowerCase() ? (
                     <Button
                       mt={4}
                       colorScheme="red"
-                      onClick={switchToSepoliaNetwork}
+                      onClick={() => cancelNFTSale(nft.NFTMarketplace_id)}
                     >
-                      Wrong Network - Switch to Sepolia
+                      Cancel NFT Sale
+                    </Button>
+                  ) : (
+                    <Button
+                      mt={4}
+                      colorScheme="blue"
+                      onClick={() => buyNFT(nft.NFTMarketplace_id, nft.price)}
+                    >
+                      Buy NFT
                     </Button>
                   )
                 ) : (
-                  <Button mt={4} colorScheme="teal" onClick={connectWallet}>
-                    Connect Wallet
+                  <Button
+                    mt={4}
+                    colorScheme="red"
+                    onClick={switchToSepoliaNetwork}
+                  >
+                    Wrong Network - Switch to Sepolia
                   </Button>
-                )}
-              </Box>
-            );
-          })
-        )}
+                )
+              ) : (
+                <Button mt={4} colorScheme="teal" onClick={connectWallet}>
+                  Connect Wallet
+                </Button>
+              )}
+            </Box>
+          );
+        })}
       </Grid>
       {currentItems.length > 0 && (
         <Box display="flex" justifyContent="center" p={4}>

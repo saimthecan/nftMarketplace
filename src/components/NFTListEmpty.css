@@ -1,0 +1,42 @@
+/* styles.css */
+.container {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+    padding: 0 16px; /* Sağ-sol padding ekliyoruz */
+    overflow: hidden; /* Taşmayı engelliyoruz */
+    margin: 0 auto; /* Ortalamayı tam sağlıyoruz */
+    background-color: #f0f0f0; /* Opsiyonel arka plan rengi */
+  }
+  
+  .content-box {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 3rem;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .content-box::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+  }
+  
+  .image {
+    margin: 20px auto 0;
+    width: 250px;
+  }
+  
