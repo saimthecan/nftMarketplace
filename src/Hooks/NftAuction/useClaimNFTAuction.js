@@ -12,7 +12,7 @@ const useClaimNFTAuction = (signer, CONTRACT_ADDRESS) => {
     );
 
     try {
-      const tx = await marketplaceContract.finishNFTAuction(nft.Contract_id);
+      const tx = await marketplaceContract.finishNFTAuction(nft.NFTMarketplace_id);
       await signer.provider.waitForTransaction(tx.hash, 1);
       toast.success("Auction finished successfully!");
     } catch (error) {

@@ -34,13 +34,13 @@ const useUnlistedNftsData = () => {
 
     const fetchAllData = async () => {
       if (dataListedSale && dataListedSale.nftlistedForSales) {
-        const soldIds = dataSold?.nftsolds?.map((nft) => nft.Contract_id) || [];
-        const cancelledSaleIds = dataCancelledSales?.nftsaleCancelleds?.map((nft) => nft.Contract_id) || [];
+        const soldIds = dataSold?.nftsolds?.map((nft) => nft.NFTMarketplace_id) || [];
+        const cancelledSaleIds = dataCancelledSales?.nftsaleCancelleds?.map((nft) => nft.NFTMarketplace_id) || [];
        
         const unsoldNfts = dataListedSale.nftlistedForSales.filter(
           (nft) =>
-            !soldIds.includes(nft.Contract_id) &&
-            !cancelledSaleIds.includes(nft.Contract_id) &&
+            !soldIds.includes(nft.NFTMarketplace_id) &&
+            !cancelledSaleIds.includes(nft.NFTMarketplace_id) &&
             nft.seller.toLowerCase() === account?.toLowerCase()
            
           

@@ -58,15 +58,15 @@ const useNFTAuctionData = () => {
       dataCancelledAuction.nftauctionCancelleds
     ) {
       const soldIds = dataSoldAuction.nftauctionFinisheds.map(
-        (nft) => nft.Contract_id
+        (nft) => nft.NFTMarketplace_id
       );
       const cancelledIds = dataCancelledAuction.nftauctionCancelleds.map(
-        (nft) => nft.Contract_id
+        (nft) => nft.NFTMarketplace_id
       );
       const unsold = dataListedAuction.nftlistedForAuctions.filter(
         (nft) =>
-          !soldIds.includes(nft.Contract_id) &&
-          !cancelledIds.includes(nft.Contract_id)
+          !soldIds.includes(nft.NFTMarketplace_id) &&
+          !cancelledIds.includes(nft.NFTMarketplace_id)
       );
       setUnsoldNFTs(unsold);
     }

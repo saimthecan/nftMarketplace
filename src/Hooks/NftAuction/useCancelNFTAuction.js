@@ -5,7 +5,7 @@ import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
 
 const useCancelNFTAuction = (signer, CONTRACT_ADDRESS) => {
   const cancelAuction = async (nft, index) => {
-    const Contract_id = nft.Contract_id;
+    const NFTMarketplace_id = nft.NFTMarketplace_id;
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
@@ -13,7 +13,7 @@ const useCancelNFTAuction = (signer, CONTRACT_ADDRESS) => {
     );
 
     try {
-      const tx = await marketplaceContract.cancelNFTAuction(Contract_id);
+      const tx = await marketplaceContract.cancelNFTAuction(NFTMarketplace_id);
       await signer.provider.waitForTransaction(tx.hash, 1);
       toast.success("Auction cancelled successfully!");
     } catch (error) {

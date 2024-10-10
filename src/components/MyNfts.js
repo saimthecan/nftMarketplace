@@ -393,9 +393,9 @@ const MyNfts = () => {
                       </Text>
                       <Text>
                         <strong>Last Bid: </strong>{" "}
-                        {latestBids[nft.Contract_id]
+                        {latestBids[nft.NFTMarketplace_id]
                           ? `${formatEther(
-                              latestBids[nft.Contract_id].amount
+                              latestBids[nft.NFTMarketplace_id].amount
                             )} ETH`
                           : "No bids yet"}
                       </Text>
@@ -497,7 +497,7 @@ const MyNfts = () => {
                       <Button
                         mt={4}
                         colorScheme="red"
-                        onClick={() => cancelNFTSale(nft.Contract_id)}
+                        onClick={() => cancelNFTSale(nft.NFTMarketplace_id)}
                         w="150px"
                       >
                         Cancel NFT Sale

@@ -167,8 +167,8 @@ const NFTAuction = () => {
                 </Text>
                 <Text>
                   <strong>Last Bid: </strong>{" "}
-                  {latestBids[nft.Contract_id]
-                    ? `${formatEther(latestBids[nft.Contract_id].amount)} ETH`
+                  {latestBids[nft.NFTMarketplace_id]
+                    ? `${formatEther(latestBids[nft.NFTMarketplace_id].amount)} ETH`
                     : "No bids yet"}
                 </Text>
 

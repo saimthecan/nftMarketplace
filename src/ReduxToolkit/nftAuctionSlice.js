@@ -11,9 +11,9 @@ export const fetchLatestBids = createAsyncThunk(
       query: GET_NFT_BIDS,
     });
     return data.nftbids.reduce((acc, bid) => {
-      const existingBid = acc[bid.Contract_id];
+      const existingBid = acc[bid.NFTMarketplace_id];
       if (!existingBid || bid.blockTimestamp > existingBid.blockTimestamp) {
-        acc[bid.Contract_id] = {
+        acc[bid.NFTMarketplace_id] = {
           amount: bid.amount,
           bidder: bid.bidder,
           blockTimestamp: bid.blockTimestamp,

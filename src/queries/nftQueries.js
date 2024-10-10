@@ -6,7 +6,7 @@ export const GET_LISTED_NFTS = gql`
     nftlistedForSales {
       contractAddress
       id
-      Contract_id
+      NFTMarketplace_id
       seller
       price
       tokenId
@@ -21,7 +21,7 @@ export const GET_SOLD_NFTS = gql`
       buyer
       contractAddress
       tokenId
-      Contract_id
+      NFTMarketplace_id
     }
   }
 `;
@@ -29,7 +29,7 @@ export const GET_SOLD_NFTS = gql`
 export const GET_CANCELLED_NFT_SALES = gql`
   query {
     nftsaleCancelleds {
-      Contract_id
+      NFTMarketplace_id
     }
   }
 `;
@@ -38,7 +38,7 @@ export const GET_LISTED_NFTS_FOR_AUCTION = gql`
   query GetListedNftsForAuction {
     nftlistedForAuctions {
       startingPrice
-      Contract_id
+      NFTMarketplace_id
       auctionStartTime
       auctionEndTime
       contractAddress
@@ -55,7 +55,7 @@ export const GET_FINISHED_NFT_AUCTIONS = gql`
       buyer
       contractAddress
       tokenId
-      Contract_id
+      NFTMarketplace_id
     }
   }
 `;
@@ -63,7 +63,7 @@ export const GET_FINISHED_NFT_AUCTIONS = gql`
 export const GET_CANCELLED_NFT_AUCTIONS = gql`
   query {
     nftauctionCancelleds {
-       Contract_id
+       NFTMarketplace_id
     }
   }
 `;
@@ -71,7 +71,7 @@ export const GET_CANCELLED_NFT_AUCTIONS = gql`
 export const GET_NFT_BIDS = gql`
   query {
     nftbids {
-       Contract_id
+       NFTMarketplace_id
        amount
        bidder
        blockTimestamp

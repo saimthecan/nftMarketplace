@@ -25,7 +25,7 @@ const usePlaceBid = (signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBid
         return;
       }
   
-      const currentHighestBid = latestBids[nft.Contract_id]?.amount || 0;
+      const currentHighestBid = latestBids[nft.NFTMarketplace_id]?.amount || 0;
       if (priceInWei <= currentHighestBid) {
         toast.error("Your bid must be higher than the current highest bid.");
         return;
@@ -33,7 +33,7 @@ const usePlaceBid = (signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBid
   
       const marketplaceContract = new ethers.Contract(CONTRACT_ADDRESS, marketplace, signer);
       try {
-        const tx = await marketplaceContract.bid(nft.Contract_id, { value: priceInWei });
+        const tx = await marketplaceContract.bid(nft.NFTMarketplace_id, { value: priceInWei });
         await signer.provider.waitForTransaction(tx.hash, 1);
         toast.success("Bid placed successfully!");
       } catch (error) {

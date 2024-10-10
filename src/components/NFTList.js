@@ -113,7 +113,7 @@ const NFTList = () => {
                       <Button
                         mt={4}
                         colorScheme="red"
-                        onClick={() => cancelNFTSale(nft.Contract_id)}
+                        onClick={() => cancelNFTSale(nft.NFTMarketplace_id)}
                       >
                         Cancel NFT Sale
                       </Button>
@@ -121,7 +121,7 @@ const NFTList = () => {
                       <Button
                         mt={4}
                         colorScheme="blue"
-                        onClick={() => buyNFT(nft.Contract_id, nft.price)}
+                        onClick={() => buyNFT(nft.NFTMarketplace_id, nft.price)}
                       >
                         Buy NFT
                       </Button>

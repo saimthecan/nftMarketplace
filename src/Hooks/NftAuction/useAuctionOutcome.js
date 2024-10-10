@@ -6,9 +6,9 @@ const useAuctionOutcome = () => {
 
   const isUserHighestBidder = (nft) => {
     return (
-      latestBids[nft.Contract_id] &&
+      latestBids[nft.NFTMarketplace_id] &&
       account &&
-      latestBids[nft.Contract_id]?.bidder.toLowerCase() === account.toLowerCase()
+      latestBids[nft.NFTMarketplace_id]?.bidder.toLowerCase() === account.toLowerCase()
     );
   };
 
