@@ -14,6 +14,7 @@ import { fetchLatestBids } from "../ReduxToolkit/nftAuctionSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
 import noAuction from "../assests/noauction.png";
+import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
 
 const NFTAuction = () => {
@@ -24,10 +25,12 @@ const NFTAuction = () => {
 
   const wallet = useSelector((state) => state.wallet.account);
   const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
+  
 
   const { latestBids, loading, error } = useSelector(
     (state) => state.nftAuction
   );
+  const [loadingImages, setLoadingImages] = useState({});
   const balance = useSelector((state) => state.wallet.balance);
   const account = useSelector((state) => state.wallet.account);
 
@@ -85,17 +88,24 @@ const NFTAuction = () => {
     isUserHighestBidder,
   } = useAuctionOutcome();
 
+  const handleImageLoad = (uniqueKey) => {
+    setLoadingImages((prevLoading) => ({
+      ...prevLoading,
+      [uniqueKey]: false, // Resim yüklendiğinde 'false' yapıyoruz
+    }));
+  };
+
   //USE EFFECTS
 
   useEffect(() => {
     dispatch(fetchLatestBids());
   }, [dispatch]);
 
-  if (loading) return "Loading...";
+  if (loading)  return <LoadingSpinner />;
   if (error) return `Error: ${error}`;
 
   if (loadingListedAuction || loadingSoldAuction || loadingCancelledAuction)
-    return "Loading...";
+    return <LoadingSpinner />;
   if (errorListedAuction || errorSoldAuction || errorCancelledAuction)
     return `Error! ${
       errorListedAuction?.message ||
@@ -182,6 +192,8 @@ const NFTAuction = () => {
                   boxSize="250px" // Sabit bir genişlik ve yükseklik belirleyin
                   objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
                   borderRadius="md" // Görselin köşelerini yuvarlatın
+                  onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state'i günceller
+                  display={loadingImages[uniqueKey] === false ? "block" : "none"} // Yükleme bitince göster
                 />
 
                 <Text mt={3}>

@@ -41,6 +41,7 @@ export const Navbar = () => {
     switchToSepoliaNetwork,
     checkNetwork,
   } = useWalletConnection();
+  
 
   useEffect(() => {
     const savedWalletAddress = sessionStorage.getItem("walletAddress");
@@ -116,6 +117,8 @@ export const Navbar = () => {
     color: "teal",
     fontWeight: 500,
   };
+
+  
 
   return (
     <Flex

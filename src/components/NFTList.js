@@ -10,6 +10,7 @@ import useNFTListData from "../Hooks/NftSale/useNFTListData";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import noImage from "../assests/noImage.png";
 import noNft from "../assests/nonft.png";
+import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
 
 const NFTList = () => {
@@ -52,7 +53,7 @@ const NFTList = () => {
   // useCancelNFTSale hook'unu kullan
   const cancelNFTSale = useCancelNFTSale(signer, provider, CONTRACT_ADDRESS);
 
-  if (loadingListedSale || loadingSold) return "Loading...";
+  if (loadingListedSale || loadingSold)  return <LoadingSpinner />;
   if (errorListedSale || errorSold)
     return `Error! ${errorListedSale?.message || errorSold?.message}`;
 

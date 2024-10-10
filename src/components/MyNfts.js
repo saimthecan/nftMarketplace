@@ -39,6 +39,7 @@ import Pagination from "./Pagination";
 import noNftWallet from "../assests/noNftWallet.png";
 import noNftSale from "../assests/noNftSale.png";
 import noNftAuction from "../assests/noNftAuction.png";
+import LoadingSpinner from './LoadingSpinner'; 
 
 const MyNfts = () => {
   const [enteredPrices, setEnteredPrices] = useState({});
@@ -274,7 +275,7 @@ const MyNfts = () => {
     );
   }
 
-  if (loadingListedSale) return <Text>Loading NFTs...</Text>;
+  if (loadingListedSale) return <LoadingSpinner />;
   if (errorListedSale)
     return <Text>Error loading NFTs: {errorListedSale.message}</Text>;
 
@@ -574,7 +575,7 @@ const MyNfts = () => {
         <>
           <Flex wrap="wrap">
             {isLoadingUnlistedNfts ? (
-              <Text>Loading...</Text>
+              <LoadingSpinner />
             ) : unlistedNfts.length === 0 ? (
               <Box
   display="flex"
