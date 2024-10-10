@@ -1,5 +1,4 @@
-// useWalletConnection.js
-import {  useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
 import { setNetworkStatus } from '../ReduxToolkit/networkSlice';
 
@@ -8,19 +7,27 @@ const useWalletConnection = () => {
 
   const connectWallet = async () => {
     await switchToSepoliaNetwork();
+    
+    // EIP-6963 desteği ile yeni bir cüzdan sağlayıcı keşfetme
     if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        const address = accounts[0];
-        dispatch(connectWalletAction(address));
-        sessionStorage.setItem("walletAddress", address);
-      } catch (error) {
-        console.error("User denied wallet access:", error);
-      }
+      window.addEventListener('eip6963:announceProvider', async (event) => {
+        const provider = event.detail.provider;
+
+        try {
+          const accounts = await provider.request({ method: 'eth_requestAccounts' });
+          const address = accounts[0];
+          dispatch(connectWalletAction(address));
+          sessionStorage.setItem("walletAddress", address);
+        } catch (error) {
+          console.error("Cüzdan erişimi reddedildi:", error);
+        }
+      });
+
+      // Cüzdan keşfetmek için olay tetikleyici
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+
     } else {
-      console.log("Please install Metamask.");
+      console.log("Lütfen Metamask veya başka bir cüzdan yükleyin.");
     }
   };
 
@@ -36,15 +43,14 @@ const useWalletConnection = () => {
     }
   };
 
-
   const switchToSepoliaNetwork = async () => {
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0xaa36a7" }], 
+        params: [{ chainId: "0xaa36a7" }],
       });
     } catch (switchError) {
-      console.error("Error switching network:", switchError);
+      console.error("Ağ değiştirme hatası:", switchError);
     }
   };
 

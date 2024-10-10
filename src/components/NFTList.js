@@ -77,7 +77,6 @@ const NFTList = () => {
   <Box
   display="flex"
   alignItems="center"
- 
   minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
   flexDirection="column"
   textAlign="center"
