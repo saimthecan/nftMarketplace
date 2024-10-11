@@ -8,28 +8,37 @@ const useWalletConnection = () => {
   const connectWallet = async () => {
     await switchToSepoliaNetwork();
     
-    // EIP-6963 desteği ile yeni bir cüzdan sağlayıcı keşfetme
     if (window.ethereum) {
       window.addEventListener('eip6963:announceProvider', async (event) => {
         const provider = event.detail.provider;
 
         try {
-          const accounts = await provider.request({ method: 'eth_requestAccounts' });
-          const address = accounts[0];
-          dispatch(connectWalletAction(address));
-          sessionStorage.setItem("walletAddress", address);
+          // Daha önce bağlantı isteği olup olmadığını kontrol et
+          if (!window.ethereum.isConnected()) {
+            const accounts = await provider.request({ method: 'eth_requestAccounts' });
+            const address = accounts[0];
+            dispatch(connectWalletAction(address));
+            sessionStorage.setItem("walletAddress", address);
+          } else {
+            console.log("Cüzdan zaten bağlı.");
+          }
         } catch (error) {
-          console.error("Cüzdan erişimi reddedildi:", error);
+          // Hata kodunu kontrol et, eğer -32002 ise zaten devam eden bir istek olduğunu belirt
+          if (error.code === -32002) {
+            console.log("Cüzdan bağlanma isteği zaten gönderildi, lütfen onaylayın.");
+          } else {
+            console.error("Cüzdan erişimi reddedildi veya başka bir hata:", error);
+          }
         }
       });
 
-      // Cüzdan keşfetmek için olay tetikleyici
       window.dispatchEvent(new Event("eip6963:requestProvider"));
 
     } else {
       console.log("Lütfen Metamask veya başka bir cüzdan yükleyin.");
     }
   };
+
 
   const disconnectWallet = () => {
     sessionStorage.removeItem("walletAddress");

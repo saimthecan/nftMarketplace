@@ -12,10 +12,11 @@ import noImage from "../assests/noImage.png";
 import noNft from "../assests/nonft.png";
 import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
-import NFTListEmpty from './NFTListEmpty'; 
+import NftEmpty from './NftEmpty'; 
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
+ 
 
   const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
@@ -58,9 +59,12 @@ const NFTList = () => {
   if (errorListedSale || errorSold)
     return `Error! ${errorListedSale?.message || errorSold?.message}`;
 
+  const text =  "Shelves are empty, and so is our spirit...<br /> Maybe an NFT would bring a little joy. 😢";
+  const imageSrc = noNft; // Farklı bir resim
+
    // Eğer listede satılmamış NFT yoksa yeni bileşeni gösteriyoruz.
    if (currentItems.length === 0) {
-    return <NFTListEmpty />;
+    return  <NftEmpty text={text} imageSrc={imageSrc} />;
   }
 
   return (

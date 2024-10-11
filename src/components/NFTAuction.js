@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Text, Image, Grid, Button, Input } from "@chakra-ui/react";
+import { Box, Text, Image, Grid, Button, Input, useBreakpointValue } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
 import { toast } from "react-toastify";
 import useQueries from "../Hooks/useQueries";
@@ -16,6 +16,7 @@ import noImage from "../assests/noImage.png";
 import noAuction from "../assests/noauction.png";
 import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
+import NftEmpty from './NftEmpty'; 
 
 const NFTAuction = () => {
   //states
@@ -35,6 +36,13 @@ const NFTAuction = () => {
   const account = useSelector((state) => state.wallet.account);
 
   const dispatch = useDispatch();
+
+  const gridTemplateColumns = useBreakpointValue({
+    base: "1fr", // Mobilde tek sütun
+    md: "repeat(auto-fit, minmax(300px, 1fr))", // Masaüstünde grid düzeni
+  });
+  const boxWidth = useBreakpointValue({ base: "100%", md: "300px" });
+  const imageBoxSize = useBreakpointValue({ base: "300px", md: "250px" });
 
   //queries
   const {
@@ -113,6 +121,15 @@ const NFTAuction = () => {
       errorCancelledAuction?.message
     }`;
 
+    const text = "Left all alone on this big stage... <br /> Waiting for bids, but they never came. 😢";
+    const imageSrc = noAuction; // Farklı bir resim
+  
+     // Eğer listede satılmamış NFT yoksa yeni bileşeni gösteriyoruz.
+     if (currentItems.length === 0) {
+      return  <NftEmpty text={text} imageSrc={imageSrc} />;
+    }
+  
+
   return (
     <Box
       w="100%"
@@ -125,55 +142,12 @@ const NFTAuction = () => {
       bgColor="gray.100"
     >
       <Grid
-        templateColumns="repeat(auto-fit, minmax(300px, 0.2fr))"
+        templateColumns={gridTemplateColumns}
         gap={0}
         mb={10}
       >
-        {currentItems.length === 0 ? (
-          <Box
-          display="flex"
-          alignItems="center"
-         
-          minHeight="100vh" // Tüm ekranı kaplayacak şekilde minHeight ayarlandı
-          flexDirection="column"
-          textAlign="center"
-         w="100vw"
-        >
-          <Box
-            bg="white"
-            borderRadius="md"
-            p={3}
-            mt={4}
-            width="fit-content"
-            mx="auto"
-            boxShadow="lg"
-            position="relative"
-            _after={{
-              content: '""',
-              position: "absolute",
-              top: "100%",
-              left: "50%",
-              marginLeft: "-10px",
-              borderWidth: "10px",
-              borderStyle: "solid",
-              borderColor: "white transparent transparent transparent",
-            }}
-          >
-            <Text fontSize="lg">
-            "Left all alone on this big stage... <br /> Waiting for bids, but they never came. 😢"
-
-
-            </Text>
-          </Box>
-          <Image
-            src={noAuction}
-            alt="NFT Character"
-            boxSize="250px"
-            mx="auto"
-          />
-        </Box>
-        ) : (
-          currentItems.map((nft, index) => {
+      
+          {currentItems.map((nft, index) => {
             const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
             console.log(`Key: ${uniqueKey}, Image: ${nftImages[uniqueKey]}`);
             return (
@@ -184,14 +158,15 @@ const NFTAuction = () => {
                 borderRadius="md"
                 boxShadow="md"
                 overflow="auto"
-                w="300px"
+                w={boxWidth}
               >
                 <Image
                   src={nftImages[uniqueKey] || noImage}
                   alt={`NFT ${nft.tokenId}`}
-                  boxSize="250px" // Sabit bir genişlik ve yükseklik belirleyin
+                  boxSize={imageBoxSize} // Sabit bir genişlik ve yükseklik belirleyin
                   objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
                   borderRadius="md" // Görselin köşelerini yuvarlatın
+                  mx="auto"
                   onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state'i günceller
                   display={loadingImages[uniqueKey] === false ? "block" : "none"} // Yükleme bitince göster
                 />
@@ -296,7 +271,7 @@ const NFTAuction = () => {
               </Box>
             );
           })
-        )}
+        }
       </Grid>
       {currentItems.length > 0 && (
         <Box display="flex" justifyContent="center" p={4}>
