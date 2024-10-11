@@ -16,6 +16,11 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 const Home = () => {
+
+  const containerWidth = useBreakpointValue({
+    base: "95%",  // Mobil ekranlar için %95
+    md: "90%",    // Masaüstü ekranlar için %90
+  });
   const sliderSettings = useBreakpointValue({
     base: {
       dots: true,
@@ -80,7 +85,7 @@ const Home = () => {
   
 
   return (
-    <Container maxW="container.xl" mt={{ base: "-1.5rem", md: "0" }}>
+    <Container  maxW={containerWidth} mt={{ base: "-1.5rem", md: "0" }}>
       <Slider {...sliderSettings}>
         {/* Slide 1 */}
         <Box
