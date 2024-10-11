@@ -16,11 +16,11 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 const Home = () => {
-
   const containerWidth = useBreakpointValue({
-    base: "95%",  // Mobil ekranlar için %95
-    md: "90%",    // Masaüstü ekranlar için %90
+    base: "96%",  // For mobile screens
+    md: "90%",    // For desktop screens
   });
+
   const sliderSettings = useBreakpointValue({
     base: {
       dots: true,
@@ -44,53 +44,18 @@ const Home = () => {
       slidesToScroll: 1,
       swipeToSlide: true,
       pauseOnHover: false,
-      adaptiveHeight: false // Keep a fixed height for desktop view
+      adaptiveHeight: false, // Keep a fixed height for desktop view
     },
   });
 
-  const boxSize = {
-    width: '100vw',
-    height: '60vh',
-    '@media (min-height: 350px)': {
-      width: '90vw',
-      height: '100vh',
-    },
-    '@media (min-height: 652px)': {
-      width: '90vw',
-      height: '95vh',
-    },
-    '@media (min-height: 666px)': {
-      width: '90vw',
-      height: '81vh',
-    },
-    '@media (min-height: 739px)': {
-      width: '90vw',
-      height: '76vh',
-    },
-    '@media (min-height: 843px)': {
-      width: '100vw',
-      height: '65vh',
-    },
-    '@media (min-height: 895px)': {
-      width: '100vw',
-      height: '60vh',
-    },
-    '@media (min-width: 1000px)': {
-      width: '100vw',
-      height: '60vh',
-    },
-  
-  };
-
-  
-
   return (
-    <Container  maxW={containerWidth} mt={{ base: "-1.5rem", md: "0" }}>
+    <Container maxW={containerWidth} mt={{ base: "-1.5rem", md: "0" }}>
       <Slider {...sliderSettings}>
         {/* Slide 1 */}
         <Box
           mt="10"
-          sx={boxSize}
+          width={{ base: "100%", md: "100vw" }}
+          height={{ base: "auto", md: "60vh" }}
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -125,6 +90,7 @@ const Home = () => {
               bg="#363c42"
               color="white"
               _hover={{ bg: "#363c42" }}
+              mb="1.5rem"
             >
               Buy
             </Button>
@@ -177,7 +143,7 @@ const Home = () => {
               maxHeight="100%"
             >
               <Image
-                 src={`${process.env.PUBLIC_URL}/nftsale.png`}
+                src={`${process.env.PUBLIC_URL}/nftsale.png`}
                 alt="NFT for sale"
                 borderRadius="lg"
                 width="85%"
@@ -188,11 +154,11 @@ const Home = () => {
           </HStack>
         </Box>
 
-        {/* Repeat for each slide */}
         {/* Slide 2 */}
         <Box
           mt="10"
-          sx={boxSize}
+          width={{ base: "100%", md: "100vw" }}
+          height={{ base: "auto", md: "60vh" }}
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -203,8 +169,8 @@ const Home = () => {
           {/* Mobile View */}
           <VStack spacing={4} display={{ base: "flex", md: "none" }}>
             <Image
-             src={`${process.env.PUBLIC_URL}/nftauction.png`}
-              alt="NFT for sale"
+              src={`${process.env.PUBLIC_URL}/nftauction.png`}
+              alt="NFT Auction"
               borderRadius="lg"
               width="full"
               objectFit="contain"
@@ -228,8 +194,9 @@ const Home = () => {
               bg="#363c42"
               color="white"
               _hover={{ bg: "#363c42" }}
+              mb="1.5rem"
             >
-                Auctions Items
+              Auction Items
             </Button>
           </VStack>
           {/* Desktop View */}
@@ -268,7 +235,7 @@ const Home = () => {
                   color="white"
                   _hover={{ bg: "#363c42" }}
                 >
-                    Auctions Items
+                  Auction Items
                 </Button>
               </VStack>
             </Box>
@@ -295,7 +262,8 @@ const Home = () => {
         {/* Slide 3 */}
         <Box
           mt="10"
-          sx={boxSize}
+          width={{ base: "100%", md: "100vw" }}
+          height={{ base: "auto", md: "60vh" }}
           display="flex"
           bg="rgb(202, 223, 208)"
           justifyContent="center"
@@ -307,7 +275,7 @@ const Home = () => {
           <VStack spacing={4} display={{ base: "flex", md: "none" }}>
             <Image
               src={`${process.env.PUBLIC_URL}/mynfts.png`}
-              alt="NFT for sale"
+              alt="My NFTs"
               borderRadius="lg"
               width="full"
               objectFit="contain"
@@ -318,7 +286,7 @@ const Home = () => {
             <Text fontSize="xl">
               <strong>My NFTs</strong>
             </Text>
-            <Text fontSize="lg" pl={5} pr={5}>
+            <Text fontSize="lg" pl={5} pr={5} mb="1.5rem">
               Explore your NFT collection with our versatile platform. Use
               'Unlisted NFTs' for easy preparation of your digital assets for
               sale or auction. In 'NFTs for Sale' quickly view and manage your
@@ -365,8 +333,8 @@ const Home = () => {
               maxHeight="100%"
             >
               <Image
-                 src={`${process.env.PUBLIC_URL}/mynfts.png`}
-                alt="MyNFts"
+                src={`${process.env.PUBLIC_URL}/mynfts.png`}
+                alt="My NFTs"
                 borderRadius="lg"
                 width="85%"
                 objectFit="contain"
