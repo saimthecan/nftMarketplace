@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { connectWallet as connectWalletAction } from "../ReduxToolkit/walletSlice";
 import useWalletConnection from "../Hooks/useWalletConnection";
 import { useLocation } from "react-router-dom";
+import { FaHome, FaList, FaGavel, FaUserAlt } from "react-icons/fa";
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -41,41 +42,52 @@ export const Navbar = () => {
     switchToSepoliaNetwork,
     checkNetwork,
   } = useWalletConnection();
-  
 
   useEffect(() => {
     const savedWalletAddress = sessionStorage.getItem("walletAddress");
-    console.log('useEffect [dispatch]: Saved wallet address from sessionStorage:', savedWalletAddress);
+    console.log(
+      "useEffect [dispatch]: Saved wallet address from sessionStorage:",
+      savedWalletAddress
+    );
     if (savedWalletAddress) {
       dispatch(connectWalletAction(savedWalletAddress));
     }
   }, [dispatch]);
 
- // Cüzdan bağlantı/disconnect işlemi
- const handleConnectClick = () => {
-  console.log('handleConnectClick: Wallet state before action:', wallet ? "Connected" : "Disconnected");
-  if (wallet) {
-    if (window.confirm("Do you want to disconnect your wallet?")) {
-      disconnectWallet();
-      console.log('handleConnectClick: Wallet disconnected.');
+  // Cüzdan bağlantı/disconnect işlemi
+  const handleConnectClick = () => {
+    console.log(
+      "handleConnectClick: Wallet state before action:",
+      wallet ? "Connected" : "Disconnected"
+    );
+    if (wallet) {
+      if (window.confirm("Do you want to disconnect your wallet?")) {
+        disconnectWallet();
+        console.log("handleConnectClick: Wallet disconnected.");
+      }
+    } else {
+      connectWallet();
+      console.log("handleConnectClick: Attempting to connect wallet...");
     }
-  } else {
-    connectWallet();
-    console.log('handleConnectClick: Attempting to connect wallet...');
-  }
-};
+  };
 
   // Ağ ve cüzdan adresi değişikliklerini dinle
   useEffect(() => {
     const handleChainChanged = (_chainId) => {
-      console.log('useEffect [checkNetwork, dispatch]: Chain changed to:', _chainId);
+      console.log(
+        "useEffect [checkNetwork, dispatch]: Chain changed to:",
+        _chainId
+      );
       checkNetwork();
     };
 
     //cüzdan değiştirme
-  
+
     const handleAccountsChanged = (accounts) => {
-      console.log('useEffect [checkNetwork, dispatch]: Accounts changed:', accounts);
+      console.log(
+        "useEffect [checkNetwork, dispatch]: Accounts changed:",
+        accounts
+      );
       if (accounts.length > 0) {
         const newAddress = accounts[0];
         dispatch(connectWalletAction(newAddress));
@@ -108,7 +120,6 @@ export const Navbar = () => {
     textDecoration: "none",
     color: "#8c8cb1",
     fontWeight: 500,
-  
   };
   const selectedLinkStyle = {
     fontSize: "16px",
@@ -117,8 +128,6 @@ export const Navbar = () => {
     color: "teal",
     fontWeight: 500,
   };
-
-  
 
   return (
     <Flex
@@ -153,7 +162,7 @@ export const Navbar = () => {
       {/* Drawer Menüsü */}
       <Drawer placement="right" onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent w="70% !important">
           <DrawerHeader borderBottomWidth="1px">
             <strong>NFT</strong>
           </DrawerHeader>
@@ -167,7 +176,11 @@ export const Navbar = () => {
                   location.pathname === "/" ? selectedLinkStyle : fontStyle
                 }
               >
-                Home
+                <Flex align="center">
+                  <FaHome style={{ marginRight: "8px" }} />{" "}
+                  {/* Ana sayfa ikonu */}
+                  Home
+                </Flex>
               </Link>
               <Link
                 as={RouterLink}
@@ -179,7 +192,11 @@ export const Navbar = () => {
                     : fontStyle
                 }
               >
-                Nft Marketplace
+                <Flex align="center">
+                  <FaList style={{ marginRight: "8px" }} />{" "}
+                  {/* NFT listesi ikonu */}
+                  Nft Marketplace
+                </Flex>
               </Link>
               <Link
                 as={RouterLink}
@@ -191,7 +208,11 @@ export const Navbar = () => {
                     : fontStyle
                 }
               >
-                Auctions
+                <Flex align="center">
+                  <FaGavel style={{ marginRight: "8px" }} />{" "}
+                  {/* Açık artırma ikonu */}
+                  Auctions
+                </Flex>
               </Link>
               {wallet && (
                 <Link
@@ -204,7 +225,11 @@ export const Navbar = () => {
                       : fontStyle
                   }
                 >
-                  My Nfts
+                  <Flex align="center">
+                    <FaUserAlt style={{ marginRight: "8px" }} />{" "}
+                    {/* My NFTs ikonu */}
+                    My Nfts
+                  </Flex>
                 </Link>
               )}
               <Box>
