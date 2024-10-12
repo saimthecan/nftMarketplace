@@ -29,7 +29,7 @@ const useUnlistedNftsData = () => {
       } catch (error) {
         console.error(`Error fetching metadata for token ID ${tokenId}:`, error);
         return null;
-      }
+      } 
     };
 
     const fetchAllData = async () => {

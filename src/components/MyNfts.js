@@ -756,10 +756,11 @@ const MyNfts = () => {
               <Box p={4} borderWidth={1} borderRadius="md" boxShadow="md">
                 <Badge colorScheme="green">{`Balance: ${selectedNft.balance}`}</Badge>
                 <Image
-                  boxSize="300px"
+                  boxSize="350px"
                   src={selectedNft.rawMetadata?.image || noImage}
                   alt="NFT Image"
                   mt={4}
+                  mx="auto"
                 />
                 <Flex flexDirection="column" gap={2} mt={2}>
                   <Text>{`Name: ${selectedNft.contract.name}`}</Text>

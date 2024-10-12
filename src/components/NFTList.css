@@ -1,0 +1,104 @@
+/* Kategorilendirme ve Sıralama Kontrolleri */
+.filter-section {
+    display: flex;
+    gap: 20px; /* Butonlar arası boşluk */
+    flex-wrap: wrap; /* Ekran küçüldüğünde elemanlar alt alta gelir */
+    align-items: center;
+    background-color: #f9f9f9; /* Hafif arka plan rengi */
+    padding: 15px 25px; /* İç boşluklar */
+    border-radius: 12px; /* Yuvarlak köşeler */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Hafif gölge */
+  }
+  
+  /* Label Stili */
+  .filter-section label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-right: 10px;
+  }
+  
+  /* Select Kutusu Stili */
+  .filter-section select {
+    padding: 10px;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%23333" d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+  }
+  
+  /* Hover ve Focus Efekti */
+  .filter-section select:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
+  }
+  
+  .filter-section select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  }
+  
+  /* Sıralama ikonu için kapsayıcı stil */
+  .sort-icon-container {
+    font-size: 1.8rem;
+    color: #0056b3;
+    cursor: pointer;
+  }
+  
+  .sort-icon-container:hover {
+    transform: scale(1.1); /* Hover sırasında büyüme efekti */
+    color: #0056b3; /* Hover sırasında mavi tonunu koruyalım */
+  }
+
+  .controls{
+    margin-bottom: 2rem;
+  }
+  
+  /* Mobile View */
+  @media (max-width: 767px) {
+    .filter-section {
+      flex-direction: row; /* Mobilde yatay sırala */
+      gap: 10px; /* Butonlar arası boşluk */
+      justify-content: space-between;
+    } 
+  
+    /* Label Stili */
+    .filter-section label {
+      font-size: 0.9rem; /* Daha küçük yazı boyutu */
+      font-weight: bold;
+      margin-right: 5px; /* Input ile arasında boşluk */
+      color: #333;
+    }
+  
+    /* Select Kutusu Stili */
+    .filter-section select {
+      padding: 5px 10px; /* Padding küçültüldü */
+      border: 1px solid #d1d1d1;
+      border-radius: 8px;
+      background-color: #fff;
+      font-size: 0.9rem; /* Daha küçük font boyutu */
+      color: #333;
+      cursor: pointer;
+      width: 120px; /* Genişlik küçültüldü */
+      overflow: hidden; /* Taşan metni gizler */
+      text-overflow: ellipsis; /* Üç nokta ekler */
+    }
+  
+    /* Sıralama ikonunun stilini güncelliyoruz */
+    .sort-icon-container {
+      font-size: 1.2rem; /* Mobilde ikon boyutunu küçültüyoruz */
+      margin-left:auto; /* İkona daha küçük bir negatif margin veriyoruz */
+      margin-right: 0.5rem; /* Sağdan da bir miktar boşluk ekliyoruz */
+    }
+  }
+  

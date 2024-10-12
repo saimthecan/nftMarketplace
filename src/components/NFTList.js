@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Text, Image, Grid, Button } from "@chakra-ui/react";
+import { Box, Text, Image, Grid, Button, Flex, Select, Icon } from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { formatEther } from "ethers/utils";
 import useQueries from "../Hooks/useQueries";
 import useWeb3Provider from "../Hooks/useWeb3Provider";
@@ -13,22 +14,37 @@ import noNft from "../assests/nonft.png";
 import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
 import NftEmpty from './NftEmpty'; 
+import "./NFTList.css"
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
- 
-
   const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const itemsPerPage = 10;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = unsoldNFTs.slice(indexOfFirstItem, indexOfLastItem);
+  // Kategorilendirilmiş ve sıralanmış NFT'leri filtreleme ve sıralama
+  const filteredItems = unsoldNFTs.filter((nft) => {
+    const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
+    const categoryName = nftDetails[uniqueKey]?.name || "Unknown";
+    return selectedCategory === "" || categoryName === selectedCategory;
+  });
 
+
+
+  const sortedItems = filteredItems.sort((a, b) => {
+    const priceA = parseFloat(formatEther(a.price));
+    const priceB = parseFloat(formatEther(b.price));
+    return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
+  });
+
+ const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(unsoldNFTs.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -48,6 +64,17 @@ const NFTList = () => {
   //queries
   const { loadingListedSale, errorListedSale, loadingSold, errorSold } =
     useQueries();
+
+
+ 
+
+    const toggleSortOrder = () => {
+      setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+    };
+  
+    const handleCategoryChange = (e) => {
+      setSelectedCategory(e.target.value);
+    };
 
   //Helper function to buy Nft
   const buyNFT = useBuyNFT(signer, provider, CONTRACT_ADDRESS, balance);
@@ -78,10 +105,66 @@ const NFTList = () => {
       bgSize="cover"
       bgColor="gray.100"
     >
+
+<Flex
+  width={{ base: "100%", md: "30%" }} // Mobilde %100, masaüstünde %30 genişlik
+  justify="flex-start"
+  align="center"
+  mb={6}
+  gap={6}
+  bg="white"
+  p={4}
+  borderRadius="md"
+  boxShadow="md"
+  flexWrap={{ base: "wrap", md: "nowrap" }} // Mobilde alt alta
+>
+  {/* Sıralama Bölümü */}
+  <Flex align="center" gap={2}>
+    <Text fontSize="lg" fontWeight="bold">Sort Price:</Text>
+    {/* Daha belirgin ve ilgi çekici simge */}
+    <Flex
+      align="center"
+      justify="center"
+      w={8}  // Genişlik
+      h={8}  // Yükseklik
+      borderRadius="full"  // Yuvarlak arka plan
+      bg="gray.200"  // Arka plan rengi
+    
+      cursor="pointer"
+      onClick={toggleSortOrder}
+      transition="background-color 0.3s, color 0.3s"
+    >
+      <Icon
+        as={sortOrder === "asc" ? ChevronUpIcon : ChevronDownIcon}
+        w={6}  // Simge genişliği
+        h={6}  // Simge yüksekliği
+        color="blue.600"
+      />
+    </Flex>
+  </Flex>
+
+  {/* Kategori Bölümü */}
+  <Flex align="center" gap={2} mt={{ base: 4, md: 0 }}>
+    <Text fontSize="lg" fontWeight="bold">Category:</Text>
+    <Select value={selectedCategory} onChange={handleCategoryChange} maxW="200px">
+      <option value="">All Categories</option>
+      {Array.from(new Set(unsoldNFTs.map(nft => {
+        const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
+        return nftDetails[uniqueKey]?.name || "Unknown";
+      }))).map((category) => (
+        <option key={category} value={category}>{category}</option>
+      ))}
+    </Select>
+  </Flex>
+</Flex>
+
+
       <Grid
         templateColumns="repeat(auto-fit, minmax(300px, 0.2fr))"
         gap={0}
         mb={10}
+        justifyContent="center"  // Kartları yatay olarak ortalar
+        alignItems="center"  // Kartları dikey olarak ortalar
       >
         {currentItems.map((nft) => {
           const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
@@ -94,6 +177,8 @@ const NFTList = () => {
               boxShadow="md"
               overflow="auto"
               w="300px"
+              mb="2rem"
+              m="auto"
             >
               {nftImages[uniqueKey] && (
                 <Image
