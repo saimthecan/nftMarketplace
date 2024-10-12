@@ -14,7 +14,6 @@ import noNft from "../assests/nonft.png";
 import LoadingSpinner from './LoadingSpinner'; 
 import Pagination from "./Pagination";
 import NftEmpty from './NftEmpty'; 
-import "./NFTList.css"
 
 const NFTList = () => {
   const wallet = useSelector((state) => state.wallet.account);
