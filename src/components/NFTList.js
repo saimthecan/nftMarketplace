@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Text, Image, Grid, Button, Flex, Select, Icon } from "@chakra-ui/react";
+import { Box, Text, Image, Grid, Button, Flex, Select, Icon, useBreakpointValue } from "@chakra-ui/react";
 import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { formatEther } from "ethers/utils";
 import useQueries from "../Hooks/useQueries";
@@ -21,10 +21,13 @@ const NFTList = () => {
   const { nftImages, nftDetails, unsoldNFTs } = useNFTListData();
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
 
+  const [loadingImages, setLoadingImages] = useState({});
+  const imageBoxSize = useBreakpointValue({ base: "300px", md: "250px" });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState("asc");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const itemsPerPage = 10;
+  const itemsPerPage = 2;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -64,7 +67,10 @@ const NFTList = () => {
   const { loadingListedSale, errorListedSale, loadingSold, errorSold } =
     useQueries();
 
-
+    const gridTemplateColumns = useBreakpointValue({
+      base: "1fr", // Mobilde tek sütun
+      md: "repeat(auto-fill, minmax(300px, 0.2fr))", // Masaüstünde grid düzeni
+    });
  
 
     const toggleSortOrder = () => {
@@ -75,6 +81,13 @@ const NFTList = () => {
       setSelectedCategory(e.target.value);
     };
 
+    const handleImageLoad = (uniqueKey) => {
+      setLoadingImages((prevLoading) => ({
+        ...prevLoading,
+        [uniqueKey]: false, // Resim yüklendiğinde 'false' yapıyoruz
+      }));
+    };
+    
   //Helper function to buy Nft
   const buyNFT = useBuyNFT(signer, provider, CONTRACT_ADDRESS, balance);
 
@@ -159,8 +172,7 @@ const NFTList = () => {
 
 
       <Grid
-        templateColumns="repeat(auto-fit, minmax(300px, 0.2fr))"
-        gap={0}
+        templateColumns={gridTemplateColumns}
         mb={10}
         justifyContent="center"  // Kartları yatay olarak ortalar
         alignItems="center"  // Kartları dikey olarak ortalar
@@ -175,16 +187,21 @@ const NFTList = () => {
               borderRadius="md"
               boxShadow="md"
               overflow="auto"
-              w="300px"
-              mb="2rem"
               m="auto"
+              mb="1rem"
             >
-              {nftImages[uniqueKey] && (
-                <Image
-                  src={nftImages[uniqueKey] || noImage}
-                  alt={`NFT ${nft.tokenId}`}
-                />
-              )}
+             
+             <Image
+                src={nftImages[uniqueKey] || noImage}
+                alt={`NFT ${nft.tokenId}`}
+                boxSize={imageBoxSize}
+                objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
+                borderRadius="md" // Görselin köşelerini yuvarlatın
+                mx="auto"
+                onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state'i günceller
+                display={loadingImages[uniqueKey] === false ? "block" : "none"} // Yükleme bitince göster
+              />
+           
               <Text mt={3}>
                 <strong>Name:</strong> {nftDetails[uniqueKey]?.name}
               </Text>

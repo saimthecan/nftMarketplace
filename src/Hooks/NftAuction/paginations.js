@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -30,7 +30,12 @@ import NftEmpty from "./NftEmpty";
 
 const NFTAuction = () => {
   //states
-  const { nftImages, nftDetails, unsoldNFTs } = useNFTAuctionData();
+
+  // Sayfalama ve Sayfa Sayısı Ayarları
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+
+  const { nftImages, nftDetails, unsoldNFTs, totalNFTs} = useNFTAuctionData(currentPage, itemsPerPage);
   const isWrongNetwork = useSelector((state) => state.network.isWrongNetwork);
   const wallet = useSelector((state) => state.wallet.account);
 
@@ -67,8 +72,7 @@ const NFTAuction = () => {
     errorCancelledAuction,
   } = useQueries();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -82,11 +86,7 @@ const NFTAuction = () => {
 
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalPages = Math.ceil(unsoldNFTs.length / itemsPerPage);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   // Kategorileri belirlemek için benzersiz isimler
   const categories = Array.from(
@@ -106,34 +106,72 @@ const NFTAuction = () => {
     setSelectedCategory(e.target.value);
   };
 
-  const sortedItems = [...currentItems].sort((a, b) => {
-    let valueA, valueB;
-    switch (sortCriteria) {
-      case "startingPrice":
-        valueA = parseFloat(formatEther(a.startingPrice));
-        valueB = parseFloat(formatEther(b.startingPrice));
-        break;
-      case "lastBid":
-        valueA = latestBids[a.NFTMarketplace_id]
-          ? parseFloat(formatEther(latestBids[a.NFTMarketplace_id].amount))
-          : 0;
-        valueB = latestBids[b.NFTMarketplace_id]
-          ? parseFloat(formatEther(latestBids[b.NFTMarketplace_id].amount))
-          : 0;
-        break;
-      case "auctionStartTime":
-        valueA = a.auctionStartTime;
-        valueB = b.auctionStartTime;
-        break;
-      case "auctionEndTime":
-        valueA = a.auctionEndTime;
-        valueB = b.auctionEndTime;
-        break;
-      default:
-        return 0;
+  
+  // Filtrelenmiş ve sıralanmış NFT'ler
+  const filteredAndSortedNFTs = useMemo(() => {
+    let filtered = unsoldNFTs;
+
+    // Kategori Filtreleme
+    if (selectedCategory !== "") {
+      filtered = filtered.filter((nft) => {
+        const categoryName =
+          nftDetails[`${nft.contractAddress}_${nft.tokenId}`]?.name || "Unknown";
+        return categoryName === selectedCategory;
+      });
     }
-    return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
-  });
+
+    // Sıralama
+    const sorted = [...filtered].sort((a, b) => {
+      let valueA, valueB;
+      switch (sortCriteria) {
+        case "startingPrice":
+          valueA = parseFloat(formatEther(a.startingPrice));
+          valueB = parseFloat(formatEther(b.startingPrice));
+          break;
+        case "lastBid":
+          valueA = latestBids[a.NFTMarketplace_id]
+            ? parseFloat(formatEther(latestBids[a.NFTMarketplace_id].amount))
+            : 0;
+          valueB = latestBids[b.NFTMarketplace_id]
+            ? parseFloat(formatEther(latestBids[b.NFTMarketplace_id].amount))
+            : 0;
+          break;
+        case "auctionStartTime":
+          valueA = a.auctionStartTime;
+          valueB = b.auctionStartTime;
+          break;
+        case "auctionEndTime":
+          valueA = a.auctionEndTime;
+          valueB = b.auctionEndTime;
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
+    });
+
+    return sorted;
+  }, [unsoldNFTs, sortCriteria, sortOrder, selectedCategory, nftDetails, latestBids]);
+
+
+  // Toplam Sayfa Sayısını Hesaplama
+  const totalFilteredNFTs = useMemo(() => {
+    if (selectedCategory === "") {
+      return totalNFTs;
+    }
+    return unsoldNFTs.filter((nft) => {
+      const categoryName =
+        nftDetails[`${nft.contractAddress}_${nft.tokenId}`]?.name || "Unknown";
+      return categoryName === selectedCategory;
+    }).length;
+  }, [unsoldNFTs, selectedCategory, nftDetails, totalNFTs]);
+
+  const totalPages = Math.ceil(totalFilteredNFTs / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
 
   const toggleSortOrder = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
@@ -169,11 +207,16 @@ const NFTAuction = () => {
   } = useAuctionOutcome();
 
   const handleImageLoad = (uniqueKey) => {
+    console.log(`Image loaded for ${uniqueKey}`);
     setLoadingImages((prevLoading) => ({
       ...prevLoading,
-      [uniqueKey]: false, // Resim yüklendiğinde 'false' yapıyoruz
+      [uniqueKey]: false,
     }));
   };
+
+
+
+  
 
   //USE EFFECTS
 
@@ -261,9 +304,8 @@ const NFTAuction = () => {
       </Flex>
 
       <Grid templateColumns={gridTemplateColumns} gap={0} mb={10}>
-        {sortedItems.map((nft, index) => {
+      {filteredAndSortedNFTs.map((nft, index) => {
           const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
-          console.log(`Key: ${uniqueKey}, Image: ${nftImages[uniqueKey]}`);
           return (
             <Box
               key={uniqueKey}
@@ -278,12 +320,16 @@ const NFTAuction = () => {
               <Image
                 src={nftImages[uniqueKey] || noImage}
                 alt={`NFT ${nft.tokenId}`}
-                boxSize={imageBoxSize} // Sabit bir genişlik ve yükseklik belirleyin
-                objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
-                borderRadius="md" // Görselin köşelerini yuvarlatın
+                boxSize={imageBoxSize}
+                objectFit="cover"
+                borderRadius="md"
                 mx="auto"
-                onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state'i günceller
+                onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state güncelleniyor
                 display={loadingImages[uniqueKey] === false ? "block" : "none"} // Yükleme bitince göster
+                onError={(e) => {
+                  e.target.src = noImage; // Eğer resim yüklenemezse yedek resim göster
+                  console.error(`Image failed to load for ${uniqueKey}`);
+                }}
               />
 
               <Text mt={3}>
@@ -388,7 +434,7 @@ const NFTAuction = () => {
           );
         })}
       </Grid>
-      {currentItems.length > 0 && (
+      {totalFilteredNFTs > itemsPerPage && (
         <Box display="flex" justifyContent="center" p={4}>
           <Pagination
             currentPage={currentPage}
