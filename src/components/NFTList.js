@@ -27,7 +27,7 @@ const NFTList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState("asc");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
