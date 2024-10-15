@@ -38,16 +38,11 @@ Below are some screenshots of the **My NFTs** page showing different states:
 ![My NFTs - Listed](./screenshots/mynfts-listed.PNG)
 ![My NFTs - In Auction](./screenshots/mynfts-auction.PNG)
 
-<p align="center">
-  <img src="./screenshots/mynfts-unlisted.PNG" alt="My NFTs - Unlisted" width="400"/>
-  <img src="./screenshots/mynfts-listed.PNG" alt="My NFTs - Listed" width="400"/>
-  <img src="./screenshots/mynfts-auction.PNG" alt="My NFTs - In Auction" width="400"/>
-</p>
 
 ---
 
 ### **NFT Auction Page**
-An auction page where users can create new auctions or participate in existing ones. View ongoing bids and manage auctions in real-time.
+A page where users can view NFTs in auction. Users can place bids on NFTs, cancel their own auctions, or claim their NFTs if they have won the auction.
 
 ![NFT Auction Page](./screenshots/auction.PNG)
 
