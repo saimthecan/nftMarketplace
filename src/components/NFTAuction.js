@@ -369,10 +369,13 @@ const NFTAuction = () => {
                     !isWrongNetwork ? (
                       nft.seller.toLowerCase() === account?.toLowerCase() ? (
                         <Button
-                          mt={4}
-                          colorScheme="red"
-                          onClick={() => cancelAuction(nft, index)}
-                          w="full"
+                        bg="red"
+                        color="white"
+                        _hover={{ bg: "red" }}
+                        _active={{ bg: "red" }}
+                        w="full"
+                        borderRadius="full"
+                        onClick={() => cancelAuction(nft, index)}
                         >
                           Cancel Auction
                         </Button>
@@ -398,30 +401,42 @@ const NFTAuction = () => {
                         </Text>
                       ) : (
                         <Button
-                          mt={4}
-                          colorScheme="blue"
+                        bg="blue"
+                        color="white"
+                        _hover={{ bg: "blue" }}
+                        _active={{ bg: "blue" }}
+                        w="full"
+                        borderRadius="full"
                           onClick={() => handleOpenModal(nft)} // Modal açılır
-                          w="full"
+                    
                         >
                           Bid on NFT
                         </Button>
                       )
                     ) : (
                       <Button
-                        mt={4}
-                        colorScheme="red"
+                      bg="red"
+                      color="white"
+                      _hover={{ bg: "red" }}
+                      _active={{ bg: "red" }}
+                      w="full"
+                      borderRadius="full"
                         onClick={switchToSepoliaNetwork}
-                        w="full"
+                   
                       >
                        Switch to Sepolia
                       </Button>
                     )
                   ) : (
                     <Button
-                      mt={4}
-                      colorScheme="teal"
+                    bg="teal.500"
+                    color="white"
+                    _hover={{ bg: "teal.600" }}
+                    _active={{ bg: "teal.700" }}
+                    w="full"
+                    borderRadius="full"
                       onClick={connectWallet}
-                      w="full"
+             
                     >
                       Connect Wallet
                     </Button>
@@ -429,9 +444,14 @@ const NFTAuction = () => {
 
                   {isAuctionEndedAndUserIsHighestBidder(nft) && (
                     <Button
-                      colorScheme="blue"
+                    bg="blue"
+                    color="white"
+                    _hover={{ bg: "blue" }}
+                    _active={{ bg: "blue" }}
+                    w="full"
+                    borderRadius="full"
                       onClick={() => claimNFT(nft)}
-                      w="full"
+                
                     >
                       Claim NFT
                     </Button>
