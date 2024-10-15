@@ -242,7 +242,7 @@ const NFTList = () => {
                     colorScheme="red"
                     onClick={switchToSepoliaNetwork}
                   >
-                    Wrong Network - Switch to Sepolia
+                   Switch to Sepolia
                   </Button>
                 )
               ) : (

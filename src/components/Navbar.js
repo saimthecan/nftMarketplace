@@ -250,7 +250,7 @@ export const Navbar = () => {
                     onClick={switchToSepoliaNetwork}
                     size="sm"
                   >
-                    Wrong Network - Switch to Sepolia
+                    Switch to Sepolia
                   </Button>
                 ) : (
                   <Button
@@ -359,7 +359,7 @@ export const Navbar = () => {
             size="md"
             display={{ base: "none", md: "block" }}
           >
-            Wrong Network - Switch to Sepolia
+           Switch to Sepolia
           </Button>
         ) : (
           <Button

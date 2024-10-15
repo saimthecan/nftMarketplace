@@ -431,7 +431,7 @@ const MyNfts = () => {
                           colorScheme="red"
                           onClick={switchToSepoliaNetwork}
                         >
-                          Wrong Network - Switch to Sepolia
+                          Switch to Sepolia
                         </Button>
                       ) : (
                         <Button
@@ -542,7 +542,7 @@ const MyNfts = () => {
                         colorScheme="red"
                         onClick={switchToSepoliaNetwork}
                       >
-                        Wrong Network - Switch to Sepolia
+                        Switch to Sepolia
                       </Button>
                     ) : (
                       <Button
@@ -655,7 +655,7 @@ const MyNfts = () => {
                       colorScheme="red"
                       onClick={switchToSepoliaNetwork}
                     >
-                      Wrong Network - Switch to Sepolia
+                     Switch to Sepolia
                     </Button>
                   ) : (
                     <Flex mt={4}>

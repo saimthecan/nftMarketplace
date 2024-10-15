@@ -45,7 +45,6 @@ const NFTAuction = () => {
   const [sortCriteria, setSortCriteria] = useState("lastBid");
   const [sortOrder, setSortOrder] = useState("asc");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [enteredPrices, setEnteredPrices] = useState({});
 
   const { connectWallet, switchToSepoliaNetwork } = useWalletConnection();
 
@@ -163,12 +162,7 @@ const NFTAuction = () => {
   const cancelAuction = useCancelNFTAuction(signer, CONTRACT_ADDRESS);
 
   // usePlaceBid hook'unu kullan
-  const placeBid = usePlaceBid(
-    signer,
-    CONTRACT_ADDRESS,
-    balance,
-    latestBids
-  );
+  const placeBid = usePlaceBid(signer, CONTRACT_ADDRESS, balance, latestBids);
 
   const handleOpenModal = (nft) => {
     setSelectedNFT(nft); // Hangi NFT'ye teklif verildiğini belirle
@@ -384,8 +378,20 @@ const NFTAuction = () => {
                         </Button>
                       ) : !isAuctionStarted(nft) ? (
                         <Text mt={4}>The auction has not started yet.</Text>
-                      ) : isAuctionEnded(nft) ? (
-                        <Text mt={4}>The auction has expired.</Text>
+                      ) : isAuctionEnded(nft) &&
+                        !isAuctionEndedAndUserIsHighestBidder(nft) ? (
+                          <Flex
+                          mt={8}
+                          align="center" // İkon ve yazıyı dikeyde ortalar
+                          justify="center" // Flex içinde içeriği yatayda ortalar
+                          color="red.500"
+                        >
+                          <Text as="span" fontSize="large" mr={2}>⚠️</Text> {/* İkon */}
+                          <Text fontSize="large" fontWeight="bold">
+                            Auction ended
+                          </Text>
+                        </Flex>
+                        
                       ) : isUserHighestBidder(nft) ? (
                         <Text mt={4}>
                           <strong>You have the highest bid</strong>
@@ -407,7 +413,7 @@ const NFTAuction = () => {
                         onClick={switchToSepoliaNetwork}
                         w="full"
                       >
-                        Wrong Network - Switch to Sepolia
+                       Switch to Sepolia
                       </Button>
                     )
                   ) : (
