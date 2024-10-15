@@ -387,10 +387,10 @@ const NFTAuction = () => {
                     !isWrongNetwork ? (
                       nft.seller.toLowerCase() === account?.toLowerCase() ? (
                         <Button
-                          bg="red"
+                          bg="red.600"
                           color="white"
-                          _hover={{ bg: "red" }}
-                          _active={{ bg: "red" }}
+                          _hover={{ bg: "red.600" }}
+                          _active={{ bg: "red.600" }}
                           w="full"
                           borderRadius="full"
                           onClick={() => cancelAuction(nft, index)}
@@ -398,11 +398,24 @@ const NFTAuction = () => {
                           Cancel Auction
                         </Button>
                       ) : !isAuctionStarted(nft) ? (
-                        <Text mt={4}>The auction has not started yet.</Text>
+                        <Flex
+                          mt={5}
+                          align="center" // İkon ve yazıyı dikeyde ortalar
+                          justify="center" // Flex içinde içeriği yatayda ortalar
+                          color="yellow.600"
+                        >
+                          <Text as="span" fontSize="large" mr={2}>
+                            ⏳
+                          </Text>{" "}
+                          {/* İkon */}
+                          <Text fontSize="small" fontWeight="bold">
+                            The auction has not started yet.
+                          </Text>
+                        </Flex>
                       ) : isAuctionEnded(nft) &&
                         !isAuctionEndedAndUserIsHighestBidder(nft) ? (
                         <Flex
-                          mt={8}
+                          mt={5}
                           align="center" // İkon ve yazıyı dikeyde ortalar
                           justify="center" // Flex içinde içeriği yatayda ortalar
                           color="red.500"
@@ -416,15 +429,26 @@ const NFTAuction = () => {
                           </Text>
                         </Flex>
                       ) : isUserHighestBidder(nft) ? (
-                        <Text mt={4}>
-                          <strong>You have the highest bid</strong>
-                        </Text>
+                        <Flex
+                          mt={5}
+                          align="center" // İkon ve yazıyı dikeyde ortalar
+                          justify="center" // Flex içinde içeriği yatayda ortalar
+                          color="green.600"
+                        >
+                          <Text as="span" fontSize="large" mr={2}>
+                            ✅
+                          </Text>{" "}
+                          {/* İkon */}
+                          <Text fontSize="large" fontWeight="bold">
+                            You have the highest bid
+                          </Text>
+                        </Flex>
                       ) : (
                         <Button
-                          bg="blue"
+                          bg="blue.600"
                           color="white"
-                          _hover={{ bg: "blue" }}
-                          _active={{ bg: "blue" }}
+                          _hover={{ bg: "blue.600" }}
+                          _active={{ bg: "blue.600" }}
                           w="full"
                           borderRadius="full"
                           onClick={() => handleOpenModal(nft)} // Modal açılır
@@ -461,10 +485,10 @@ const NFTAuction = () => {
 
                   {isAuctionEndedAndUserIsHighestBidder(nft) && (
                     <Button
-                      bg="blue"
+                      bg="green.500"
                       color="white"
-                      _hover={{ bg: "blue" }}
-                      _active={{ bg: "blue" }}
+                      _hover={{ bg: "green.500" }}
+                      _active={{ bg: "green.500" }}
                       w="full"
                       borderRadius="full"
                       onClick={() => claimNFT(nft)}
@@ -494,40 +518,43 @@ const NFTAuction = () => {
         <ModalContent>
           <ModalCloseButton />
           <ModalBody>
-               {/* NFT Görseli */}
-      {selectedNFT && (
-        <Image
-          src={nftImages[`${selectedNFT.contractAddress}_${selectedNFT.tokenId}`] || noImage}
-          alt={`NFT ${selectedNFT.tokenId}`}
-          boxSize="250px" // Görselin boyutlandırılması
-          objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
-          borderRadius="md" // Görselin köşelerini yuvarlatın
-          mx="auto" // Görseli yatayda ortalayın
-          mb={4} // Alt boşluk ekleyin
-          mt={2}
-        />
-      )}
-         <Flex direction="column" alignItems="center">
-        <Input
-          type="number"
-          placeholder="Enter bid price in ETH"
-          value={modalPrice}
-          min="0" // Negatif değer girişini önler
-          step="0.01" // Ondalık değerlerle işlem yapılmasını sağlar
-          onChange={(e) => setModalPrice(e.target.value)}
-          mb={4} // Alt boşluk
-          width="80%" // Genişliği ayarla, örneğin %80
-        />
-        <Button
-          colorScheme="blue"
-          onClick={handleSubmitBid}
-          width="80%" // Buton genişliği
-        >
-          Submit Bid
-        </Button>
-      </Flex>
+            {/* NFT Görseli */}
+            {selectedNFT && (
+              <Image
+                src={
+                  nftImages[
+                    `${selectedNFT.contractAddress}_${selectedNFT.tokenId}`
+                  ] || noImage
+                }
+                alt={`NFT ${selectedNFT.tokenId}`}
+                boxSize="250px" // Görselin boyutlandırılması
+                objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
+                borderRadius="md" // Görselin köşelerini yuvarlatın
+                mx="auto" // Görseli yatayda ortalayın
+                mb={4} // Alt boşluk ekleyin
+                mt={2}
+              />
+            )}
+            <Flex direction="column" alignItems="center">
+              <Input
+                type="number"
+                placeholder="Enter bid price in ETH"
+                value={modalPrice}
+                min="0" // Negatif değer girişini önler
+                step="0.01" // Ondalık değerlerle işlem yapılmasını sağlar
+                onChange={(e) => setModalPrice(e.target.value)}
+                mb={4} // Alt boşluk
+                width="80%" // Genişliği ayarla, örneğin %80
+              />
+              <Button
+                colorScheme="blue"
+                onClick={handleSubmitBid}
+                width="80%" // Buton genişliği
+              >
+                Submit Bid
+              </Button>
+            </Flex>
           </ModalBody>
-     
         </ModalContent>
       </Modal>
     </Box>
