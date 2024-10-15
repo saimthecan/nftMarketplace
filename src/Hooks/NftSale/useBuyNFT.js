@@ -13,7 +13,7 @@ const useBuyNFT = (signer, provider, CONTRACT_ADDRESS, balance) => {
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
-      signer
+      signer || provider 
     );
 
     try {

@@ -3,12 +3,12 @@ import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
 import { marketplace } from '../../abi/marketplace';  // Marketplace kontratı
 
-const useClaimNFTAuction = (signer, CONTRACT_ADDRESS) => {
+const useClaimNFTAuction = (signer, provider, CONTRACT_ADDRESS) => {
   const claimNFT = async (nft) => {
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
-      signer
+      signer || provider 
     );
 
     try {

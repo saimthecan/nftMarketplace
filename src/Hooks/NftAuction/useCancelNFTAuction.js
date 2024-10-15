@@ -6,6 +6,7 @@ import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
 const useCancelNFTAuction = (signer, CONTRACT_ADDRESS) => {
   const cancelAuction = async (nft, index) => {
     const NFTMarketplace_id = nft.NFTMarketplace_id;
+    
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,

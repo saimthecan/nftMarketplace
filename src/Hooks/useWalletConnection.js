@@ -7,34 +7,33 @@ const useWalletConnection = () => {
 
   const connectWallet = async () => {
     await switchToSepoliaNetwork();
-    
-    // EIP-6963 desteği ile yeni bir cüzdan sağlayıcı keşfetme
-    if (window.ethereum) {
-      window.addEventListener('eip6963:announceProvider', async (event) => {
-        const provider = event.detail.provider;
-
-        try {
-          const accounts = await provider.request({ method: 'eth_requestAccounts' });
-          const address = accounts[0];
-          dispatch(connectWalletAction(address));
-          sessionStorage.setItem("walletAddress", address);
-        } catch (error) {
-          console.error("Cüzdan erişimi reddedildi:", error);
-        }
-      });
-
-      // Cüzdan keşfetmek için olay tetikleyici
-      window.dispatchEvent(new Event("eip6963:requestProvider"));
-
+  
+    // Eğer MetaMask mevcutsa
+    if (window.ethereum && window.ethereum.isMetaMask) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const address = accounts[0];
+        dispatch(connectWalletAction(address));
+        sessionStorage.setItem("walletAddress", address);
+      } catch (error) {
+        console.error("Cüzdan erişimi reddedildi:", error);
+      }
     } else {
-      console.log("Lütfen Metamask veya başka bir cüzdan yükleyin.");
+      console.log("Lütfen MetaMask veya desteklenen başka bir cüzdan yükleyin.");
     }
   };
 
+  
   const disconnectWallet = () => {
     sessionStorage.removeItem("walletAddress");
     dispatch(connectWalletAction(null));
+  
+    // Cüzdan seçimi önbelleğini temizleme
+    if (window.ethereum && window.ethereum.clearCachedProvider) {
+      window.ethereum.clearCachedProvider();
+    }
   };
+  
 
   const checkNetwork = async () => {
     if (window.ethereum) {

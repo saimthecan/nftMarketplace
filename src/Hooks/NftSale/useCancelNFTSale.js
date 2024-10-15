@@ -5,10 +5,15 @@ import { marketplace } from "../../abi/marketplace";
 
 const useCancelNFTSale = (signer, provider, CONTRACT_ADDRESS) => {
   const cancelNFTSale = useCallback(async (id) => {
+    if (!signer && !provider) {
+      console.error("Hem signer hem de provider mevcut değil.");
+      return;
+    }
+
     const marketplaceContract = new ethers.Contract(
       CONTRACT_ADDRESS,
       marketplace,
-      signer
+      signer || provider // Signer varsa onu kullan, yoksa provider kullan
     );
 
     try {
@@ -22,5 +27,6 @@ const useCancelNFTSale = (signer, provider, CONTRACT_ADDRESS) => {
 
   return cancelNFTSale;
 };
+
 
 export default useCancelNFTSale;
