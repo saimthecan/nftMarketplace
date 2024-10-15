@@ -13,8 +13,6 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
@@ -325,6 +323,46 @@ const NFTAuction = () => {
                   {nftDetails[uniqueKey]?.createdBy}
                 </Text>
 
+                {/* Auction Zaman Bilgileri */}
+                <Box mt={2}>
+                  <Flex justify="space-between" align="center" mb={1}>
+                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
+                      Auction Start:
+                    </Text>
+                    <Text fontSize="sm" color="gray.600" textAlign="right">
+                      {new Date(
+                        nft.auctionStartTime * 1000
+                      ).toLocaleDateString()}{" "}
+                      -{" "}
+                      {new Date(nft.auctionStartTime * 1000).toLocaleTimeString(
+                        [],
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        }
+                      )}
+                    </Text>
+                  </Flex>
+                  <Flex justify="space-between" align="center">
+                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
+                      Auction End:
+                    </Text>
+                    <Text fontSize="sm" color="gray.600" textAlign="right">
+                      {new Date(nft.auctionEndTime * 1000).toLocaleDateString()}{" "}
+                      -{" "}
+                      {new Date(nft.auctionEndTime * 1000).toLocaleTimeString(
+                        [],
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        }
+                      )}
+                    </Text>
+                  </Flex>
+                </Box>
+
                 {/* Fiyat ve Zaman Bilgileri */}
                 <Box mt={2}>
                   <Flex justify="space-between" align="center" mb={1}>
@@ -343,39 +381,19 @@ const NFTAuction = () => {
                   </Flex>
                 </Box>
 
-                {/* Auction Zaman Bilgileri */}
-                <Box mt={2}>
-                  <Flex justify="space-between" align="center" mb={1}>
-                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
-                      Auction Start:
-                    </Text>
-                    <Text fontSize="sm" color="gray.600" textAlign="right">
-                      {new Date(nft.auctionStartTime * 1000).toLocaleString()}
-                    </Text>
-                  </Flex>
-                  <Flex justify="space-between" align="center">
-                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
-                      Auction End:
-                    </Text>
-                    <Text fontSize="sm" color="gray.600" textAlign="right">
-                      {new Date(nft.auctionEndTime * 1000).toLocaleString()}
-                    </Text>
-                  </Flex>
-                </Box>
-
                 {/* Aksiyon Butonları */}
                 <Box mt={4}>
                   {wallet ? (
                     !isWrongNetwork ? (
                       nft.seller.toLowerCase() === account?.toLowerCase() ? (
                         <Button
-                        bg="red"
-                        color="white"
-                        _hover={{ bg: "red" }}
-                        _active={{ bg: "red" }}
-                        w="full"
-                        borderRadius="full"
-                        onClick={() => cancelAuction(nft, index)}
+                          bg="red"
+                          color="white"
+                          _hover={{ bg: "red" }}
+                          _active={{ bg: "red" }}
+                          w="full"
+                          borderRadius="full"
+                          onClick={() => cancelAuction(nft, index)}
                         >
                           Cancel Auction
                         </Button>
@@ -383,60 +401,59 @@ const NFTAuction = () => {
                         <Text mt={4}>The auction has not started yet.</Text>
                       ) : isAuctionEnded(nft) &&
                         !isAuctionEndedAndUserIsHighestBidder(nft) ? (
-                          <Flex
+                        <Flex
                           mt={8}
                           align="center" // İkon ve yazıyı dikeyde ortalar
                           justify="center" // Flex içinde içeriği yatayda ortalar
                           color="red.500"
                         >
-                          <Text as="span" fontSize="large" mr={2}>⚠️</Text> {/* İkon */}
+                          <Text as="span" fontSize="large" mr={2}>
+                            ⚠️
+                          </Text>{" "}
+                          {/* İkon */}
                           <Text fontSize="large" fontWeight="bold">
                             Auction ended
                           </Text>
                         </Flex>
-                        
                       ) : isUserHighestBidder(nft) ? (
                         <Text mt={4}>
                           <strong>You have the highest bid</strong>
                         </Text>
                       ) : (
                         <Button
-                        bg="blue"
-                        color="white"
-                        _hover={{ bg: "blue" }}
-                        _active={{ bg: "blue" }}
-                        w="full"
-                        borderRadius="full"
+                          bg="blue"
+                          color="white"
+                          _hover={{ bg: "blue" }}
+                          _active={{ bg: "blue" }}
+                          w="full"
+                          borderRadius="full"
                           onClick={() => handleOpenModal(nft)} // Modal açılır
-                    
                         >
                           Bid on NFT
                         </Button>
                       )
                     ) : (
                       <Button
-                      bg="red"
-                      color="white"
-                      _hover={{ bg: "red" }}
-                      _active={{ bg: "red" }}
-                      w="full"
-                      borderRadius="full"
+                        bg="red"
+                        color="white"
+                        _hover={{ bg: "red" }}
+                        _active={{ bg: "red" }}
+                        w="full"
+                        borderRadius="full"
                         onClick={switchToSepoliaNetwork}
-                   
                       >
-                       Switch to Sepolia
+                        Switch to Sepolia
                       </Button>
                     )
                   ) : (
                     <Button
-                    bg="teal.500"
-                    color="white"
-                    _hover={{ bg: "teal.600" }}
-                    _active={{ bg: "teal.700" }}
-                    w="full"
-                    borderRadius="full"
+                      bg="teal.500"
+                      color="white"
+                      _hover={{ bg: "teal.600" }}
+                      _active={{ bg: "teal.700" }}
+                      w="full"
+                      borderRadius="full"
                       onClick={connectWallet}
-             
                     >
                       Connect Wallet
                     </Button>
@@ -444,14 +461,13 @@ const NFTAuction = () => {
 
                   {isAuctionEndedAndUserIsHighestBidder(nft) && (
                     <Button
-                    bg="blue"
-                    color="white"
-                    _hover={{ bg: "blue" }}
-                    _active={{ bg: "blue" }}
-                    w="full"
-                    borderRadius="full"
+                      bg="blue"
+                      color="white"
+                      _hover={{ bg: "blue" }}
+                      _active={{ bg: "blue" }}
+                      w="full"
+                      borderRadius="full"
                       onClick={() => claimNFT(nft)}
-                
                     >
                       Claim NFT
                     </Button>
@@ -473,26 +489,45 @@ const NFTAuction = () => {
       )}
 
       {/* Modal Bileşeni */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} w="90%">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Place your bid</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input
-              type="number"
-              placeholder="Enter bid price in ETH"
-              value={modalPrice}
-              min="0" // Negatif değer girişini önler
-              step="0.01" // Ondalık değerlerle işlem yapılmasını sağlar
-              onChange={(e) => setModalPrice(e.target.value)}
-            />
+               {/* NFT Görseli */}
+      {selectedNFT && (
+        <Image
+          src={nftImages[`${selectedNFT.contractAddress}_${selectedNFT.tokenId}`] || noImage}
+          alt={`NFT ${selectedNFT.tokenId}`}
+          boxSize="250px" // Görselin boyutlandırılması
+          objectFit="cover" // Görselin boyutlandırılmasını ayarlayın
+          borderRadius="md" // Görselin köşelerini yuvarlatın
+          mx="auto" // Görseli yatayda ortalayın
+          mb={4} // Alt boşluk ekleyin
+          mt={2}
+        />
+      )}
+         <Flex direction="column" alignItems="center">
+        <Input
+          type="number"
+          placeholder="Enter bid price in ETH"
+          value={modalPrice}
+          min="0" // Negatif değer girişini önler
+          step="0.01" // Ondalık değerlerle işlem yapılmasını sağlar
+          onChange={(e) => setModalPrice(e.target.value)}
+          mb={4} // Alt boşluk
+          width="80%" // Genişliği ayarla, örneğin %80
+        />
+        <Button
+          colorScheme="blue"
+          onClick={handleSubmitBid}
+          width="80%" // Buton genişliği
+        >
+          Submit Bid
+        </Button>
+      </Flex>
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handleSubmitBid}>
-              Submit Bid
-            </Button>
-          </ModalFooter>
+     
         </ModalContent>
       </Modal>
     </Box>
