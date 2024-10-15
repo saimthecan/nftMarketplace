@@ -4,15 +4,13 @@ import { toast } from 'react-toastify';
 import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
 import { parseEther } from "ethers/utils";
 
-const usePlaceBid = (signer, CONTRACT_ADDRESS, enteredPrices, balance, latestBids) => {
-    const placeBid = async (nft) => {
-      const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
-      const priceInEth = enteredPrices[uniqueKey];
-  
-      if (!priceInEth || isNaN(parseFloat(priceInEth))) {
-        toast.error("Please enter a valid number");
-        return;
-      }
+const usePlaceBid = (signer, CONTRACT_ADDRESS, balance, latestBids) => {
+  const placeBid = async (nft, priceInEth) => {
+    // Validate the bid price
+    if (!priceInEth || isNaN(parseFloat(priceInEth))) {
+      toast.error("Please enter a valid number.");
+      return;
+    }
   
       const priceInWei = parseEther(priceInEth.toString());
       if (priceInWei <= nft.startingPrice) {

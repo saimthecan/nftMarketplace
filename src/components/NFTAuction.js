@@ -9,6 +9,14 @@ import {
   Button,
   Input,
   useBreakpointValue,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import { formatEther } from "ethers/utils";
 import { toast } from "react-toastify";
@@ -49,6 +57,11 @@ const NFTAuction = () => {
   const account = useSelector((state) => state.wallet.account);
 
   const dispatch = useDispatch();
+
+  // Modal kontrolü
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalPrice, setModalPrice] = useState("");
+  const [selectedNFT, setSelectedNFT] = useState(null); // Modal'da hangi NFT için işlem yapıldığını takip ederiz.
 
   const gridTemplateColumns = useBreakpointValue({
     base: "1fr", // Mobilde tek sütun
@@ -153,10 +166,27 @@ const NFTAuction = () => {
   const placeBid = usePlaceBid(
     signer,
     CONTRACT_ADDRESS,
-    enteredPrices,
     balance,
     latestBids
   );
+
+  const handleOpenModal = (nft) => {
+    setSelectedNFT(nft); // Hangi NFT'ye teklif verildiğini belirle
+    onOpen(); // Modal'ı aç
+  };
+
+  const handleSubmitBid = () => {
+    const priceInEth = parseFloat(modalPrice);
+
+    if (!modalPrice || isNaN(priceInEth) || priceInEth <= 0) {
+      toast.error("Please enter a valid ETH value.");
+      return;
+    }
+
+    placeBid(selectedNFT, priceInEth); // Teklif verme işlemi
+    setModalPrice(""); // Modal kapatılınca fiyatı sıfırla
+    onClose(); // Modal'ı kapat
+  };
 
   // useClaimNFT hook'unu kullan
   const claimNFT = useClaimNFTAuction(signer, CONTRACT_ADDRESS);
@@ -322,18 +352,18 @@ const NFTAuction = () => {
                 {/* Auction Zaman Bilgileri */}
                 <Box mt={2}>
                   <Flex justify="space-between" align="center" mb={1}>
-                    <Text fontSize="sm" color="gray.500">
-                      <Text as="span" fontWeight="bold">
-                        Auction Start:
-                      </Text>{" "}
+                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
+                      Auction Start:
+                    </Text>
+                    <Text fontSize="sm" color="gray.600" textAlign="right">
                       {new Date(nft.auctionStartTime * 1000).toLocaleString()}
                     </Text>
                   </Flex>
                   <Flex justify="space-between" align="center">
-                    <Text fontSize="sm" color="gray.500">
-                      <Text as="span" fontWeight="bold">
-                        Auction End:
-                      </Text>{" "}
+                    <Text fontSize="sm" color="gray.600" fontWeight="bold">
+                      Auction End:
+                    </Text>
+                    <Text fontSize="sm" color="gray.600" textAlign="right">
                       {new Date(nft.auctionEndTime * 1000).toLocaleString()}
                     </Text>
                   </Flex>
@@ -361,34 +391,14 @@ const NFTAuction = () => {
                           <strong>You have the highest bid</strong>
                         </Text>
                       ) : (
-                        <Box mt={2}>
-                          <Input
-                            type="number"
-                            placeholder="Enter bid price in ETH"
-                            value={enteredPrices[uniqueKey] || ""}
-                            onChange={(e) =>
-                              setEnteredPrices((prevPrices) => ({
-                                ...prevPrices,
-                                [uniqueKey]: e.target.value,
-                              }))
-                            }
-                          />
-                          <Button
-                            mt={4}
-                            colorScheme="blue"
-                            onClick={() => {
-                              const price = enteredPrices[uniqueKey];
-                              if (!price || isNaN(Number(price))) {
-                                toast.error("Please enter a valid ETH value");
-                              } else {
-                                placeBid(nft, index);
-                              }
-                            }}
-                            w="full"
-                          >
-                            Bid on NFT
-                          </Button>
-                        </Box>
+                        <Button
+                          mt={4}
+                          colorScheme="blue"
+                          onClick={() => handleOpenModal(nft)} // Modal açılır
+                          w="full"
+                        >
+                          Bid on NFT
+                        </Button>
                       )
                     ) : (
                       <Button
@@ -435,6 +445,30 @@ const NFTAuction = () => {
           />
         </Box>
       )}
+
+      {/* Modal Bileşeni */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Place your bid</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              type="number"
+              placeholder="Enter bid price in ETH"
+              value={modalPrice}
+              min="0" // Negatif değer girişini önler
+              step="0.01" // Ondalık değerlerle işlem yapılmasını sağlar
+              onChange={(e) => setModalPrice(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handleSubmitBid}>
+              Submit Bid
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
