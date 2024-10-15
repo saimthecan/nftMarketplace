@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 
 const useApproveNFT = (signer, CONTRACT_ADDRESS) => {
   const approveNFT = async (contractAddress, tokenId, nftType) => {
+    let toastId;
+    
     try {
       let contract;
       if (nftType === 0) { // ERC721 için
@@ -22,16 +24,36 @@ const useApproveNFT = (signer, CONTRACT_ADDRESS) => {
         if (!isOwner) {
           throw new Error("You are not the owner of this NFT.");
         }
+
+        // İlk olarak bir 'loading' toast açıyoruz
+        toastId = toast.loading("Waiting for wallet confirmation...");
+
         const approvalTx = await contract.approve(CONTRACT_ADDRESS, tokenId);
+
+        // Cüzdan onayından sonra işlem beklenirken
+        toast.update(toastId, { render: "Transaction is pending...", type: "info", isLoading: true });
+
         await signer.provider.waitForTransaction(approvalTx.hash);
-        toast.success("ERC721 NFT approved successfully.");
+
+        // İşlem başarıyla tamamlandığında başarı mesajı gösteriyoruz
+        toast.update(toastId, { render: "ERC721 NFT approved successfully.", type: "success", isLoading: false, autoClose: 5000 });
       } else {
         const ownerAddress = await signer.getAddress();
         const isApprovedForAll = await contract.isApprovedForAll(ownerAddress, CONTRACT_ADDRESS);
         if (!isApprovedForAll) {
+
+          // İlk olarak bir 'loading' toast açıyoruz
+          toastId = toast.loading("Waiting for wallet confirmation...");
+
           const approvalTx = await contract.setApprovalForAll(CONTRACT_ADDRESS, true);
+
+          // Cüzdan onayından sonra işlem beklenirken
+          toast.update(toastId, { render: "Transaction is pending...", type: "info", isLoading: true });
+
           await signer.provider.waitForTransaction(approvalTx.hash);
-          toast.success("ERC1155 NFT approved successfully.");
+
+          // İşlem başarıyla tamamlandığında başarı mesajı gösteriyoruz
+          toast.update(toastId, { render: "ERC1155 NFT approved successfully.", type: "success", isLoading: false, autoClose: 5000 });
         } else {
           toast.info("Approval is already granted for ERC1155.");
         }

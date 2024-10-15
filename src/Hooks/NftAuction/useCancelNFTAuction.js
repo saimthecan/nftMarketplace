@@ -1,4 +1,3 @@
-// useCancelAuction.js
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
 import { marketplace } from '../../abi/marketplace'; // Marketplace kontratı
@@ -13,17 +12,37 @@ const useCancelNFTAuction = (signer, CONTRACT_ADDRESS) => {
       signer 
     );
 
+    // toastId'yi burada tanımlıyoruz, böylece hem try hem catch bloklarında erişilebilir oluyor
+    let toastId;
+
     try {
+      // 'toastId' ile 'toast.loading' fonksiyonunu çağırıyoruz
+      toastId = toast.loading("Waiting for wallet confirmation...");
+      
+      // İşlemi başlatıyoruz
       const tx = await marketplaceContract.cancelNFTAuction(NFTMarketplace_id);
+       
+      // Cüzdan onayından sonra işlem devam ederken 'pending' mesajı
+      toast.update(toastId, { render: "Transaction is pending...", type: "info", isLoading: true });
+ 
+      // İşlemi bekletiyoruz
       await signer.provider.waitForTransaction(tx.hash, 1);
-      toast.success("Auction cancelled successfully!");
+       
+      // İşlem başarıyla tamamlanınca 'success' mesajı
+      toast.update(toastId, { render: "Auction cancelled successfully!", type: "success", isLoading: false, autoClose: 5000 });
     } catch (error) {
-      console.error("An error occurred while cancelling the auction:", error);
-       // Hata mesajı kontrolü ve kullanıcıya açıklayıcı toast gösterme
-       if (error.message.includes("execution reverted: Cannot cancel auction under these conditions")) {
-        toast.error("Auction can't be canceled after a bid. You can only cancel within 5 days after the auction ends.");
+      // İşlem reddedildiyse veya hata varsa
+      if (error.code === 4001) { // 'user rejected transaction' hatası kodu
+        toast.update(toastId, { render: "Transaction rejected by user.", type: "error", isLoading: false, autoClose: 5000 });
       } else {
-        toast.error("Error cancelling auction. Please try again.");
+        toast.update(toastId, {
+          render: error.message.includes("execution reverted: Cannot cancel auction under these conditions")
+            ? "Auction can't be canceled after a bid. You can only cancel within 5 days after the auction ends."
+            : "Error cancelling auction. Please try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
       }
     }
   };
