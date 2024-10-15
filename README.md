@@ -1,6 +1,6 @@
 # NFT Marketplace Application
 
-<img src="%PUBLIC_URL%/logo.png" alt="NFT Marketplace Logo" width="100" style="margin-left: auto; margin-right: auto; display: block;" />
+<img src="./public/logo.png" alt="NFT Marketplace Logo" width="100" style="margin-left: auto; margin-right: auto; display: block;" />
 
 
 ## 🎨 Project Description
@@ -34,10 +34,14 @@ Key features of the **My NFTs** page include:
 
 Below are some screenshots of the **My NFTs** page showing different states:
 
+![My NFTs - Unlisted](./screenshots/mynfts-unlisted.PNG)
+![My NFTs - Listed](./screenshots/mynfts-listed.PNG)
+![My NFTs - In Auction](./screenshots/mynfts-auction.PNG)
+
 <p align="center">
-  <img src="./screenshots/mynfts-unlisted.PNG" alt="My NFTs - Unlisted" width="200"/>
-  <img src="./screenshots/mynfts-listed.PNG" alt="My NFTs - Listed" width="200"/>
-  <img src="./screenshots/mynfts-auction.PNG" alt="My NFTs - In Auction" width="200"/>
+  <img src="./screenshots/mynfts-unlisted.PNG" alt="My NFTs - Unlisted" width="400"/>
+  <img src="./screenshots/mynfts-listed.PNG" alt="My NFTs - Listed" width="400"/>
+  <img src="./screenshots/mynfts-auction.PNG" alt="My NFTs - In Auction" width="400"/>
 </p>
 
 ---
