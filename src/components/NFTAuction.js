@@ -284,105 +284,144 @@ const NFTAuction = () => {
                 onLoad={() => handleImageLoad(uniqueKey)} // Resim yüklendiğinde state'i günceller
                 display={loadingImages[uniqueKey] === false ? "block" : "none"} // Yükleme bitince göster
               />
+              {/* Kart İçeriği */}
+              <Box p={4}>
+                {/* NFT Başlığı */}
+                <Text fontSize="xl" fontWeight="bold" mb={2}>
+                  {nftDetails[uniqueKey]?.name}
+                </Text>
 
-              <Text mt={3}>
-                <strong>Name:</strong> {nftDetails[uniqueKey]?.name}
-              </Text>
-              <Text>
-                <strong>Description:</strong>{" "}
-                {nftDetails[uniqueKey]?.description}
-              </Text>
-              <Text>
-                <strong>Created By:</strong> {nftDetails[uniqueKey]?.createdBy}
-              </Text>
-              <Text>
-                <strong>Auction Start Time:</strong>{" "}
-                {new Date(nft.auctionStartTime * 1000).toLocaleString()}
-              </Text>
-              <Text>
-                <strong>Auction End Time:</strong>{" "}
-                {new Date(nft.auctionEndTime * 1000).toLocaleString()}
-              </Text>
-              <Text>
-                <strong>Starting Price:</strong>{" "}
-                {formatEther(nft.startingPrice)} ETH
-              </Text>
-              <Text>
-                <strong>Last Bid: </strong>{" "}
-                {latestBids[nft.NFTMarketplace_id]
-                  ? `${formatEther(
-                      latestBids[nft.NFTMarketplace_id].amount
-                    )} ETH`
-                  : "No bids yet"}
-              </Text>
+                {/* Açıklama ve Yaratıcı Bilgileri */}
+                <Text fontSize="sm" color="gray.600" mb={1}>
+                  <strong>Description:</strong>{" "}
+                  {nftDetails[uniqueKey]?.description}
+                </Text>
+                <Text fontSize="sm" color="gray.600" mb={1}>
+                  <strong>Created By:</strong>{" "}
+                  {nftDetails[uniqueKey]?.createdBy}
+                </Text>
 
-              {wallet ? (
-                !isWrongNetwork ? (
-                  nft.seller.toLowerCase() === account?.toLowerCase() ? (
-                    <Button
-                      mt={4}
-                      colorScheme="red"
-                      onClick={() => cancelAuction(nft, index)}
-                    >
-                      Cancel Auction
-                    </Button>
-                  ) : !isAuctionStarted(nft) ? (
-                    <Text mt={4}>The auction has not started yet.</Text>
-                  ) : isAuctionEnded(nft) ? (
-                    <Text mt={4}>The auction has expired.</Text>
-                  ) : isUserHighestBidder(nft) ? (
-                    <Text mt={4}>
-                      <strong>You have the highest bid</strong>
+                {/* Fiyat ve Zaman Bilgileri */}
+                <Box mt={2}>
+                  <Flex justify="space-between" align="center" mb={1}>
+                    <Text fontWeight="bold">Starting Price:</Text>
+                    <Text>{formatEther(nft.startingPrice)} ETH</Text>
+                  </Flex>
+                  <Flex justify="space-between" align="center" mb={1}>
+                    <Text fontWeight="bold">Last Bid:</Text>
+                    <Text>
+                      {latestBids[nft.NFTMarketplace_id]
+                        ? `${formatEther(
+                            latestBids[nft.NFTMarketplace_id].amount
+                          )} ETH`
+                        : "No bids yet"}
                     </Text>
-                  ) : (
-                    <Box mt={2}>
-                      <Input
-                        type="number"
-                        placeholder="Enter bid price in ETH"
-                        value={enteredPrices[uniqueKey] || ""}
-                        onChange={(e) =>
-                          setEnteredPrices((prevPrices) => ({
-                            ...prevPrices,
-                            [uniqueKey]: e.target.value,
-                          }))
-                        }
-                      />
+                  </Flex>
+                </Box>
+
+                {/* Auction Zaman Bilgileri */}
+                <Box mt={2}>
+                  <Flex justify="space-between" align="center" mb={1}>
+                    <Text fontSize="sm" color="gray.500">
+                      <Text as="span" fontWeight="bold">
+                        Auction Start:
+                      </Text>{" "}
+                      {new Date(nft.auctionStartTime * 1000).toLocaleString()}
+                    </Text>
+                  </Flex>
+                  <Flex justify="space-between" align="center">
+                    <Text fontSize="sm" color="gray.500">
+                      <Text as="span" fontWeight="bold">
+                        Auction End:
+                      </Text>{" "}
+                      {new Date(nft.auctionEndTime * 1000).toLocaleString()}
+                    </Text>
+                  </Flex>
+                </Box>
+
+                {/* Aksiyon Butonları */}
+                <Box mt={4}>
+                  {wallet ? (
+                    !isWrongNetwork ? (
+                      nft.seller.toLowerCase() === account?.toLowerCase() ? (
+                        <Button
+                          mt={4}
+                          colorScheme="red"
+                          onClick={() => cancelAuction(nft, index)}
+                          w="full"
+                        >
+                          Cancel Auction
+                        </Button>
+                      ) : !isAuctionStarted(nft) ? (
+                        <Text mt={4}>The auction has not started yet.</Text>
+                      ) : isAuctionEnded(nft) ? (
+                        <Text mt={4}>The auction has expired.</Text>
+                      ) : isUserHighestBidder(nft) ? (
+                        <Text mt={4}>
+                          <strong>You have the highest bid</strong>
+                        </Text>
+                      ) : (
+                        <Box mt={2}>
+                          <Input
+                            type="number"
+                            placeholder="Enter bid price in ETH"
+                            value={enteredPrices[uniqueKey] || ""}
+                            onChange={(e) =>
+                              setEnteredPrices((prevPrices) => ({
+                                ...prevPrices,
+                                [uniqueKey]: e.target.value,
+                              }))
+                            }
+                          />
+                          <Button
+                            mt={4}
+                            colorScheme="blue"
+                            onClick={() => {
+                              const price = enteredPrices[uniqueKey];
+                              if (!price || isNaN(Number(price))) {
+                                toast.error("Please enter a valid ETH value");
+                              } else {
+                                placeBid(nft, index);
+                              }
+                            }}
+                            w="full"
+                          >
+                            Bid on NFT
+                          </Button>
+                        </Box>
+                      )
+                    ) : (
                       <Button
                         mt={4}
-                        colorScheme="blue"
-                        onClick={() => {
-                          const price = enteredPrices[uniqueKey];
-                          if (!price || isNaN(Number(price))) {
-                            toast.error("Please enter a valid ETH value");
-                          } else {
-                            placeBid(nft, index);
-                          }
-                        }}
+                        colorScheme="red"
+                        onClick={switchToSepoliaNetwork}
+                        w="full"
                       >
-                        Bid on NFT
+                        Wrong Network - Switch to Sepolia
                       </Button>
-                    </Box>
-                  )
-                ) : (
-                  <Button
-                    mt={4}
-                    colorScheme="red"
-                    onClick={switchToSepoliaNetwork}
-                  >
-                    Wrong Network - Switch to Sepolia
-                  </Button>
-                )
-              ) : (
-                <Button mt={4} colorScheme="teal" onClick={connectWallet}>
-                  Connect Wallet
-                </Button>
-              )}
+                    )
+                  ) : (
+                    <Button
+                      mt={4}
+                      colorScheme="teal"
+                      onClick={connectWallet}
+                      w="full"
+                    >
+                      Connect Wallet
+                    </Button>
+                  )}
 
-              {isAuctionEndedAndUserIsHighestBidder(nft) && (
-                <Button colorScheme="blue" onClick={() => claimNFT(nft)}>
-                  Claim NFT
-                </Button>
-              )}
+                  {isAuctionEndedAndUserIsHighestBidder(nft) && (
+                    <Button
+                      colorScheme="blue"
+                      onClick={() => claimNFT(nft)}
+                      w="full"
+                    >
+                      Claim NFT
+                    </Button>
+                  )}
+                </Box>
+              </Box>
             </Box>
           );
         })}
