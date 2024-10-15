@@ -5,14 +5,11 @@ import { toast } from 'react-toastify';
 
 const useApproveNFT = (signer, CONTRACT_ADDRESS) => {
   const approveNFT = async (contractAddress, tokenId, nftType) => {
-    console.log("approveNFT called with:", contractAddress, tokenId, nftType);
     try {
       let contract;
       if (nftType === 0) { // ERC721 için
-        console.log("Approving ERC721 NFT");
         contract = new ethers.Contract(contractAddress, ERC721, signer);
       } else if (nftType === 1) { // ERC1155 için
-        console.log("Approving ERC1155 NFT");
         contract = new ethers.Contract(contractAddress, ERC1155, signer);
       } else {
         throw new Error("Unsupported NFT type.");

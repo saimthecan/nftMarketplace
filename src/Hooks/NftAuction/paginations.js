@@ -207,7 +207,6 @@ const NFTAuction = () => {
   } = useAuctionOutcome();
 
   const handleImageLoad = (uniqueKey) => {
-    console.log(`Image loaded for ${uniqueKey}`);
     setLoadingImages((prevLoading) => ({
       ...prevLoading,
       [uniqueKey]: false,

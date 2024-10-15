@@ -45,10 +45,6 @@ export const Navbar = () => {
 
   useEffect(() => {
     const savedWalletAddress = sessionStorage.getItem("walletAddress");
-    console.log(
-      "useEffect [dispatch]: Saved wallet address from sessionStorage:",
-      savedWalletAddress
-    );
     if (savedWalletAddress) {
       dispatch(connectWalletAction(savedWalletAddress));
     }
@@ -56,38 +52,24 @@ export const Navbar = () => {
 
   // Cüzdan bağlantı/disconnect işlemi
   const handleConnectClick = () => {
-    console.log(
-      "handleConnectClick: Wallet state before action:",
-      wallet ? "Connected" : "Disconnected"
-    );
     if (wallet) {
       if (window.confirm("Do you want to disconnect your wallet?")) {
         disconnectWallet();
-        console.log("handleConnectClick: Wallet disconnected.");
       }
     } else {
       connectWallet();
-      console.log("handleConnectClick: Attempting to connect wallet...");
     }
   };
 
   // Ağ ve cüzdan adresi değişikliklerini dinle
   useEffect(() => {
     const handleChainChanged = (_chainId) => {
-      console.log(
-        "useEffect [checkNetwork, dispatch]: Chain changed to:",
-        _chainId
-      );
       checkNetwork();
     };
 
     //cüzdan değiştirme
 
     const handleAccountsChanged = (accounts) => {
-      console.log(
-        "useEffect [checkNetwork, dispatch]: Accounts changed:",
-        accounts
-      );
       if (accounts.length > 0) {
         const newAddress = accounts[0];
         dispatch(connectWalletAction(newAddress));

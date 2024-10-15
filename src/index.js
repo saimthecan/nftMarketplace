@@ -10,7 +10,6 @@ const container = document.getElementById("root");
 const root = ReactDOMClient.createRoot(container);
 
 window.onerror = function (message, source, lineno, colno, error) {
-  console.log("Captured error:", message);
   return true; // Bu, varsayılan hata işleyicinin devreye girmesini önler
 };
 
@@ -34,7 +33,6 @@ reportWebVitals();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
     }, err => {
       console.log('ServiceWorker registration failed: ', err);
     });

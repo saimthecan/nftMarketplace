@@ -25,7 +25,6 @@ const useOnAuctionData = () => {
         const metadata = await response.json();
         return metadata;
       } catch (error) {
-        console.error(`Error fetching metadata for token ID ${tokenId}:`, error);
         return null;
       }
     };

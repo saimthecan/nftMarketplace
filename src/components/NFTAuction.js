@@ -263,7 +263,6 @@ const NFTAuction = () => {
       <Grid templateColumns={gridTemplateColumns} gap={0} mb={10}>
         {sortedItems.map((nft, index) => {
           const uniqueKey = `${nft.contractAddress}_${nft.tokenId}`;
-          console.log(`Key: ${uniqueKey}, Image: ${nftImages[uniqueKey]}`);
           return (
             <Box
               key={uniqueKey}

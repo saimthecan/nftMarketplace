@@ -19,7 +19,6 @@ const useWalletConnection = () => {
         console.error("Cüzdan erişimi reddedildi:", error);
       }
     } else {
-      console.log("Lütfen MetaMask veya desteklenen başka bir cüzdan yükleyin.");
     }
   };
 

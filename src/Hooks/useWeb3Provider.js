@@ -25,9 +25,7 @@ const useWeb3Provider = () => {
             // Eğer hesap mevcutsa, signer al
             const _signer = await _provider.getSigner();
             setSigner(_signer);
-            console.log("Cüzdan bağlı:", accounts[0]);
           } else {
-            console.log("Cüzdan bağlı değil.");
           }
 
         } else {
@@ -35,10 +33,8 @@ const useWeb3Provider = () => {
           _provider = new JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/${alchemyApiKey}`);
           setProvider(_provider);
           setSigner(null); // Genel sağlayıcıda signer yoktur
-          console.log("Alchemy genel sağlayıcı kullanılıyor.");
         }
       } catch (error) {
-        console.error("Web3 sağlayıcı kurulurken hata oluştu:", error);
       } finally {
         setLoading(false); // Bağlantı işlemi tamamlandı
       }
